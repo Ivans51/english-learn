@@ -1,3 +1,83 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Primary color scale */
+  --color-primary-50: #ededed;
+  --color-primary-100: #d6d6d6;
+  --color-primary-200: #bfbfbf;
+  --color-primary-300: #a8a8a8;
+  --color-primary-400: #919191;
+  --color-primary-500: #7a7a7a;
+  --color-primary-600: #636363;
+  --color-primary-700: #4d4d4d;
+  --color-primary-800: #363636;
+  --color-primary-900: #1f1f1f;
+  --color-primary-950: #0a0a0a;
+
+  /* Secondary color scale */
+  --color-secondary-50: #f2f2f2;
+  --color-secondary-100: #e0e0e0;
+  --color-secondary-200: #cdcdcd;
+  --color-secondary-300: #bababa;
+  --color-secondary-400: #a7a7a7;
+  --color-secondary-500: #949494;
+  --color-secondary-600: #818181;
+  --color-secondary-700: #6e6e6e;
+  --color-secondary-800: #5b5b5b;
+  --color-secondary-900: #424242;
+  --color-secondary-950: #262626;
+
+  /* Accent color scale */
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+  --color-accent-950: #451a03;
+
+  /* Override existing Tailwind colors */
+  --color-blue-500: #2563eb;
+  --color-green-500: #10b981;
+  --color-red-500: #ef4444;
+
+  /* Custom semantic colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* CSS Custom Properties for dynamic theming */
+  --theme-accent-hue: 38;
+
+  --color-accent-hsl: hsl(var(--theme-accent-hue) 92% 55%);
+
+  /* Dynamic color generation using CSS variables */
+  --color-accent-dynamic: hsl(var(--theme-accent-hue) var(--theme-saturation, 92%) var(--theme-lightness, 55%));
+
+  /* Alias colors for convenience */
+  --color-primary: var(--color-primary-950); /* #0a0a0a */
+  --color-primary-light: var(--color-primary-700); /* #4d4d4d */
+  --color-primary-dark: var(--color-primary-900); /* #1f1f1f */
+  --color-secondary: var(--color-secondary-950); /* #262626 */
+  --color-secondary-light: var(--color-secondary-700); /* #6e6e6e */
+  --color-secondary-dark: var(--color-secondary-900); /* #424242 */
+  --color-accent: var(--color-accent-500);
+  --color-accent-light: var(--color-accent-400);
+  --color-accent-dark: var(--color-accent-600);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Dynamic theme utilities */
+@layer utilities {
+  .theme-accent-override {
+    --theme-accent-hue: var(--override-hue, 38);
+    --theme-saturation: var(--override-saturation, 92%);
+    --theme-lightness: var(--override-lightness, 55%);
+  }
+}
