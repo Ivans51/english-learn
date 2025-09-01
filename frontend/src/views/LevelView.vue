@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
-    <main-header :levels="levels" :current-level="currentLevel" :is-logged-in="true" />
+    <main-header :current-level="currentLevel" @level-click="handleLevelClick" />
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -23,7 +23,7 @@
         <div
           v-for="topic in currentTopics"
           :key="topic.id"
-          class="bg-black dark:bg-black rounded-lg border border-white dark:border-primary-800 p-6 hover:shadow-lg transition-all cursor-pointer"
+          class="bg-white dark:bg-primary-950 rounded-lg border border-white dark:border-primary-800 p-6 hover:shadow-lg transition-all cursor-pointer"
           @click="openTopic(topic)"
         >
           <!-- Topic Header -->
@@ -94,11 +94,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 interface Topic {
   id: string
@@ -110,8 +111,18 @@ interface Topic {
   level: string
 }
 
-const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const currentLevel = ref(route.params.level as string || 'A1')
+
+const handleLevelClick = (level: string) => {
+  currentLevel.value = level
+  router.push({ name: 'level', params: { level } })
+}
+
+watch(() => route.params.level, (newLevel) => {
+  if (newLevel) {
+    currentLevel.value = newLevel as string
+  }
+})
 
 // Mock topics data
 const allTopics = ref<Topic[]>([
@@ -245,9 +256,4 @@ const openTopic = (topic: Topic) => {
   console.log('Opening topic:', topic)
   // router.push(`/topic/${topic.id}`)
 }
-
-onMounted(() => {
-  // Update current level when route changes
-  currentLevel.value = route.params.level as string || 'A1'
-})
 </script>

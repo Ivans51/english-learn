@@ -67,17 +67,6 @@ const levelsData = ref([
             Get Started - It's Free! 🚀
           </router-link>
         </div>
-
-        <!-- Quick Demo Access -->
-        <div class="mt-8 bg-primary-100 dark:bg-primary-900 rounded-lg p-6 max-w-md mx-auto transition-colors">
-          <h3 class="font-semibold text-primary-900 dark:text-primary-50 mb-2">Quick Demo Access:</h3>
-          <p class="text-sm text-primary-600 dark:text-primary-300 mb-2">
-            Click the "Get Started" button above and the login form will be pre-filled for easy testing!
-          </p>
-          <p class="text-xs text-primary-500 dark:text-primary-400">
-            Just click "Sign In" and you're in! 🎯
-          </p>
-        </div>
       </div>
 
       <!-- Level Cards -->

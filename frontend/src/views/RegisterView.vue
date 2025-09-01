@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="text-center">
         <span class="text-4xl">⭐</span>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-primary-900 dark:text-primary-50">
           Create your account
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-center text-sm text-primary-600 dark:text-primary-400">
           Or
-          <router-link to="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+          <router-link to="/login" class="font-medium text-accent-600 dark:text-accent-400 hover:text-accent-500 dark:hover:text-accent-300">
             sign in to your existing account
           </router-link>
         </p>
@@ -16,10 +16,10 @@
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div class="bg-white dark:bg-primary-900 py-8 px-4 shadow sm:rounded-lg sm:px-10 transition-colors">
         <form class="space-y-6" @submit.prevent="handleRegister">
           <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">
+            <label for="name" class="block text-sm font-medium text-primary-700 dark:text-primary-300">
               Full name
             </label>
             <div class="mt-1">
@@ -30,14 +30,14 @@
                 autocomplete="name"
                 required
                 v-model="form.name"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors"
                 placeholder="Enter your full name"
               />
             </div>
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
+            <label for="email" class="block text-sm font-medium text-primary-700 dark:text-primary-300">
               Email address
             </label>
             <div class="mt-1">
@@ -48,53 +48,77 @@
                 autocomplete="email"
                 required
                 v-model="form.email"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">
+            <label for="password" class="block text-sm font-medium text-primary-700 dark:text-primary-300">
               Password
             </label>
-            <div class="mt-1">
+            <div class="mt-1 relative rounded-md shadow-sm">
               <input
                 id="password"
                 name="password"
-                type="password"
+                :type="passwordFieldType"
                 autocomplete="new-password"
                 required
                 v-model="form.password"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors pr-10"
                 placeholder="Create a password"
               />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <button type="button" @click="togglePasswordVisibility" class="text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
+                  <svg v-if="passwordFieldType === 'password'" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064 7-9.542-7 .644 0 1.274.083 1.88.238M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-1 text-xs text-primary-500 dark:text-primary-400">
               Must be at least 8 characters long
             </p>
           </div>
 
           <div>
-            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+            <label for="confirmPassword" class="block text-sm font-medium text-primary-700 dark:text-primary-300">
               Confirm password
             </label>
-            <div class="mt-1">
+            <div class="mt-1 relative rounded-md shadow-sm">
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
+                :type="confirmPasswordFieldType"
                 autocomplete="new-password"
                 required
                 v-model="form.confirmPassword"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors pr-10"
                 placeholder="Confirm your password"
               />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <button type="button" @click="toggleConfirmPasswordVisibility" class="text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200">
+                  <svg v-if="confirmPasswordFieldType === 'password'" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064 7-9.542-7 .644 0 1.274.083 1.88.238M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
           <div>
-            <label for="level" class="block text-sm font-medium text-gray-700">
+            <label for="level" class="block text-sm font-medium text-primary-700 dark:text-primary-300">
               Current English Level
             </label>
             <div class="mt-1">
@@ -102,7 +126,7 @@
                 id="level"
                 name="level"
                 v-model="form.level"
-                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md shadow-sm focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50"
               >
                 <option value="">Select your level</option>
                 <option value="A1">A1 - Beginner</option>
@@ -122,13 +146,13 @@
               type="checkbox"
               required
               v-model="form.agreeTerms"
-              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              class="h-4 w-4 text-accent-600 focus:ring-accent-500 border-primary-300 dark:border-primary-600 rounded"
             />
-            <label for="agree-terms" class="ml-2 block text-sm text-gray-900">
+            <label for="agree-terms" class="ml-2 block text-sm text-primary-900 dark:text-primary-300">
               I agree to the
-              <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a>
+              <a href="#" class="text-accent-600 hover:text-accent-500">Terms of Service</a>
               and
-              <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+              <a href="#" class="text-accent-600 hover:text-accent-500">Privacy Policy</a>
             </label>
           </div>
 
@@ -136,7 +160,7 @@
             <button
               type="submit"
               :disabled="isLoading || !isFormValid"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span v-if="isLoading" class="flex items-center">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -153,17 +177,17 @@
         <div class="mt-6">
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300" />
+              <div class="w-full border-t border-primary-300 dark:border-primary-600" />
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-white text-gray-500">Or continue with</span>
+              <span class="px-2 bg-white dark:bg-primary-900 text-primary-500 dark:text-primary-400">Or continue with</span>
             </div>
           </div>
 
           <div class="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
-              class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              class="w-full inline-flex justify-center py-2 px-4 border border-primary-300 dark:border-primary-600 rounded-md shadow-sm bg-white dark:bg-primary-800 text-sm font-medium text-primary-500 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-700"
             >
               <svg class="h-5 w-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -176,7 +200,7 @@
 
             <button
               type="button"
-              class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              class="w-full inline-flex justify-center py-2 px-4 border border-primary-300 dark:border-primary-600 rounded-md shadow-sm bg-white dark:bg-primary-800 text-sm font-medium text-primary-500 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-700"
             >
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -196,6 +220,16 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const isLoading = ref(false)
+const passwordFieldType = ref('password')
+const confirmPasswordFieldType = ref('password')
+
+const togglePasswordVisibility = () => {
+  passwordFieldType.value = passwordFieldType.value === 'password' ? 'text' : 'password'
+}
+
+const toggleConfirmPasswordVisibility = () => {
+  confirmPasswordFieldType.value = confirmPasswordFieldType.value === 'password' ? 'text' : 'password'
+}
 
 const form = reactive({
   name: '',

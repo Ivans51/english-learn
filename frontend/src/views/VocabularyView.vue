@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
     <main-header
-      :levels="levels"
       :current-level="selectedLevel"
-      :is-logged-in="true"
       @level-click="handleLevelClick"
     />
 
@@ -220,12 +218,6 @@ const vocabularyWords = ref<VocabularyWord[]>([
     createdAt: new Date('2024-01-24')
   }
 ])
-
-const stats = computed(() => ({
-  totalWords: vocabularyWords.value.length,
-  masteredWords: vocabularyWords.value.filter(w => w.status === 'mastered').length,
-  learningWords: vocabularyWords.value.filter(w => w.status === 'learning').length
-}))
 
 const searchQuery = ref('')
 const selectedLevel = ref('')

@@ -1,18 +1,44 @@
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { getAuth, onAuthStateChanged, type User, signOut } from 'firebase/auth'
 import { useTheme } from '@/composables/useTheme'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 defineProps<{
-  levels?: string[]
   currentLevel?: string
-  isLoggedIn?: boolean
 }>()
 
 const emit = defineEmits(['level-click'])
 
 const { isDark, toggleTheme } = useTheme()
 
+const isLoggedIn = ref(false)
+const user = ref<User | null>(null)
+const userInitial = computed(() => {
+  return user.value?.email?.charAt(0).toUpperCase() || ''
+})
+
+const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+
+onMounted(() => {
+  const auth = getAuth()
+  onAuthStateChanged(auth, (firebaseUser) => {
+    isLoggedIn.value = !!firebaseUser
+    user.value = firebaseUser
+  })
+})
+
 const handleLevelClick = (level: string) => {
   emit('level-click', level)
+}
+
+const handleLogout = () => {
+  const auth = getAuth()
+  signOut(auth).then(() => {
+    router.push('/')
+  })
 }
 </script>
 
@@ -27,7 +53,7 @@ const handleLevelClick = (level: string) => {
           </router-link>
 
           <!-- Level buttons -->
-          <div v-if="levels" class="flex space-x-1">
+          <div class="flex space-x-1">
             <template v-if="$attrs['onLevel-click']">
               <button
                 v-for="level in levels"
@@ -95,8 +121,11 @@ const handleLevelClick = (level: string) => {
             <div
               class="w-8 h-8 bg-primary-900 dark:bg-primary-50 rounded-full flex items-center justify-center text-primary-50 dark:text-primary-950 text-sm font-medium transition-colors"
             >
-              DU
+              {{ userInitial }}
             </div>
+            <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+              Logout
+            </button>
           </template>
           <template v-else>
             <router-link
