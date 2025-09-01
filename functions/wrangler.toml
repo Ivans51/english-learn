@@ -1,0 +1,7 @@
+name = "english-learn-functions"
+main = "src/index.ts"
+compatibility_date = "2023-10-30"
+
+[env.development]
+account_id = ""
+workers_dev = true
