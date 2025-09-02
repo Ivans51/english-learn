@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MainHeader from '@/components/MainHeader.vue';
 import { ref } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 
 const levelsData = ref([
   {
@@ -40,6 +41,9 @@ const levelsData = ref([
     topicsAvailable: 1
   }
 ]);
+
+const { isAuthenticated } = useAuth();
+
 </script>
 
 <template>
@@ -57,14 +61,21 @@ const levelsData = ref([
           Master English step by step with our comprehensive learning platform.
           Choose your level and start your journey to fluency.
         </p>
-        <p class="mt-4 text-sm text-primary-400 dark:text-primary-500 transition-colors">
+        <p v-if="!isAuthenticated()" class="mt-4 text-sm text-primary-400 dark:text-primary-500 transition-colors">
           Sign in to save your progress and build your personal vocabulary collection
+        </p>
+        <p v-else class="mt-4 text-sm text-primary-400 dark:text-primary-500 transition-colors">
+          Keep up the great work and continue your journey to fluency!
         </p>
 
         <div class="mt-8">
-          <router-link to="/login"
+          <router-link v-if="!isAuthenticated()" to="/login"
             class="inline-block bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-md text-lg font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors">
             Get Started - It's Free! 🚀
+          </router-link>
+          <router-link v-else to="/levels"
+            class="inline-block bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-md text-lg font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors">
+            Go to Levels 📚
           </router-link>
         </div>
       </div>

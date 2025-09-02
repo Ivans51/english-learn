@@ -123,7 +123,7 @@ const handleLogout = () => {
             >
               {{ userInitial }}
             </div>
-            <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+            <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer">
               Logout
             </button>
           </template>

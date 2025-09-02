@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
+  <main class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
     <main-header
       :current-level="selectedLevel"
       @level-click="handleLevelClick"
     />
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex gap-8">
         <!-- Sidebar -->
         <div class="w-80 flex-shrink-0">
@@ -64,8 +64,8 @@
           </div>
 
           <!-- Add New Word Button -->
-          <button @click="showAddWordModal = true"
-            class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-3 px-4 rounded-md font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center">
+          <button @click="openAddWordModal"
+            class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-3 px-4 rounded-md font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
               </path>
@@ -110,7 +110,7 @@
 
                 <div class="flex items-center space-x-2 ml-4">
                   <button @click="toggleWordStatus(word)" :class="[
-                    'h-8 flex items-center justify-center px-3 text-sm font-medium rounded transition-colors border border-white dark:border-primary-800',
+                    'h-8 flex items-center justify-center px-3 text-sm font-medium rounded transition-colors border border-white dark:border-primary-800 cursor-pointer',
                     word.status === 'mastered'
                       ? 'bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700'
                       : 'bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700'
@@ -119,7 +119,8 @@
                   </button>
 
                   <button
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-primary-600 dark:hover:text-primary-300 rounded border border-white dark:border-primary-800">
+                    @click="openEditWordModal(word)"
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-primary-600 dark:hover:text-primary-300 rounded border border-white dark:border-primary-800 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
@@ -128,7 +129,7 @@
                   </button>
 
                   <button @click="deleteWord(word.id)"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-white dark:border-primary-800">
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-white dark:border-primary-800 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -152,8 +153,8 @@
               <p class="text-primary-500 dark:text-primary-400 mb-6">
                 Start building your personal vocabulary collection by adding new words.
               </p>
-              <button @click="showAddWordModal = true"
-                class="inline-flex items-center px-4 py-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors">
+              <button @click="openAddWordModal"
+                class="inline-flex items-center px-4 py-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors cursor-pointer">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
                   </path>
@@ -164,13 +165,25 @@
           </div>
         </div>
       </div>
-    </main>
-  </div>
-</template>
+    </div>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import MainHeader from '@/components/MainHeader.vue'
+    <!-- Add/Edit Word Modal -->
+    <WordModal
+      :isOpen="showAddWordModal"
+      :currentWord="wordToEdit"
+      @close="closeWordModal"
+      @add-word="addNewWord"
+      @update-word="updateWord"
+    />
+  </main>
+  </template>
+
+  <script setup lang="ts">
+  import { ref, computed } from 'vue'
+  import MainHeader from '@/components/MainHeader.vue'
+  import WordModal from '@/components/WordModal.vue'
+  import Swal from 'sweetalert2' // Import Swal for DismissReason
+  import { fireSwal } from '../utils/swalUtils'
 
 interface VocabularyWord {
   id: string
@@ -224,6 +237,7 @@ const selectedLevel = ref('')
 const filterLevel = ref('')
 const selectedStatus = ref('')
 const showAddWordModal = ref(false)
+const wordToEdit = ref<VocabularyWord | null>(null)
 
 const filteredWords = computed(() => {
   return vocabularyWords.value.filter(word => {
@@ -245,10 +259,20 @@ const toggleWordStatus = (word: VocabularyWord) => {
   word.status = word.status === 'mastered' ? 'learning' : 'mastered'
 }
 
-const deleteWord = (wordId: string) => {
-  const index = vocabularyWords.value.findIndex(w => w.id === wordId)
-  if (index > -1) {
-    vocabularyWords.value.splice(index, 1)
+const deleteWord = async (wordId: string) => {
+  const result = await fireSwal({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+  });
+
+  if (result.isConfirmed) {
+    const index = vocabularyWords.value.findIndex(w => w.id === wordId)
+    if (index > -1) {
+      vocabularyWords.value.splice(index, 1)
+    }
   }
 }
 
@@ -259,4 +283,32 @@ const formatDate = (date: Date) => {
     day: 'numeric'
   })
 }
+
+const openAddWordModal = () => {
+  wordToEdit.value = null; // Ensure no word is being edited
+  showAddWordModal.value = true;
+};
+
+const openEditWordModal = (word: VocabularyWord) => {
+  wordToEdit.value = word;
+  showAddWordModal.value = true;
+};
+
+const closeWordModal = () => {
+  showAddWordModal.value = false;
+  wordToEdit.value = null; // Clear the word being edited
+};
+
+const addNewWord = (word: VocabularyWord) => {
+  vocabularyWords.value.unshift(word)
+  closeWordModal() // Close modal after adding
+}
+
+const updateWord = (updatedWord: VocabularyWord) => {
+  const index = vocabularyWords.value.findIndex(w => w.id === updatedWord.id);
+  if (index !== -1) {
+    vocabularyWords.value[index] = updatedWord;
+  }
+  closeWordModal(); // Close modal after updating
+};
 </script>
