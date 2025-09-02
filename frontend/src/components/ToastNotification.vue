@@ -3,7 +3,7 @@
     <transition-group
       name="toast"
       tag="div"
-      class="fixed top-4 right-4 z-50 space-y-2"
+      class="fixed bottom-4 right-4 z-50 space-y-2"
     >
       <div
         v-for="toast in toasts"
@@ -109,10 +109,10 @@ const autoRemoveToast = (toast: Toast) => {
 
 const getToastClass = (type: Toast['type']): string => {
   const classes = {
-    success: 'bg-success-50 dark:bg-success-900 text-success-700 dark:text-success-200 border border-success-200 dark:border-success-700',
-    error: 'bg-error-50 dark:bg-error-900 text-error-700 dark:text-error-200 border border-error-200 dark:border-error-700',
-    warning: 'bg-warning-50 dark:bg-warning-900 text-warning-700 dark:text-warning-200 border border-warning-200 dark:border-warning-700',
-    info: 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200 border border-primary-200 dark:border-primary-700'
+    success: 'bg-black/80 text-white border border-success-500 backdrop-blur-sm',
+    error: 'bg-black/80 text-white border border-error-500 backdrop-blur-sm',
+    warning: 'bg-black/80 text-white border border-warning-500 backdrop-blur-sm',
+    info: 'bg-black/80 text-white border border-primary-500 backdrop-blur-sm'
   }
   return classes[type]
 }

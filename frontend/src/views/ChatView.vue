@@ -94,7 +94,7 @@
                 <div
                   v-html="highlightSelectableText(message.content)"
                   class="text-sm"
-                  @mouseup="handleTextSelection"
+                  @click="handleWordClick($event)"
                 ></div>
                 <div class="text-xs opacity-70 mt-1">{{ formatTime(message.timestamp) }}</div>
               </div>
@@ -283,7 +283,7 @@ const messagesContainer = ref<HTMLElement>()
 const showTooltip = ref(false)
 const tooltipPosition = ref({ x: 0, y: 0 })
 const selectedText = ref('')
-const selectedRange = ref<Range | null>(null)
+const preventTooltipClose = ref(false) // New flag to prevent immediate tooltip close
 
 // Toast notifications
 const toasts = ref<ToastType[]>([])
@@ -382,14 +382,13 @@ const highlightSelectableText = (content: string): string => {
   return content.replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>')
 }
 
-const handleTextSelection = () => {
-  const selection = window.getSelection()
-  if (selection && selection.toString().trim()) {
-    const range = selection.getRangeAt(0)
-    const rect = range.getBoundingClientRect()
+const handleWordClick = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  // Check if the clicked element is a selectable word
+  if (target && target.classList.contains('selectable-word') && target.textContent) {
+    const rect = target.getBoundingClientRect()
 
-    selectedText.value = selection.toString().trim()
-    selectedRange.value = range.cloneRange()
+    selectedText.value = target.textContent.trim()
 
     // Position tooltip
     tooltipPosition.value = {
@@ -398,16 +397,21 @@ const handleTextSelection = () => {
     }
 
     showTooltip.value = true
+    preventTooltipClose.value = true // Prevent immediate close
 
-    // Hide tooltip after 5 seconds or on next click
+    // Allow the global click listener to function after a short delay
     setTimeout(() => {
-      showTooltip.value = false
-    }, 5000)
+      preventTooltipClose.value = false
+    }, 100) // Short delay to let the current click event propagate
   }
 }
 
 // Hide tooltip on click outside
 document.addEventListener('click', (event) => {
+  if (preventTooltipClose.value) {
+    // If we just opened the tooltip, prevent this click from closing it
+    return;
+  }
   const target = event.target as HTMLElement
   if (showTooltip.value && !target.closest('.tooltip-content')) {
     showTooltip.value = false
@@ -446,7 +450,6 @@ const explainWord = async (word?: string) => {
   })
 
   // Clear selection
-  window.getSelection()?.removeAllRanges()
 }
 
 const generateWordDefinition = (word: string): string => {
@@ -496,7 +499,6 @@ const saveSelectedWord = (word?: string) => {
   activeTab.value = 'saved'
 
   // Clear selection
-  window.getSelection()?.removeAllRanges()
 }
 
 const saveWord = (word: string, definition: string) => {
@@ -558,7 +560,6 @@ const pronounceWord = (word?: string) => {
   }
 
   // Clear selection
-  window.getSelection()?.removeAllRanges()
 }
 
 const goBack = () => {
