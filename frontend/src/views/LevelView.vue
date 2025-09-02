@@ -252,8 +252,7 @@ const getLevelBadgeClass = (level: string) => {
 }
 
 const openTopic = (topic: Topic) => {
-  // For now, just log the topic - later we can navigate to a topic detail page
-  console.log('Opening topic:', topic)
-  // router.push(`/topic/${topic.id}`)
+  // Navigate to the chat view for this topic
+  router.push({ name: 'chat', params: { topicId: topic.id } })
 }
 </script>

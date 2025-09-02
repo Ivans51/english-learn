@@ -90,7 +90,7 @@ const handleLogout = () => {
         <div class="flex items-center space-x-4">
           <button
             @click="toggleTheme"
-            class="text-primary-500 hover:text-primary-700 dark:text-primary-50 dark:hover:text-primary-100 transition-colors"
+            class="text-primary-500 hover:text-primary-700 dark:text-primary-50 dark:hover:text-primary-100 transition-colors cursor-pointer"
             :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
           >
             <svg v-if="!isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
