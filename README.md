@@ -54,12 +54,40 @@ The frontend is built with:
 
 The backend uses:
 - Cloudflare Workers for serverless functions
+- Firebase Realtime Database for chat history storage
 - TypeScript for type safety
 - Wrangler for deployment
 
 ## API Endpoints
 
+### Chat API (Gemini AI Integration)
+- `POST /api/chat` - Send a message and get AI response
+- `GET /api/chat/history?topicId=X&userId=Y` - Get chat history for a topic and user
+- `DELETE /api/chat/clear` - Clear chat history for a specific topic and user
+
+### Utility
 - `GET /api/hello` - Test endpoint that returns a greeting message
+
+## Gemini AI Integration
+
+This application includes Google Gemini AI integration for conversational practice. The AI provides contextual responses based on the learning topic and maintains conversation history using Firebase Realtime Database.
+
+### Setup
+
+1. **Get Gemini API Key**: Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. **Configure Firebase**: Set up Firebase Realtime Database and authentication
+3. **Configure Backend**: Set environment variables for Firebase and Gemini
+4. **Environment Variables**: Configure frontend API URL
+
+See `FIREBASE_SETUP.md` for detailed setup instructions.
+
+### Features
+
+- **Contextual AI Responses**: AI adapts responses based on the learning topic
+- **Chat History Persistence**: Conversations stored in Firebase Realtime Database
+- **Real-time Capabilities**: Ready for real-time chat updates
+- **Error Handling**: Graceful fallback when AI service is unavailable
+- **User-Friendly Interface**: Clear history, typing indicators, and message timestamps
 
 ## Recommended IDE Setup
 

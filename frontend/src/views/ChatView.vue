@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors flex flex-col">
+  <div class="h-screen bg-primary-50 dark:bg-primary-950 transition-colors flex flex-col">
     <MainHeader :current-level="topic?.level" />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col h-full min-h-0">
       <!-- Chat Header -->
       <div class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -19,6 +19,17 @@
             <h1 class="text-lg font-semibold text-primary-900 dark:text-primary-50">{{ topic?.title }}</h1>
             <p class="text-sm text-primary-600 dark:text-primary-400">Conversational Practice</p>
           </div>
+
+          <!-- Clear History Button -->
+          <button
+            @click="clearChatHistory"
+            class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors"
+            title="Clear chat history"
+          >
+            <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
         </div>
 
         <!-- Right side tabs -->
@@ -65,16 +76,16 @@
         </div>
       </div>
 
-      <div class="flex-1 flex">
+      <div class="flex-1 flex min-h-0 h-full">
         <!-- Chat Section -->
         <div
           :class="[
-            'transition-all duration-300 flex flex-col',
+            'transition-all duration-300 flex flex-col min-h-0 h-full',
             activeTab === 'chat' ? 'flex-1' : 'w-2/3'
           ]"
         >
           <!-- Messages Area -->
-          <div class="flex-1 overflow-y-auto p-6 space-y-4" ref="messagesContainer">
+          <div class="flex-1 overflow-y-auto min-h-0 h-full p-6 space-y-4" ref="messagesContainer">
             <div
               v-for="message in messages"
               :key="message.id"
@@ -230,14 +241,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import WordTooltip from '@/components/WordTooltip.vue'
 import ToastNotification, { type Toast as ToastType } from '@/components/ToastNotification.vue'
+import { chatService, type ChatMessage as APIChatMessage } from '@/services/chatService'
+import { useAuth } from '@/composables/useAuth' // Import useAuth composable
 
 const route = useRoute()
 const router = useRouter()
+const { user: firebaseUser, loading: authLoading } = useAuth() // Use the useAuth composable
 
 interface Topic {
   id: string
@@ -300,71 +314,168 @@ const topic = ref<Topic>({
   level: 'A1'
 })
 
-// Initialize chat
-onMounted(() => {
-  initializeChat()
-})
+// User ID for chat history (in production, this would come from authentication)
+const userId = ref('anonymous') // Will store Firebase UID or 'anonymous'
 
-const initializeChat = () => {
-  // Add initial AI message
-  messages.value = [
-    {
-      id: '1',
-      content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
-      sender: 'ai',
-      timestamp: new Date()
+// Watch for changes in the firebaseUser (from useAuth)
+watch(firebaseUser, async (newUser) => {
+  if (newUser) {
+    userId.value = newUser.uid
+  } else {
+    userId.value = 'anonymous'
+  }
+  // Initialize chat or reload history when userId changes
+  if (!authLoading.value) { // Only initialize if authentication state is resolved
+    await initializeChat()
+  }
+}, { immediate: true }) // Run immediately to catch initial auth state
+
+// Initialize chat
+const initializeChat = async () => {
+  // Load chat history only if userId is available (from onAuthStateChanged)
+  // The onMounted hook ensures initializeChat is called AFTER userId is set.
+  if (userId.value && userId.value !== 'anonymous') { // Ensure userId is actually set (not just initial anonymous)
+    await loadChatHistory()
+
+    // If no history exists, add initial AI message
+    if (messages.value.length === 0) {
+      messages.value = [
+        {
+          id: '1',
+          content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+          sender: 'ai',
+          timestamp: new Date()
+        }
+      ]
     }
-  ]
+  } else if (!authLoading.value && messages.value.length === 0) {
+    // If auth is resolved and no user, but chat is empty, show initial message
+    messages.value = [
+      {
+        id: '1',
+        content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+        sender: 'ai',
+        timestamp: new Date()
+      }
+    ]
+  }
+}
+
+const loadChatHistory = async () => {
+  try {
+    const data = await chatService.getChatHistory(topic.value.id, userId.value)
+
+    if (data.messages && data.messages.length > 0) {
+      messages.value = data.messages.map((msg: APIChatMessage) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }))
+
+      // Scroll to bottom after loading history
+      await nextTick()
+      scrollToBottom()
+    }
+  } catch (error) {
+    console.error('Failed to load chat history:', error)
+    // Continue with empty chat if history fails to load
+  }
 }
 
 const sendMessage = async () => {
   if (!newMessage.value.trim()) return
 
+  const messageContent = newMessage.value.trim()
+  newMessage.value = ''
+
   // Add user message
   const userMessage: Message = {
     id: Date.now().toString(),
-    content: newMessage.value,
+    content: messageContent,
     sender: 'user',
     timestamp: new Date()
   }
   messages.value.push(userMessage)
 
-  newMessage.value = ''
-
   // Scroll to bottom
   await nextTick()
   scrollToBottom()
 
-  // Simulate AI typing
+  // Show AI typing indicator
   isTyping.value = true
 
-  // Simulate AI response (in real app, this would be an API call)
-  setTimeout(() => {
+  try {
+    // Call the API using the chat service
+    const data = await chatService.sendMessage({
+      message: messageContent,
+      topicId: topic.value.id,
+      userId: userId.value
+    })
+
+    const aiResponse: Message = {
+      id: data.messageId,
+      content: data.message,
+      sender: 'ai',
+      timestamp: new Date(data.timestamp)
+    }
+
     isTyping.value = false
+    messages.value.push(aiResponse)
+    await nextTick()
+    scrollToBottom()
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    isTyping.value = false
+
+    // Fallback to mock response
     const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
-      content: generateAIResponse(),
+      content: "I apologize, but I'm having trouble connecting to the server right now. Please try again in a moment.",
       sender: 'ai',
       timestamp: new Date()
     }
     messages.value.push(aiResponse)
-    nextTick().then(scrollToBottom)
-  }, 1000 + Math.random() * 2000)
+    await nextTick()
+    scrollToBottom()
+
+    // Show error toast
+    toastComponent.value?.addToast({
+      message: 'Connection error. Please check your internet connection.',
+      type: 'error',
+      duration: 5000
+    })
+  }
 }
 
-const generateAIResponse = (): string => {
-  // Simple mock AI responses based on topic
-  const responses = [
-    "That's a great way to put it! Let me ask you - how would you introduce yourself to someone new at work?",
-    "Excellent progress! I noticed you used some interesting vocabulary. Can you tell me more about that?",
-    "I understand what you're saying. In English, we might also say it like this: [example]. What do you think?",
-    "Very good! You're getting more comfortable with this topic. Let's try a different scenario...",
-    "That's exactly right! Your confidence is really showing. How about we practice with a more formal situation?",
-    "Great question! The word you used there has a subtle difference in meaning. Would you like me to explain?",
-    "Perfect! You're using the vocabulary naturally now. Let's challenge ourselves with a roleplay scenario.",
-    "I love your enthusiasm! Your pronunciation and grammar are improving. Keep it up!"
-  ]
-  return responses[Math.floor(Math.random() * responses.length)]
+const clearChatHistory = async () => {
+  try {
+    await chatService.clearChatHistory(topic.value.id, userId.value)
+
+    // Reset local messages to initial state
+    messages.value = [
+      {
+        id: '1',
+        content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+        sender: 'ai',
+        timestamp: new Date()
+      }
+    ]
+
+    // Show success toast
+    toastComponent.value?.addToast({
+      message: 'Chat history cleared successfully!',
+      type: 'success',
+      duration: 3000
+    })
+  } catch (error) {
+    console.error('Failed to clear chat history:', error)
+
+    // Show error toast
+    toastComponent.value?.addToast({
+      message: 'Failed to clear chat history. Please try again.',
+      type: 'error',
+      duration: 4000
+    })
+  }
 }
 
 const scrollToBottom = () => {

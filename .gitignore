@@ -29,4 +29,7 @@ coverage
 
 *.tsbuildinfo
 
-functions/.wrangler/
+# Cloudflare
+.wrangler
+functions/.wrangler
+functions/.dev.vars

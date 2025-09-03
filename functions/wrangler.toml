@@ -2,6 +2,23 @@ name = "english-learn-functions"
 main = "src/index.ts"
 compatibility_date = "2023-10-30"
 
+[vars]
 [env.development]
-account_id = ""
+# account_id = "" # Removed as it's an empty string and not needed for `wrangler dev`
 workers_dev = true
+
+[env.development.vars] # Define development-specific variables here
+# Development environment variables - set these using wrangler secrets for security:
+# wrangler secret put FIREBASE_PROJECT_ID --env development
+# wrangler secret put FIREBASE_DATABASE_URL --env development
+# wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY --env development
+# wrangler secret put GEMINI_API_KEY --env development
+
+
+[env.production]
+account_id = "" # Keep this for production deployment
+# Production environment variables - set these using wrangler secrets for security:
+# wrangler secret put FIREBASE_PROJECT_ID --env production
+# wrangler secret put FIREBASE_DATABASE_URL --env production
+# wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY --env production
+# wrangler secret put GEMINI_API_KEY --env production
