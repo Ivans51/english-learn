@@ -55,11 +55,6 @@ const router = createRouter({
 
 // Navigation guard to check authentication state
 router.beforeEach(async (to, from, next) => {
-  // Ignore api paths
-  if (to.path.startsWith('/api')) {
-    window.location.href = to.fullPath
-    return
-  }
   const auth = getAuth()
 
   // Wait for auth state to be determined
