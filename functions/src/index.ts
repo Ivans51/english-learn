@@ -85,6 +85,61 @@ interface CreateVocabularyWordRequest {
   userId?: string;
 }
 
+
+interface ExplainRequest {
+  word: string;
+}
+
+async function handleExplainWordRequest(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: ExplainRequest = await request.json();
+    const { word } = body;
+
+    if (!word) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: word' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'content-type': 'application/json' }
+        }
+      );
+    }
+
+    const explanationPrompt = generateExplanationPrompt(word);
+    const geminiResponse = await callGeminiAPI(explanationPrompt, env.GEMINI_API_KEY);
+
+    if (!geminiResponse) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate explanation' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'content-type': 'application/json' }
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ definition: geminiResponse }),
+      {
+        headers: { ...corsHeaders, 'content-type': 'application/json' }
+      }
+    );
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: 'Invalid request body' }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'content-type': 'application/json' }
+      }
+    );
+  }
+}
+
 async function handleChatRequest(
   request: Request,
   env: Env,
@@ -253,6 +308,10 @@ async function callGeminiAPI(prompt: string, apiKey: string): Promise<string | n
     console.error('Error calling Gemini API:', error);
     return null;
   }
+}
+
+function generateExplanationPrompt(word: string): string {
+  return `Please provide a simple definition for the English word "${word}" and one example sentence. The definition should be easy for an English learner to understand. Respond in JSON format with two keys: "definition" and "example". For example: { "definition": "...", "example": "..." }.`;
 }
 
 function generateContextualPrompt(topicId: string, userMessage: string, topicTitle?: string): string {
@@ -890,6 +949,11 @@ async function handleApiRequest(
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
+
+  // Explain word endpoint
+  if (url.pathname === '/api/explain' && request.method === 'POST') {
+    return handleExplainWordRequest(request, env, corsHeaders);
+  }
 
   // Chat endpoint
   if (url.pathname === '/api/chat' && request.method === 'POST') {

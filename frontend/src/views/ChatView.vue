@@ -181,6 +181,7 @@
                   </button>
                 </div>
                 <p class="text-sm text-primary-700 dark:text-primary-300 mb-2">{{ explanation.definition }}</p>
+                <p v-if="explanation.example" class="text-sm text-primary-600 dark:text-primary-400 italic">"{{ explanation.example }}"</p>
                 <div class="text-xs text-primary-500 dark:text-primary-400">{{ formatTime(explanation.timestamp) }}</div>
               </div>
             </div>
@@ -267,6 +268,7 @@ interface WordExplanation {
   id: string
   word: string
   definition: string
+  example?: string
   timestamp: string
 }
 
@@ -579,41 +581,36 @@ const explainWord = async (word?: string) => {
     return
   }
 
-  // Mock explanation (in real app, this would be an API call)
-  const explanation: WordExplanation = {
-    id: Date.now().toString(),
-    word: wordToExplain,
-    definition: generateWordDefinition(wordToExplain),
-    timestamp: new Date().toISOString()
+  try {
+    const response = await chatService.explainWord(wordToExplain);
+    const cleanedString = response.definition.replace(/```json\n|\n```/g, '');
+    const parsedDefinition = JSON.parse(cleanedString);
+
+    const explanation: WordExplanation = {
+      id: Date.now().toString(),
+      word: wordToExplain,
+      definition: parsedDefinition.definition,
+      example: parsedDefinition.example,
+      timestamp: new Date().toISOString()
+    }
+
+    explanations.value.unshift(explanation)
+    activeTab.value = 'explanations'
+
+    // Show success toast
+    toastComponent.value?.addToast({
+      message: `"${wordToExplain}" explained successfully!`,
+      type: 'success',
+      duration: 3000
+    })
+  } catch (error) {
+    console.error('Failed to explain word:', error);
+    toastComponent.value?.addToast({
+      message: `Failed to explain "${wordToExplain}". Please try again.`,
+      type: 'error',
+      duration: 4000
+    })
   }
-
-  explanations.value.unshift(explanation)
-  activeTab.value = 'explanations'
-
-  // Show success toast
-  toastComponent.value?.addToast({
-    message: `"${wordToExplain}" explained successfully!`,
-    type: 'success',
-    duration: 3000
-  })
-
-  // Clear selection
-}
-
-const generateWordDefinition = (word: string): string => {
-  // Mock definitions (in real app, this would come from a dictionary API)
-  const definitions: Record<string, string> = {
-    'hello': 'A greeting used when meeting someone or starting a conversation.',
-    'practice': 'To do something repeatedly in order to improve your skill.',
-    'conversation': 'A talk between two or more people where ideas and information are exchanged.',
-    'vocabulary': 'All the words used by a particular person or in a particular language.',
-    'excellent': 'Extremely good; of very high quality.',
-    'progress': 'Forward movement or development toward a goal.',
-    'introduce': 'To present someone by name to another person so they can get to know each other.',
-    'confidence': 'The feeling of being certain about your abilities or having trust in yourself.'
-  }
-
-  return definitions[word.toLowerCase()] || `A word commonly used in English conversations. Practice using "${word}" in different contexts to improve your fluency.`
 }
 
 const saveSelectedWord = async (word?: string) => {
@@ -635,11 +632,14 @@ const saveSelectedWord = async (word?: string) => {
   }
 
   try {
-    const definition = generateWordDefinition(wordToSave) // Use local generation for now
+    const response = await chatService.explainWord(wordToSave);
+    const cleanedString = response.definition.replace(/```json\n|\n```/g, '');
+    const parsedDefinition = JSON.parse(cleanedString);
+
     const newVocabularyWord = await vocabularyWordsService.createWord({
       word: wordToSave,
-      definition,
-      example: `Example usage of "${wordToSave}" in conversation.`,
+      definition: parsedDefinition.definition,
+      example: parsedDefinition.example || `Example usage of "${wordToSave}" in conversation.`,
       level: 'B1',
       status: 'learning',
       category: 'Chat Words',
