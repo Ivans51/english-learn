@@ -4,9 +4,17 @@ interface SweetAlertOptions {
   title?: string;
   text?: string;
   icon?: SweetAlertIcon;
-
+  confirmButtonText?: string;
+  cancelButtonText?: string;
   showCancelButton?: boolean;
   reverseButtons?: boolean;
+  customClass?: {
+    popup?: string;
+    title?: string;
+    htmlContainer?: string;
+    confirmButton?: string;
+    cancelButton?: string;
+  };
   // Add any other SweetAlertOptions you commonly use
 }
 
