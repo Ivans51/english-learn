@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-primary-50 dark:bg-primary-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="text-center">
-        <span class="text-4xl">⭐</span>
+        <img src="../resources/images/logo.png" alt="English Learning Logo" class="h-24 mx-auto bg-white p-2 rounded" />
         <h2 class="mt-6 text-center text-3xl font-extrabold text-primary-900 dark:text-primary-50">
           Sign in to your account
         </h2>
@@ -164,8 +164,8 @@ const togglePasswordVisibility = () => {
 }
 
 const form = reactive({
-  email: 'demo@englishlearn.com',
-  password: 'demo123',
+  email: '',
+  password: '',
   rememberMe: false
 })
 
