@@ -64,14 +64,17 @@
           </div>
 
           <!-- Add New Word Button -->
-          <button @click="openAddWordModal"
-            class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-3 px-4 rounded-md font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-              </path>
-            </svg>
-            Add New Word
-          </button>
+          <div class="space-y-3">
+            <button @click="openAddWordModal"
+              class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-3 px-4 rounded-md font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+              </svg>
+              Add New Word
+            </button>
+
+          </div>
         </div>
 
         <!-- Main Content Area -->
@@ -80,8 +83,14 @@
             <h2 class="text-lg font-medium text-primary-900 dark:text-primary-50 mb-1">{{ filteredWords.length }} words</h2>
           </div>
 
+          <!-- Loading Indicator -->
+          <div v-if="isLoading" class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 dark:border-primary-400"></div>
+            <span class="ml-3 text-primary-600 dark:text-primary-400">Loading vocabulary...</span>
+          </div>
+
           <!-- Vocabulary List -->
-          <div class="space-y-4">
+          <div v-else class="space-y-4">
             <div v-for="word in filteredWords" :key="word.id"
               class="bg-black dark:bg-black rounded-lg border border-primary-200 dark:border-primary-700 p-6 hover:shadow-md transition-all">
               <div class="flex items-start justify-between">
@@ -109,13 +118,12 @@
                 </div>
 
                 <div class="flex items-center space-x-2 ml-4">
-                  <button @click="toggleWordStatus(word)" :class="[
-                    'h-8 flex items-center justify-center px-3 text-sm font-medium rounded transition-colors border border-white dark:border-primary-800 cursor-pointer',
-                    word.status === 'mastered'
-                      ? 'bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700'
-                      : 'bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700'
-                  ]">
-                    {{ word.status === 'mastered' ? 'Mark as Learning' : 'Mark as Mastered' }}
+
+
+                  <button
+                    @click="toggleWordStatus(word)"
+                    :class="getStatusButtonClass(word)">
+                    {{ getStatusButtonText(word) }}
                   </button>
 
                   <button
@@ -141,7 +149,7 @@
             </div>
 
             <!-- Empty State -->
-            <div v-if="filteredWords.length === 0" class="text-center py-12">
+            <div v-if="filteredWords.length === 0 && !isLoading" class="text-center py-12">
               <div class="mx-auto h-24 w-24 text-primary-400 dark:text-primary-500 mb-4">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
@@ -176,61 +184,23 @@
       @update-word="updateWord"
     />
   </main>
-  </template>
+</template>
 
-  <script setup lang="ts">
-  import { ref, computed } from 'vue'
-  import MainHeader from '@/components/MainHeader.vue'
-  import WordModal from '@/components/WordModal.vue'
-  import Swal from 'sweetalert2' // Import Swal for DismissReason
-  import { fireSwal } from '../utils/swalUtils'
-
-interface VocabularyWord {
-  id: string
-  word: string
-  definition: string
-  example: string
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
-  status: 'learning' | 'mastered'
-  category: string
-  createdAt: Date
-}
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
+import MainHeader from '@/components/MainHeader.vue'
+import WordModal from '@/components/WordModal.vue'
+import { fireSwal } from '../utils/swalUtils'
+import { vocabularyWordsService } from '@/services/vocabularyService'
+import { useAuth } from '@/composables/useAuth'
+import type { VocabularyWord } from '@/types'
 
 const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
-// Mock data with sample words
-const vocabularyWords = ref<VocabularyWord[]>([
-  {
-    id: '1',
-    word: 'Amazing',
-    definition: 'causing great surprise or wonder; extraordinary',
-    example: 'The view from the mountain was absolutely amazing.',
-    level: 'B1',
-    status: 'learning',
-    category: 'Adjectives',
-    createdAt: new Date('2024-01-14')
-  },
-  {
-    id: '2',
-    word: 'Brilliant',
-    definition: 'exceptionally clever or talented',
-    example: 'She came up with a brilliant solution to the problem.',
-    level: 'B2',
-    status: 'mastered',
-    category: 'Describing People',
-    createdAt: new Date('2024-01-15')
-  },
-  {
-    id: '3',
-    word: 'Sophisticated',
-    definition: 'having great knowledge or experience',
-    example: 'The restaurant has a sophisticated atmosphere.',
-    level: 'C1',
-    status: 'learning',
-    category: 'Advanced Vocabulary',
-    createdAt: new Date('2024-01-24')
-  }
-])
+const { user: firebaseUser, loading: authLoading } = useAuth()
+const userId = ref('anonymous')
+const vocabularyWords = ref<VocabularyWord[]>([])
+const isLoading = ref(false)
 
 const searchQuery = ref('')
 const selectedLevel = ref('')
@@ -239,10 +209,26 @@ const selectedStatus = ref('')
 const showAddWordModal = ref(false)
 const wordToEdit = ref<VocabularyWord | null>(null)
 
+// Watch for changes in the firebaseUser
+watch(firebaseUser, async (newUser) => {
+  if (newUser) {
+    userId.value = newUser.uid
+  } else {
+    userId.value = 'anonymous'
+  }
+  // Reload words when user changes
+  if (!authLoading.value) {
+    await loadWordsFromFirebase()
+  }
+}, { immediate: true })
+
 const filteredWords = computed(() => {
   return vocabularyWords.value.filter(word => {
-    const matchesSearch = word.word.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      word.definition.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const q = searchQuery.value.trim().toLowerCase()
+    const matchesSearch =
+      q === '' ||
+      word.word.toLowerCase().includes(q) ||
+      word.definition.toLowerCase().includes(q)
     const matchesHeaderLevel = !selectedLevel.value || word.level === selectedLevel.value
     const matchesFilterLevel = !filterLevel.value || word.level === filterLevel.value
     const matchesStatus = !selectedStatus.value || word.status === selectedStatus.value
@@ -255,8 +241,28 @@ const handleLevelClick = (level: string) => {
   selectedLevel.value = selectedLevel.value === level ? '' : level
 }
 
-const toggleWordStatus = (word: VocabularyWord) => {
-  word.status = word.status === 'mastered' ? 'learning' : 'mastered'
+
+
+/**
+ * Returns a fully-typed class string for the status button.
+ * Centralizing this logic avoids complex inline template expressions.
+ */
+function getStatusButtonClass(word: VocabularyWord): string {
+  const base =
+    'h-8 flex items-center justify-center px-3 text-sm font-medium rounded transition-colors border border-white dark:border-primary-800 cursor-pointer'
+  // Example extension: change styles based on status. Keep it typed and explicit.
+  if (word.status === 'mastered') {
+    return `${base} bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700`
+  } else {
+    return `${base} bg-black dark:bg-black text-white dark:text-white hover:bg-primary-800 dark:hover:bg-primary-700`
+  }
+}
+
+/**
+ * Separated text logic for clarity and easier testing.
+ */
+function getStatusButtonText(word: VocabularyWord): string {
+  return word.status === 'mastered' ? 'Mark as Learning' : 'Mark as Mastered'
 }
 
 const deleteWord = async (wordId: string) => {
@@ -269,14 +275,25 @@ const deleteWord = async (wordId: string) => {
   });
 
   if (result.isConfirmed) {
-    const index = vocabularyWords.value.findIndex(w => w.id === wordId)
-    if (index > -1) {
-      vocabularyWords.value.splice(index, 1)
+    try {
+      await vocabularyWordsService.deleteWord(wordId, userId.value)
+      const index = vocabularyWords.value.findIndex(w => w.id === wordId)
+      if (index > -1) {
+        vocabularyWords.value.splice(index, 1)
+      }
+    } catch (error) {
+      console.error('Error deleting word:', error)
+      await fireSwal({
+        title: 'Error',
+        text: 'Failed to delete word. Please try again.',
+        icon: 'error',
+      })
     }
   }
 }
 
-const formatDate = (date: Date) => {
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
   return date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -285,30 +302,105 @@ const formatDate = (date: Date) => {
 }
 
 const openAddWordModal = () => {
-  wordToEdit.value = null; // Ensure no word is being edited
-  showAddWordModal.value = true;
-};
-
-const openEditWordModal = (word: VocabularyWord) => {
-  wordToEdit.value = word;
-  showAddWordModal.value = true;
-};
-
-const closeWordModal = () => {
-  showAddWordModal.value = false;
-  wordToEdit.value = null; // Clear the word being edited
-};
-
-const addNewWord = (word: VocabularyWord) => {
-  vocabularyWords.value.unshift(word)
-  closeWordModal() // Close modal after adding
+  wordToEdit.value = null // Ensure no word is being edited
+  showAddWordModal.value = true
 }
 
-const updateWord = (updatedWord: VocabularyWord) => {
-  const index = vocabularyWords.value.findIndex(w => w.id === updatedWord.id);
-  if (index !== -1) {
-    vocabularyWords.value[index] = updatedWord;
+const openEditWordModal = (word: VocabularyWord) => {
+  wordToEdit.value = { ...word } // clone to avoid direct mutation while editing
+  showAddWordModal.value = true
+}
+
+const closeWordModal = () => {
+  showAddWordModal.value = false
+  wordToEdit.value = null
+}
+
+const addNewWord = async (word: VocabularyWord) => {
+  try {
+    const newWord = await vocabularyWordsService.createWord({
+      word: word.word,
+      definition: word.definition,
+      example: word.example,
+      level: word.level,
+      status: word.status,
+      category: word.category,
+      userId: userId.value
+    }, userId.value)
+    vocabularyWords.value.unshift(newWord)
+    closeWordModal()
+  } catch (error) {
+    console.error('Error creating vocabulary word:', error)
+    await fireSwal({
+      title: 'Error',
+      text: 'Failed to create word. Please try again.',
+      icon: 'error',
+    })
   }
-  closeWordModal(); // Close modal after updating
-};
+}
+
+const updateWord = async (updatedWord: VocabularyWord) => {
+  try {
+    const updated = await vocabularyWordsService.updateWord(updatedWord.id, updatedWord, userId.value)
+    const index = vocabularyWords.value.findIndex(w => w.id === updatedWord.id)
+    if (index !== -1) {
+      vocabularyWords.value[index] = updated
+    }
+    closeWordModal()
+  } catch (error) {
+    console.error('Error updating vocabulary word:', error)
+    await fireSwal({
+      title: 'Error',
+      text: 'Failed to update word. Please try again.',
+      icon: 'error',
+    })
+  }
+}
+
+const toggleWordStatus = async (word: VocabularyWord) => {
+  try {
+    const newStatus = word.status === 'mastered' ? 'learning' : 'mastered'
+    await vocabularyWordsService.updateWord(word.id, { status: newStatus }, userId.value)
+    word.status = newStatus
+  } catch (error) {
+    console.error('Error updating word status:', error)
+    await fireSwal({
+      title: 'Error',
+      text: 'Failed to update word status. Please try again.',
+      icon: 'error',
+    })
+  }
+}
+
+const loadWordsFromFirebase = async () => {
+  try {
+    isLoading.value = true
+    const firebaseWords = await vocabularyWordsService.getWords(userId.value)
+    vocabularyWords.value = firebaseWords || []
+  } catch (error) {
+    console.error('Error loading words from Firebase:', error)
+    vocabularyWords.value = []
+    await fireSwal({
+      title: 'Error',
+      text: 'Failed to load words from Firebase. Please try again.',
+      icon: 'error',
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  // Wait for auth to resolve before loading words
+  if (!authLoading.value) {
+    await loadWordsFromFirebase()
+  }
+})
+
+// Watch for auth loading to complete
+watch(authLoading, async (loading) => {
+  if (!loading) {
+    await loadWordsFromFirebase()
+  }
+})
 </script>

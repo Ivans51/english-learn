@@ -68,9 +68,9 @@
                 : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
             ]"
           >
-            Saved Words
-            <span v-if="savedWords.length > 0" class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {{ savedWords.length }}
+            Vocabulary
+            <span v-if="vocabularyWords.length > 0" class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {{ vocabularyWords.length }}
             </span>
           </button>
         </div>
@@ -186,29 +186,29 @@
             </div>
           </div>
 
-          <!-- Saved Words Tab -->
+          <!-- Vocabulary Words Tab -->
           <div v-if="activeTab === 'saved'" class="flex-1 overflow-y-auto p-6">
-            <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4">Saved Words</h3>
-            <div v-if="savedWords.length === 0" class="text-center py-8">
+            <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4">Vocabulary Words</h3>
+            <div v-if="vocabularyWords.length === 0" class="text-center py-8">
               <div class="text-primary-400 dark:text-primary-500 mb-2">
                 <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                 </svg>
               </div>
-              <p class="text-primary-600 dark:text-primary-400 text-sm">No saved words yet</p>
+              <p class="text-primary-600 dark:text-primary-400 text-sm">No vocabulary words yet</p>
             </div>
             <div class="space-y-3">
               <div
-                v-for="word in savedWords"
+                v-for="word in vocabularyWords"
                 :key="word.id"
                 class="bg-primary-50 dark:bg-primary-800 rounded-lg p-3"
               >
                 <div class="flex items-center justify-between mb-1">
                   <h4 class="font-medium text-primary-900 dark:text-primary-100">{{ word.word }}</h4>
                   <button
-                    @click="removeSavedWord(word.id)"
+                    @click="removeVocabularyWord(word.id)"
                     class="text-error-500 hover:text-error-700 dark:hover:text-error-400"
-                    title="Remove from saved words"
+                    title="Remove from vocabulary"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -216,7 +216,7 @@
                   </button>
                 </div>
                 <p class="text-sm text-primary-700 dark:text-primary-300 mb-1">{{ word.definition }}</p>
-                <div class="text-xs text-primary-500 dark:text-primary-400">Saved {{ formatTime(word.timestamp) }}</div>
+                <div class="text-xs text-primary-500 dark:text-primary-400">Added {{ formatTime(word.createdAt) }}</div>
               </div>
             </div>
           </div>
@@ -241,27 +241,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import WordTooltip from '@/components/WordTooltip.vue'
 import ToastNotification, { type Toast as ToastType } from '@/components/ToastNotification.vue'
 import { chatService, type ChatMessage as APIChatMessage } from '@/services/chatService'
-import { useAuth } from '@/composables/useAuth' // Import useAuth composable
+import { vocabularyWordsService } from '@/services/vocabularyService'
+import { topicService, type Topic } from '@/services/topicService'
+import type { VocabularyWord } from '@/types'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
 const { user: firebaseUser, loading: authLoading } = useAuth() // Use the useAuth composable
-
-interface Topic {
-  id: string
-  title: string
-  description: string
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  duration: number
-  tags: string[]
-  level: string
-}
 
 interface Message {
   id: string
@@ -274,15 +267,10 @@ interface WordExplanation {
   id: string
   word: string
   definition: string
-  timestamp: Date
+  timestamp: string
 }
 
-interface SavedWord {
-  id: string
-  word: string
-  definition: string
-  timestamp: Date
-}
+
 
 // Reactive data
 const activeTab = ref<'chat' | 'explanations' | 'saved'>('chat')
@@ -290,7 +278,7 @@ const messages = ref<Message[]>([])
 const newMessage = ref('')
 const isTyping = ref(false)
 const explanations = ref<WordExplanation[]>([])
-const savedWords = ref<SavedWord[]>([])
+const vocabularyWords = ref<VocabularyWord[]>([])
 const messagesContainer = ref<HTMLElement>()
 
 // Word selection tooltip
@@ -304,19 +292,13 @@ const toasts = ref<ToastType[]>([])
 const toastComponent = ref<InstanceType<typeof ToastNotification>>()
 
 // Mock topic data (in real app, this would come from props or API)
-const topic = ref<Topic>({
-  id: route.params.topicId as string || '1',
-  title: 'Greetings and Introductions',
-  description: 'Learn how to greet people and introduce yourself in various situations.',
-  difficulty: 'Easy',
-  duration: 15,
-  tags: ['basics', 'conversation', 'social'],
-  level: 'A1'
-})
+// Reactive data for the current topic
+const topic = ref<Topic | null>(null)
 
 // User ID for chat history (in production, this would come from authentication)
-const userId = ref('anonymous') // Will store Firebase UID or 'anonymous'
+const userId = ref('anonymous')
 
+// Watch for changes in the firebaseUser (from useAuth)
 // Watch for changes in the firebaseUser (from useAuth)
 watch(firebaseUser, async (newUser) => {
   if (newUser) {
@@ -324,36 +306,69 @@ watch(firebaseUser, async (newUser) => {
   } else {
     userId.value = 'anonymous'
   }
-  // Initialize chat or reload history when userId changes
-  if (!authLoading.value) { // Only initialize if authentication state is resolved
-    await initializeChat()
-  }
 }, { immediate: true }) // Run immediately to catch initial auth state
 
-// Initialize chat
-const initializeChat = async () => {
-  // Load chat history only if userId is available (from onAuthStateChanged)
-  // The onMounted hook ensures initializeChat is called AFTER userId is set.
-  if (userId.value && userId.value !== 'anonymous') { // Ensure userId is actually set (not just initial anonymous)
-    await loadChatHistory()
+const fetchTopic = async () => {
+  const topicId = route.params.topicId as string
+  if (!topicId) {
+    console.error('Topic ID is missing from route params.')
+    router.push({ name: 'levels' }) // Redirect to levels page if no topicId
+    return
+  }
 
+  try {
+    const fetchedTopic = await topicService.getTopicById(topicId)
+    topic.value = fetchedTopic
+  } catch (error) {
+    console.error('Failed to fetch topic:', error)
+    toastComponent.value?.addToast({
+      message: 'Failed to load topic. Please try again.',
+      type: 'error',
+      duration: 5000
+    })
+    router.push({ name: 'levels' }) // Redirect if topic not found or error
+  }
+}
+
+// Watch for topic and auth state to initialize chat
+watch([topic, userId, authLoading], async ([newTopic, , newAuthLoading]) => {
+  if (!newAuthLoading) { // Once auth state is resolved
+    if (newTopic) { // And topic is loaded
+      await initializeChat() // Handles initial chat messages based on newUserId
+    }
+    await loadVocabularyWords() // Load/reload vocabulary words whenever userId or auth status changes
+  }
+}, { immediate: true }) // Run immediately to catch initial states
+
+onMounted(async () => {
+  await fetchTopic()
+})
+
+// Initialize chat - assumes topic.value is already loaded
+const initializeChat = async () => {
+  if (!topic.value) return // Guard: ensure topic is loaded
+
+  // Load chat history only if userId is available (from onAuthStateChanged)
+  // Load chat history only if userId is available (from onAuthStateChanged)
+  if (userId.value && userId.value !== 'anonymous') {
+    await loadChatHistory()
     // If no history exists, add initial AI message
     if (messages.value.length === 0) {
       messages.value = [
         {
           id: '1',
-          content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+          content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
           sender: 'ai',
           timestamp: new Date()
         }
       ]
     }
-  } else if (!authLoading.value && messages.value.length === 0) {
-    // If auth is resolved and no user, but chat is empty, show initial message
+  } else if (!authLoading.value && messages.value.length === 0 && topic.value) {
+    // If auth is resolved and no user, but chat is empty, show initial message (and ensure topic is loaded)
     messages.value = [
       {
         id: '1',
-        content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+        content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
         sender: 'ai',
         timestamp: new Date()
       }
@@ -362,6 +377,7 @@ const initializeChat = async () => {
 }
 
 const loadChatHistory = async () => {
+  if (!topic.value) return // Guard: ensure topic is loaded
   try {
     const data = await chatService.getChatHistory(topic.value.id, userId.value)
 
@@ -381,8 +397,26 @@ const loadChatHistory = async () => {
   }
 }
 
+const loadVocabularyWords = async () => {
+  if (userId.value === 'anonymous') {
+    vocabularyWords.value = [] // Clear vocabulary words if anonymous
+    return
+  }
+  try {
+    const data = await vocabularyWordsService.getWords(userId.value)
+    vocabularyWords.value = data
+  } catch (error) {
+    console.error('Failed to load vocabulary words:', error)
+    toastComponent.value?.addToast({
+      message: 'Failed to load vocabulary words.',
+      type: 'error',
+      duration: 3000
+    })
+  }
+}
+
 const sendMessage = async () => {
-  if (!newMessage.value.trim()) return
+  if (!newMessage.value.trim() || !topic.value) return // Guard: ensure topic is loaded
 
   const messageContent = newMessage.value.trim()
   newMessage.value = ''
@@ -408,7 +442,8 @@ const sendMessage = async () => {
     const data = await chatService.sendMessage({
       message: messageContent,
       topicId: topic.value.id,
-      userId: userId.value
+      userId: userId.value,
+      topicTitle: topic.value.title
     })
 
     const aiResponse: Message = {
@@ -447,6 +482,7 @@ const sendMessage = async () => {
 }
 
 const clearChatHistory = async () => {
+  if (!topic.value) return // Guard: ensure topic is loaded
   try {
     await chatService.clearChatHistory(topic.value.id, userId.value)
 
@@ -454,7 +490,7 @@ const clearChatHistory = async () => {
     messages.value = [
       {
         id: '1',
-        content: `Hello! I'm here to help you practice "${topic.value.title}". Let's have a conversation! Feel free to ask questions, share your thoughts, or practice the vocabulary. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
+        content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
         sender: 'ai',
         timestamp: new Date()
       }
@@ -484,8 +520,9 @@ const scrollToBottom = () => {
   }
 }
 
-const formatTime = (timestamp: Date): string => {
-  return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const formatTime = (timestamp: Date | string): string => {
+  const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 const highlightSelectableText = (content: string): string => {
@@ -547,7 +584,7 @@ const explainWord = async (word?: string) => {
     id: Date.now().toString(),
     word: wordToExplain,
     definition: generateWordDefinition(wordToExplain),
-    timestamp: new Date()
+    timestamp: new Date().toISOString()
   }
 
   explanations.value.unshift(explanation)
@@ -579,64 +616,107 @@ const generateWordDefinition = (word: string): string => {
   return definitions[word.toLowerCase()] || `A word commonly used in English conversations. Practice using "${word}" in different contexts to improve your fluency.`
 }
 
-const saveSelectedWord = (word?: string) => {
+const saveSelectedWord = async (word?: string) => {
   const wordToSave = word || selectedText.value
-  if (!wordToSave) return
+  if (!wordToSave || userId.value === 'anonymous') return // Don't save if anonymous
 
   showTooltip.value = false
 
   // Check if word already saved
-  const existing = savedWords.value.find(w => w.word.toLowerCase() === wordToSave.toLowerCase())
+  const existing = vocabularyWords.value.find(w => w.word.toLowerCase() === wordToSave.toLowerCase())
   if (existing) {
     activeTab.value = 'saved'
+    toastComponent.value?.addToast({
+      message: `"${wordToSave}" is already in your vocabulary!`,
+      type: 'info',
+      duration: 3000
+    })
     return
   }
 
-  const savedWord: SavedWord = {
-    id: Date.now().toString(),
-    word: wordToSave,
-    definition: generateWordDefinition(wordToSave),
-    timestamp: new Date()
-  }
+  try {
+    const definition = generateWordDefinition(wordToSave) // Use local generation for now
+    const newVocabularyWord = await vocabularyWordsService.createWord({
+      word: wordToSave,
+      definition,
+      example: `Example usage of "${wordToSave}" in conversation.`,
+      level: 'B1',
+      status: 'learning',
+      category: 'Chat Words',
+      userId: userId.value
+    }, userId.value)
+    vocabularyWords.value.unshift(newVocabularyWord)
 
-  savedWords.value.unshift(savedWord)
-
-  // Show success toast
-  toastComponent.value?.addToast({
-    message: `"${wordToSave}" saved to vocabulary!`,
-    type: 'success',
-    duration: 3000
-  })
-  activeTab.value = 'saved'
-
-  // Clear selection
-}
-
-const saveWord = (word: string, definition: string) => {
-  // Check if word already saved
-  const existing = savedWords.value.find(w => w.word.toLowerCase() === word.toLowerCase())
-  if (existing) return
-
-  const savedWord: SavedWord = {
-    id: Date.now().toString(),
-    word,
-    definition,
-    timestamp: new Date()
-  }
-
-  savedWords.value.unshift(savedWord)
-}
-
-const removeSavedWord = (id: string) => {
-  const word = savedWords.value.find(w => w.id === id)
-  savedWords.value = savedWords.value.filter(w => w.id !== id)
-
-  // Show info toast
-  if (word) {
+    // Show success toast
     toastComponent.value?.addToast({
-      message: `"${word.word}" removed from vocabulary`,
+      message: `"${wordToSave}" saved to vocabulary!`,
+      type: 'success',
+      duration: 3000
+    })
+    activeTab.value = 'saved'
+  } catch (error) {
+    console.error('Failed to save word:', error)
+    toastComponent.value?.addToast({
+      message: `Failed to save "${wordToSave}". Please try again.`,
+      type: 'error',
+      duration: 4000
+    })
+  }
+}
+
+const saveWord = async (word: string, definition: string) => {
+  if (userId.value === 'anonymous') return // Don't save if anonymous
+
+  // Check if word already saved
+  const existing = vocabularyWords.value.find(w => w.word.toLowerCase() === word.toLowerCase())
+  if (existing) {
+    toastComponent.value?.addToast({
+      message: `"${word}" is already in your vocabulary!`,
+      type: 'info',
+      duration: 3000
+    })
+    return
+  }
+
+  try {
+    const newVocabularyWord = await vocabularyWordsService.saveWord(word, definition, userId.value)
+    vocabularyWords.value.unshift(newVocabularyWord)
+    toastComponent.value?.addToast({
+      message: `"${word}" saved to vocabulary!`,
+      type: 'success',
+      duration: 3000
+    })
+  } catch (error) {
+    console.error('Failed to save word:', error)
+    toastComponent.value?.addToast({
+      message: `Failed to save "${word}". Please try again.`,
+      type: 'error',
+      duration: 4000
+    })
+  }
+}
+
+const removeVocabularyWord = async (id: string) => {
+  if (userId.value === 'anonymous') return // Cannot remove if anonymous
+  const wordToRemove = vocabularyWords.value.find(w => w.id === id)
+  if (!wordToRemove) return
+
+  try {
+    await vocabularyWordsService.deleteWord(id, userId.value)
+    vocabularyWords.value = vocabularyWords.value.filter(w => w.id !== id)
+
+    // Show info toast
+    toastComponent.value?.addToast({
+      message: `"${wordToRemove.word}" removed from vocabulary`,
       type: 'info',
       duration: 2000
+    })
+  } catch (error) {
+    console.error('Failed to remove word:', error)
+    toastComponent.value?.addToast({
+      message: `Failed to remove "${wordToRemove.word}". Please try again.`,
+      type: 'error',
+      duration: 4000
     })
   }
 }

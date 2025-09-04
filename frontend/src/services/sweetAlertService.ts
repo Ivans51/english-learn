@@ -4,16 +4,13 @@ interface SweetAlertOptions {
   title?: string;
   text?: string;
   icon?: SweetAlertIcon;
-  confirmButtonText?: string;
-  cancelButtonText?: string;
+
   showCancelButton?: boolean;
   reverseButtons?: boolean;
   // Add any other SweetAlertOptions you commonly use
 }
 
 const defaultOptions = {
-  confirmButtonColor: '#10B981', // Tailwind green-500
-  cancelButtonColor: '#EF4444', // Tailwind red-500
   customClass: {
     popup: 'dark:bg-primary-500 dark:text-primary-50',
     title: 'dark:text-primary-50',
@@ -61,7 +58,7 @@ const SweetAlertService = {
       text,
       icon: 'error',
       confirmButtonText: 'OK',
-      confirmButtonColor: defaultOptions.cancelButtonColor, // Use red for error confirmation
+
       customClass: {
         ...defaultOptions.customClass,
         confirmButton: 'focus:ring-red-500',

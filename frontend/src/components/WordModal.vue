@@ -179,16 +179,7 @@ import {
   DialogTitle,
 } from '@headlessui/vue'
 
-interface VocabularyWord {
-  id: string
-  word: string
-  definition: string
-  example: string
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
-  status: 'learning' | 'mastered'
-  category: string
-  createdAt: Date
-}
+import type { VocabularyWord } from '@/types'
 
 const emit = defineEmits(['close', 'add-word', 'update-word'])
 
@@ -255,7 +246,7 @@ function addOrUpdateWord() {
       ...formData.value,
       id: Date.now().toString(), // Simple unique ID generation
       status: 'learning', // New words always start as learning
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       category: formData.value.category || 'General', // Default category if none provided
     }
     emit('add-word', wordToAdd)
