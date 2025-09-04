@@ -323,7 +323,7 @@ function generateContextualPrompt(topicId: string, userMessage: string, topicTit
     Please respond in a natural, encouraging way that:
     1. Acknowledges their message appropriately
     2. Continues the conversation naturally
-    3. Provides gentle corrections if needed (in a supportive way)
+    3. Provides gentle corrections if needed (in a supportive way). When you provide a correction, please wrap the corrected text in <correction> tags. For example: "You said 'I is happy', a better way to say that is <correction>I am happy</correction>."
     4. Asks follow-up questions to keep the conversation going
     5. Uses vocabulary and grammar appropriate for English learners
     6. Keeps responses conversational and not too long (2-3 sentences max)

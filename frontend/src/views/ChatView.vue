@@ -528,9 +528,20 @@ const formatTime = (timestamp: Date | string): string => {
 }
 
 const highlightSelectableText = (content: string): string => {
-  // Add selectable styling to words
-  return content.replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>')
-}
+  const parts = content.split(/<\/?correction>/);
+  let result = '';
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      // This part is outside a correction
+      result += parts[i].replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>');
+    } else {
+      // This part is inside a correction
+      const correctedText = parts[i].replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>');
+      result += `<span class="text-red-500">${correctedText}</span>`;
+    }
+  }
+  return result;
+};
 
 const handleWordClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement
