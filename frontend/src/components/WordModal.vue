@@ -145,6 +145,13 @@
                   </div>
                 </div>
 
+                <!-- Display creation date for editing mode -->
+                <div v-if="isEditing && currentWord?.createdAt" class="mt-4">
+                  <label class="block text-sm font-medium text-primary-300 mb-1">
+                    Created on <span>{{ formatDate(currentWord.createdAt) }}</span>
+                  </label>
+                </div>
+
                 <div class="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
@@ -180,6 +187,15 @@ import {
 } from '@headlessui/vue'
 
 import type { VocabularyWord } from '@/types'
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
 
 const emit = defineEmits(['close', 'add-word', 'update-word'])
 

@@ -5,83 +5,90 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full min-h-0">
       <!-- Chat Header -->
-      <div class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <button
-            @click="goBack"
-            class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors"
-          >
-            <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <div>
-            <h1 class="text-lg font-semibold text-primary-900 dark:text-primary-50">{{ topic?.title }}</h1>
-            <p class="text-sm text-primary-600 dark:text-primary-400">Conversational Practice</p>
+      <div class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-3 sm:px-6 py-3 sm:py-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <button
+              @click="goBack"
+              class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors flex-shrink-0"
+            >
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+
+            <div class="min-w-0 flex-1">
+              <h1 class="text-base sm:text-lg font-semibold text-primary-900 dark:text-primary-50 truncate">{{ topic?.title }}</h1>
+              <p class="text-xs sm:text-sm text-primary-600 dark:text-primary-400 truncate">Conversational Practice</p>
+            </div>
+
+            <button
+              @click="activeTab === 'chat' ? clearChatHistory() : activeTab = 'chat'"
+              class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors flex-shrink-0"
+              :title="activeTab === 'chat' ? 'Clear chat history' : 'Back to chat'"
+            >
+              <svg v-if="activeTab === 'chat'" class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+            </button>
           </div>
 
-          <!-- Clear History Button -->
-          <button
-            @click="clearChatHistory"
-            class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors"
-            title="Clear chat history"
-          >
-            <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Right side tabs -->
-        <div class="flex space-x-1">
-          <button
-            @click="activeTab = 'chat'"
-            :class="[
-              'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
-              activeTab === 'chat'
-                ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
-            ]"
-          >
-            Chat
-          </button>
-          <button
-            @click="activeTab = 'explanations'"
-            :class="[
-              'px-4 py-2 text-sm font-medium rounded-lg transition-colors relative',
-              activeTab === 'explanations'
-                ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
-            ]"
-          >
-            Explanations
-            <span v-if="explanations.length > 0" class="absolute -top-1 -right-1 bg-warning-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {{ explanations.length }}
-            </span>
-          </button>
-          <button
-            @click="activeTab = 'saved'"
-            :class="[
-              'px-4 py-2 text-sm font-medium rounded-lg transition-colors relative',
-              activeTab === 'saved'
-                ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
-            ]"
-          >
-            Vocabulary
-            <span v-if="vocabularyWords.length > 0" class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {{ vocabularyWords.length }}
-            </span>
-          </button>
+          <div class="flex justify-center sm:justify-end">
+            <div class="flex space-x-1">
+              <button
+                @click="activeTab = 'chat'"
+                :class="[
+                  'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
+                  activeTab === 'chat'
+                    ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                ]"
+              >
+                Chat
+              </button>
+              <button
+                @click="activeTab = 'explanations'"
+                :class="[
+                  'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors relative whitespace-nowrap',
+                  activeTab === 'explanations'
+                    ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                ]"
+              >
+                Explanations
+                <span v-if="explanations.length > 0" class="absolute -top-1 -right-1 bg-warning-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+                  {{ explanations.length > 99 ? '99+' : explanations.length }}
+                </span>
+              </button>
+              <button
+                @click="activeTab = 'saved'"
+                :class="[
+                  'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors relative whitespace-nowrap',
+                  activeTab === 'saved'
+                    ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                ]"
+              >
+                Vocabulary
+                <span v-if="vocabularyWords.length > 0" class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+                  {{ vocabularyWords.length > 99 ? '99+' : vocabularyWords.length }}
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="flex-1 flex min-h-0 h-full">
         <!-- Chat Section -->
         <div
+          v-if="activeTab === 'chat' || !isMobile"
           :class="[
             'transition-all duration-300 flex flex-col min-h-0 h-full',
-            activeTab === 'chat' ? 'flex-1' : 'w-2/3'
+            activeTab === 'chat' ? 'flex-1' : 'w-full sm:w-2/3'
           ]"
         >
           <!-- Messages Area -->
@@ -149,7 +156,7 @@
         <!-- Side Panel -->
         <div
           v-if="activeTab !== 'chat'"
-          class="w-1/3 bg-white dark:bg-primary-950 border-l border-primary-200 dark:border-primary-800 flex flex-col"
+          class="w-full sm:w-1/3 bg-white dark:bg-primary-950 border-l border-primary-200 dark:border-primary-800 flex flex-col"
         >
           <!-- Explanations Tab -->
           <div v-if="activeTab === 'explanations'" class="flex-1 overflow-y-auto p-6">
@@ -242,17 +249,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import WordTooltip from '@/components/WordTooltip.vue'
-import ToastNotification, { type Toast as ToastType } from '@/components/ToastNotification.vue'
-import { chatService, type ChatMessage as APIChatMessage } from '@/services/chatService'
-import { vocabularyWordsService } from '@/services/vocabularyService'
-import { topicService, type Topic } from '@/services/topicService'
+import ToastNotification, {type Toast as ToastType} from '@/components/ToastNotification.vue'
+import {type ChatMessage as APIChatMessage, chatService} from '@/services/chatService'
+import {vocabularyWordsService} from '@/services/vocabularyService'
+import {type Topic, topicService} from '@/services/topicService'
 import sweetAlertService from '@/services/sweetAlertService'
-import type { VocabularyWord } from '@/types'
-import { useAuth } from '@/composables/useAuth'
+import type {VocabularyWord} from '@/types'
+import {useAuth} from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
@@ -281,6 +288,21 @@ const messages = ref<Message[]>([])
 const newMessage = ref('')
 const isTyping = ref(false)
 const explanations = ref<WordExplanation[]>([])
+const isMobile = ref(false)
+
+// Check if screen is mobile
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth < 640
+}
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize)
+})
 const vocabularyWords = ref<VocabularyWord[]>([])
 const messagesContainer = ref<HTMLElement>()
 
@@ -320,8 +342,7 @@ const fetchTopic = async () => {
   }
 
   try {
-    const fetchedTopic = await topicService.getTopicById(topicId)
-    topic.value = fetchedTopic
+    topic.value = await topicService.getTopicById(topicId)
   } catch (error) {
     console.error('Failed to fetch topic:', error)
     toastComponent.value?.addToast({
@@ -406,8 +427,7 @@ const loadVocabularyWords = async () => {
     return
   }
   try {
-    const data = await vocabularyWordsService.getWords(userId.value)
-    vocabularyWords.value = data
+    vocabularyWords.value = await vocabularyWordsService.getWords(userId.value)
   } catch (error) {
     console.error('Failed to load vocabulary words:', error)
     toastComponent.value?.addToast({
@@ -486,6 +506,17 @@ const sendMessage = async () => {
 
 const clearChatHistory = async () => {
   if (!topic.value) return // Guard: ensure topic is loaded
+
+  // Show SweetAlert confirmation dialog
+  const confirmed = await sweetAlertService.confirm(
+    'Clear Chat History',
+    'Are you sure you want to clear all chat messages? This action cannot be undone.',
+    'warning'
+  )
+
+  // Only proceed if user confirmed
+  if (!confirmed.isConfirmed) return
+
   try {
     await chatService.clearChatHistory(topic.value.id, userId.value)
 

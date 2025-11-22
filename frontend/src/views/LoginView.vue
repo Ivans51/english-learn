@@ -16,7 +16,7 @@
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white dark:bg-primary-900 py-8 px-4 shadow sm:rounded-lg sm:px-10 transition-colors">
+      <div class="bg-white dark:bg-black py-8 px-4 shadow sm:rounded-lg sm:px-10 transition-colors">
         <div v-if="errorMessage" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong class="font-bold">Error!</strong>
           <span class="block sm:inline">{{ errorMessage }}</span>
@@ -34,7 +34,7 @@
                 autocomplete="email"
                 required
                 v-model="form.email"
-                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-900 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors"
                 placeholder="Enter your email"
               />
             </div>
@@ -52,7 +52,7 @@
                 autocomplete="current-password"
                 required
                 v-model="form.password"
-                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors pr-10"
+                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-900 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors pr-10"
                 placeholder="Enter your password"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
