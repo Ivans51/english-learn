@@ -1,9 +1,9 @@
 <template>
-  <div class="h-screen bg-primary-50 dark:bg-primary-950 transition-colors flex flex-col">
+  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
     <MainHeader :current-level="topic?.level" />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col h-full min-h-0">
+    <div class="flex-1 flex flex-col h-full min-h-0 w-full max-w-7xl mx-auto">
       <!-- Chat Header -->
       <div class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-3 sm:px-6 py-3 sm:py-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
