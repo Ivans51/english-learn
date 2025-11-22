@@ -6,6 +6,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import VocabularyView from '@/views/VocabularyView.vue'
 import LevelView from '@/views/LevelView.vue'
 import ChatView from '@/views/ChatView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 
 const router = createRouter({
@@ -42,6 +43,12 @@ const router = createRouter({
       path: '/chat/:topicId',
       name: 'chat',
       component: ChatView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
       meta: { requiresAuth: true }
     },
     // Catch-all route for 404 Not Found

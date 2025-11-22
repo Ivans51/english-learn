@@ -99,7 +99,7 @@
                   'max-w-xs lg:max-w-md px-4 py-2 rounded-lg',
                   message.sender === 'user'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                    : 'bg-white dark:bg-primary-950 text-primary-900 dark:text-primary-100 border border-primary-200 dark:border-primary-700'
+                    : 'bg-white dark:bg-black text-primary-900 dark:text-primary-100'
                 ]"
               >
                 <div
@@ -250,6 +250,7 @@ import ToastNotification, { type Toast as ToastType } from '@/components/ToastNo
 import { chatService, type ChatMessage as APIChatMessage } from '@/services/chatService'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { topicService, type Topic } from '@/services/topicService'
+import sweetAlertService from '@/services/sweetAlertService'
 import type { VocabularyWord } from '@/types'
 import { useAuth } from '@/composables/useAuth'
 
@@ -712,14 +713,24 @@ const removeVocabularyWord = async (id: string) => {
   const wordToRemove = vocabularyWords.value.find(w => w.id === id)
   if (!wordToRemove) return
 
+  // Show SweetAlert confirmation dialog
+  const confirmed = await sweetAlertService.confirm(
+    'Delete Vocabulary Word',
+    `Are you sure you want to delete "${wordToRemove.word}" from your vocabulary? This action cannot be undone.`,
+    'warning'
+  )
+
+  // Only proceed if user confirmed
+  if (!confirmed.isConfirmed) return
+
   try {
     await vocabularyWordsService.deleteWord(id, userId.value)
     vocabularyWords.value = vocabularyWords.value.filter(w => w.id !== id)
 
-    // Show info toast
+    // Show success toast
     toastComponent.value?.addToast({
       message: `"${wordToRemove.word}" removed from vocabulary`,
-      type: 'info',
+      type: 'success',
       duration: 2000
     })
   } catch (error) {

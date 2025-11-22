@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getAuth, onAuthStateChanged, type User, signOut } from 'firebase/auth'
 import { useTheme } from '@/composables/useTheme'
 import { useRouter } from 'vue-router'
@@ -16,9 +16,6 @@ const { isDark, toggleTheme } = useTheme()
 
 const isLoggedIn = ref(false)
 const user = ref<User | null>(null)
-const userInitial = computed(() => {
-  return user.value?.email?.charAt(0).toUpperCase() || ''
-})
 
 const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
@@ -116,13 +113,17 @@ const handleLogout = () => {
               to="/vocabulary"
               class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded text-sm font-medium transition-colors"
             >
-              📚 My Vocabulary
+              My Vocabulary
             </router-link>
-            <div
-              class="w-8 h-8 bg-primary-900 dark:bg-primary-50 rounded-full flex items-center justify-center text-primary-50 dark:text-primary-950 text-sm font-medium transition-colors"
+            <router-link
+              to="/profile"
+              class="w-8 h-8 bg-primary-900 dark:bg-primary-50 rounded-full flex items-center justify-center text-primary-50 dark:text-primary-950 text-sm font-medium transition-colors hover:bg-primary-800 dark:hover:bg-primary-100"
+              title="Profile"
             >
-              {{ userInitial }}
-            </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </router-link>
             <button @click="handleLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer">
               Logout
             </button>

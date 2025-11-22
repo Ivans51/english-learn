@@ -38,7 +38,7 @@
         <div
           v-for="topic in currentTopics"
           :key="topic.id"
-          class="bg-white dark:bg-primary-950 rounded-lg border border-white dark:border-primary-800 p-6 hover:shadow-lg transition-all cursor-pointer relative group"
+          class="bg-white dark:bg-black rounded-lg dark:border-primary-800 pt-12 px-6 pb-6 hover:shadow-lg transition-all cursor-pointer relative group"
         >
           <!-- Edit Button (visible on hover) -->
           <button
@@ -239,9 +239,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
-import ToastNotification, { type Toast as ToastType } from '@/components/ToastNotification.vue' // Import ToastNotification
-import { topicService, type Topic, type CreateTopicRequest } from '@/services/topicService' // Import topicService and Topic interface
-import SweetAlertService from '@/services/sweetAlertService'
+import ToastNotification, { type Toast as ToastType } from '@/components/ToastNotification.vue'
+import { topicService, type Topic, type CreateTopicRequest } from '@/services/topicService'
+import SweetAlertService from "@/services/sweetAlertService.ts";
 
 const route = useRoute()
 const router = useRouter()

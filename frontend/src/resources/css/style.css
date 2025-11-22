@@ -12,7 +12,7 @@
   --color-primary-700: #4d4d4d;
   --color-primary-800: #363636;
   --color-primary-900: #1f1f1f;
-  --color-primary-950: #0a0a0a;
+  --color-primary-950: #0d1117;
 
   /* Secondary color scale */
   --color-secondary-50: #f2f2f2;
@@ -44,6 +44,7 @@
   --color-blue-500: #2563eb;
   --color-green-500: #10b981;
   --color-red-500: #ef4444;
+  --color-black: #010409;
 
   /* Custom semantic colors */
   --color-success: #10b981;

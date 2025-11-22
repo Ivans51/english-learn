@@ -25,7 +25,7 @@
 
           <!-- Search & Filter -->
           <div
-            class="bg-black dark:bg-black rounded-lg border border-primary-200 dark:border-primary-700 p-4 mb-6 transition-colors">
+            class="bg-black dark:bg-black rounded-lg p-4 mb-6 transition-colors">
             <h3 class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center">
               <svg class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -92,7 +92,7 @@
           <!-- Vocabulary List -->
           <div v-else class="space-y-4">
             <div v-for="word in filteredWords" :key="word.id"
-              class="bg-black dark:bg-black rounded-lg border border-primary-200 dark:border-primary-700 p-6 hover:shadow-md transition-all">
+              class="bg-black dark:bg-black rounded-lg p-6 hover:shadow-md transition-all">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center mb-2">

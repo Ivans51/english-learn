@@ -73,10 +73,6 @@ const { isAuthenticated } = useAuth();
             class="inline-block bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-md text-lg font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors">
             Get Started - It's Free! 🚀
           </router-link>
-          <router-link v-else to="/levels"
-            class="inline-block bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-md text-lg font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors">
-            Go to Levels 📚
-          </router-link>
         </div>
       </div>
 
@@ -86,7 +82,7 @@ const { isAuthenticated } = useAuth();
           v-for="levelItem in levelsData"
           :key="levelItem.level"
           :to="`/level/${levelItem.level}`"
-          class="bg-white dark:bg-primary-950 rounded-lg shadow-md p-6 hover:shadow-lg transition-all block border border-white dark:border-primary-800"
+          class="bg-white dark:bg-black rounded-lg shadow-md p-6 hover:shadow-lg transition-all block"
         >
           <div class="flex items-center justify-between mb-4">
             <span
@@ -110,7 +106,7 @@ const { isAuthenticated } = useAuth();
       </div>
 
       <!-- How It Works Section -->
-      <div class="mt-20 bg-primary-100 dark:bg-primary-900 rounded-2xl p-8 transition-colors">
+      <div class="mt-20 bg-primary-100 dark:bg-black rounded-2xl p-8 transition-colors">
         <h2 class="text-3xl font-bold text-center text-primary-900 dark:text-primary-50 mb-12">How It Works</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
