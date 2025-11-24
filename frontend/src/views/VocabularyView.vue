@@ -130,8 +130,8 @@
           </div>
 
           <!-- Vocabulary List -->
-          <div v-else class="space-y-4">
-            <div v-for="word in filteredWords" :key="word.id" class="bg-white dark:bg-black rounded-lg p-2 sm:p-4 hover:shadow-md transition-all">
+          <div v-else>
+            <div v-for="word in filteredWords" :key="word.id" class="bg-white dark:bg-black rounded-lg p-1 sm:p-2 hover:shadow-md transition-all border-2 border-b-primary">
               <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                 <div class="flex-1 min-w-0">
                   <div class="flex sm:items-center gap-2">
