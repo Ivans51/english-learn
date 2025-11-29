@@ -1,20 +1,20 @@
-import Swal, { type SweetAlertResult, type SweetAlertIcon } from 'sweetalert2';
+import Swal, { type SweetAlertIcon, type SweetAlertResult } from 'sweetalert2'
 
 interface SweetAlertOptions {
-  title?: string;
-  text?: string;
-  icon?: SweetAlertIcon;
-  confirmButtonText?: string;
-  cancelButtonText?: string;
-  showCancelButton?: boolean;
-  reverseButtons?: boolean;
+  title?: string
+  text?: string
+  icon?: SweetAlertIcon
+  confirmButtonText?: string
+  cancelButtonText?: string
+  showCancelButton?: boolean
+  reverseButtons?: boolean
   customClass?: {
-    popup?: string;
-    title?: string;
-    htmlContainer?: string;
-    confirmButton?: string;
-    cancelButton?: string;
-  };
+    popup?: string
+    title?: string
+    htmlContainer?: string
+    confirmButton?: string
+    cancelButton?: string
+  }
   // Add any other SweetAlertOptions you commonly use
 }
 
@@ -26,11 +26,11 @@ const defaultOptions = {
     confirmButton: 'focus:ring-green-500',
     cancelButton: 'focus:ring-red-500',
   },
-};
+}
 
 const SweetAlertService = {
   async fire(options: SweetAlertOptions): Promise<SweetAlertResult> {
-    return Swal.fire({ ...defaultOptions, ...options });
+    return Swal.fire({ ...defaultOptions, ...options })
   },
 
   async confirm(
@@ -38,7 +38,7 @@ const SweetAlertService = {
     text: string,
     icon: SweetAlertIcon = 'warning',
     confirmButtonText: string = 'Yes',
-    cancelButtonText: string = 'Cancel'
+    cancelButtonText: string = 'Cancel',
   ): Promise<SweetAlertResult> {
     return this.fire({
       title,
@@ -48,7 +48,7 @@ const SweetAlertService = {
       confirmButtonText,
       cancelButtonText,
       reverseButtons: true,
-    });
+    })
   },
 
   async success(title: string, text: string): Promise<SweetAlertResult> {
@@ -57,7 +57,7 @@ const SweetAlertService = {
       text,
       icon: 'success',
       confirmButtonText: 'OK',
-    });
+    })
   },
 
   async error(title: string, text: string): Promise<SweetAlertResult> {
@@ -70,8 +70,8 @@ const SweetAlertService = {
       customClass: {
         ...defaultOptions.customClass,
         confirmButton: 'focus:ring-red-500',
-      }
-    });
+      },
+    })
   },
 
   async info(title: string, text: string): Promise<SweetAlertResult> {
@@ -80,7 +80,7 @@ const SweetAlertService = {
       text,
       icon: 'info',
       confirmButtonText: 'OK',
-    });
+    })
   },
 
   async warning(title: string, text: string): Promise<SweetAlertResult> {
@@ -89,8 +89,8 @@ const SweetAlertService = {
       text,
       icon: 'warning',
       confirmButtonText: 'OK',
-    });
+    })
   },
-};
+}
 
-export default SweetAlertService;
+export default SweetAlertService

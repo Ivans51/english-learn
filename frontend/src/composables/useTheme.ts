@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 // Global theme state - shared across all components
 const isDark = ref(false)
@@ -50,13 +50,13 @@ export const useTheme = () => {
     isDark.value = theme === 'dark'
   }
 
-  const theme = computed(() => isDark.value ? 'dark' : 'light')
+  const theme = computed(() => (isDark.value ? 'dark' : 'light'))
 
   return {
     isDark,
     theme,
     toggleTheme,
     setTheme,
-    initializeTheme
+    initializeTheme,
   }
 }

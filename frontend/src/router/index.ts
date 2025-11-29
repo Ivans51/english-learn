@@ -15,48 +15,48 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
     {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: LoginView,
     },
     {
       path: '/register',
       name: 'register',
-      component: RegisterView
+      component: RegisterView,
     },
     {
       path: '/vocabulary',
       name: 'vocabulary',
       component: VocabularyView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/level/:level',
       name: 'level',
       component: LevelView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/chat/:topicId',
       name: 'chat',
       component: ChatView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     // Catch-all route for 404 Not Found
     {
       path: '/:catchAll(.*)',
       name: 'NotFound',
-      component: NotFoundView
-    }
+      component: NotFoundView,
+    },
   ],
 })
 
@@ -73,17 +73,20 @@ router.beforeEach(async (to, from, next) => {
   })
 
   // Check if the route requires authentication
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
       // Redirect to login if not authenticated
       next({
         name: 'login',
-        query: { redirect: to.fullPath }
+        query: { redirect: to.fullPath },
       })
     } else {
       next()
     }
-  } else if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+  } else if (
+    (to.name === 'login' || to.name === 'register') &&
+    isAuthenticated
+  ) {
     // Redirect authenticated users away from login/register pages
     next({ name: 'home' })
   } else {

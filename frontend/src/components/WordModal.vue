@@ -33,7 +33,9 @@
                 as="h3"
                 class="text-2xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
               >
-                {{ isEditing ? 'Edit Vocabulary Word' : 'Add New Vocabulary Word' }}
+                {{
+                  isEditing ? 'Edit Vocabulary Word' : 'Add New Vocabulary Word'
+                }}
                 <button
                   @click="closeModal"
                   class="text-primary-400 hover:text-primary-200 focus:outline-none"
@@ -64,8 +66,9 @@
                   <label
                     for="word"
                     class="block text-sm font-medium text-primary-50 mb-1"
-                    >Word</label
                   >
+                    Word
+                  </label>
                   <input
                     type="text"
                     id="word"
@@ -80,12 +83,39 @@
                     :disabled="isGenerating || !formData.word.trim()"
                     class="mt-2 inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <svg v-if="isGenerating" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      v-if="isGenerating"
+                      class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
-                    <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    <svg
+                      v-else
+                      class="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      ></path>
                     </svg>
                     {{ isGenerating ? 'Generating...' : 'Auto-generate' }}
                   </button>
@@ -95,8 +125,12 @@
                   <label
                     for="definition"
                     class="block text-sm font-medium text-primary-50 mb-1"
-                    >Definition <span class="text-primary-300 text-xs">(Optional - will auto-generate if empty)</span></label
                   >
+                    Definition
+                    <span class="text-primary-300 text-xs">
+                      (Optional - will auto-generate if empty)
+                    </span>
+                  </label>
                   <textarea
                     id="definition"
                     v-model="formData.definition"
@@ -105,7 +139,8 @@
                     class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                   ></textarea>
                   <p class="text-xs text-primary-300 mt-1">
-                    💡 Tip: Leave this empty to automatically generate a definition and example
+                    💡 Tip: Leave this empty to automatically generate a
+                    definition and example
                   </p>
                 </div>
 
@@ -113,8 +148,12 @@
                   <label
                     for="example"
                     class="block text-sm font-medium text-primary-50 mb-1"
-                    >Example Sentence <span class="text-primary-300 text-xs">(Optional - will auto-generate if empty)</span></label
                   >
+                    Example Sentence
+                    <span class="text-primary-300 text-xs">
+                      (Optional - will auto-generate if empty)
+                    </span>
+                  </label>
                   <textarea
                     id="example"
                     v-model="formData.example"
@@ -132,8 +171,9 @@
                     <label
                       for="level"
                       class="block text-sm font-medium text-primary-50 mb-1"
-                      >Level</label
                     >
+                      Level
+                    </label>
                     <select
                       id="level"
                       v-model="formData.level"
@@ -152,8 +192,9 @@
                     <label
                       for="topic"
                       class="block text-sm font-medium text-primary-50 mb-1"
-                      >Topic (Optional)</label
                     >
+                      Topic (Optional)
+                    </label>
                     <input
                       type="text"
                       id="topic"
@@ -166,8 +207,11 @@
 
                 <!-- Display creation date for editing mode -->
                 <div v-if="isEditing && currentWord?.createdAt" class="mt-4">
-                  <label class="block text-sm font-medium text-primary-300 mb-1">
-                    Created on <span>{{ formatDate(currentWord.createdAt) }}</span>
+                  <label
+                    class="block text-sm font-medium text-primary-300 mb-1"
+                  >
+                    Created on
+                    <span>{{ formatDate(currentWord.createdAt) }}</span>
                   </label>
                 </div>
 
@@ -196,13 +240,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
-  TransitionRoot,
-  TransitionChild,
   Dialog,
   DialogPanel,
   DialogTitle,
+  TransitionChild,
+  TransitionRoot,
 } from '@headlessui/vue'
 
 import type { VocabularyWord } from '@/types'
@@ -212,7 +256,7 @@ const formatDate = (dateString: string) => {
   return date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
@@ -231,34 +275,41 @@ const props = defineProps<{
   currentWord: VocabularyWord | null
 }>()
 
-const formData = ref<Pick<VocabularyWord, 'word' | 'definition' | 'example' | 'level' | 'category'>>(
-  { ...initialFormData }
-)
+const formData = ref<
+  Pick<VocabularyWord, 'word' | 'definition' | 'example' | 'level' | 'category'>
+>({ ...initialFormData })
 const isGenerating = ref(false)
 
 const isEditing = computed(() => !!props.currentWord)
 
 // Watch for changes in currentWord prop to populate form for editing
-watch(() => props.currentWord, (newVal) => {
-  if (newVal) {
-    // Populate formData with existing word data for editing
-    formData.value.word = newVal.word
-    formData.value.definition = newVal.definition
-    formData.value.example = newVal.example
-    formData.value.level = newVal.level
-    formData.value.category = newVal.category
-  } else {
-    // Reset formData for adding a new word
-    Object.assign(formData.value, initialFormData)
-  }
-}, { immediate: true }) // Run immediately on component mount/prop change
+watch(
+  () => props.currentWord,
+  (newVal) => {
+    if (newVal) {
+      // Populate formData with existing word data for editing
+      formData.value.word = newVal.word
+      formData.value.definition = newVal.definition
+      formData.value.example = newVal.example
+      formData.value.level = newVal.level
+      formData.value.category = newVal.category
+    } else {
+      // Reset formData for adding a new word
+      Object.assign(formData.value, initialFormData)
+    }
+  },
+  { immediate: true },
+) // Run immediately on component mount/prop change
 
 // Reset form when modal opens and currentWord is null (add mode)
-watch(() => props.isOpen, (newValue) => {
-  if (newValue && !props.currentWord) {
-    Object.assign(formData.value, initialFormData)
-  }
-})
+watch(
+  () => props.isOpen,
+  (newValue) => {
+    if (newValue && !props.currentWord) {
+      Object.assign(formData.value, initialFormData)
+    }
+  },
+)
 
 function closeModal() {
   emit('close')

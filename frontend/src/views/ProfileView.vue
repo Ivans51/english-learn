@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getAuth, updateProfile, updateEmail, updatePassword, type User } from 'firebase/auth'
+import { onMounted, ref } from 'vue'
+import {
+  getAuth,
+  updateEmail,
+  updatePassword,
+  updateProfile,
+  type User,
+} from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import sweetAlertService from '@/services/sweetAlertService'
@@ -34,7 +40,7 @@ const updateProfileInfo = async () => {
     // Update display name
     if (displayName.value !== user.value.displayName) {
       await updateProfile(user.value, {
-        displayName: displayName.value
+        displayName: displayName.value,
       })
     }
 
@@ -43,9 +49,15 @@ const updateProfileInfo = async () => {
       await updateEmail(user.value, email.value)
     }
 
-    await sweetAlertService.success('Profile Updated', 'Your profile has been updated successfully!')
+    await sweetAlertService.success(
+      'Profile Updated',
+      'Your profile has been updated successfully!',
+    )
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update profile. Please try again.'
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to update profile. Please try again.'
     await sweetAlertService.error('Update Failed', errorMessage)
   } finally {
     isLoading.value = false
@@ -56,12 +68,18 @@ const updateUserPassword = async () => {
   if (!user.value) return
 
   if (newPassword.value !== confirmPassword.value) {
-    await sweetAlertService.error('Password Mismatch', 'New password and confirmation do not match.')
+    await sweetAlertService.error(
+      'Password Mismatch',
+      'New password and confirmation do not match.',
+    )
     return
   }
 
   if (newPassword.value.length < 6) {
-    await sweetAlertService.error('Weak Password', 'Password must be at least 6 characters long.')
+    await sweetAlertService.error(
+      'Weak Password',
+      'Password must be at least 6 characters long.',
+    )
     return
   }
 
@@ -73,9 +91,15 @@ const updateUserPassword = async () => {
     newPassword.value = ''
     confirmPassword.value = ''
 
-    await sweetAlertService.success('Password Updated', 'Your password has been updated successfully!')
+    await sweetAlertService.success(
+      'Password Updated',
+      'Your password has been updated successfully!',
+    )
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update password. You may need to re-login.'
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to update password. You may need to re-login.'
     await sweetAlertService.error('Update Failed', errorMessage)
   } finally {
     isLoading.value = false
@@ -88,20 +112,29 @@ const updateUserPassword = async () => {
     <MainHeader />
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="bg-white dark:bg-primary-950 rounded-lg shadow-md p-6 transition-colors">
-        <h1 class="text-3xl font-bold text-primary-900 dark:text-primary-50 mb-6">
+      <div
+        class="bg-white dark:bg-primary-950 rounded-lg shadow-md p-6 transition-colors"
+      >
+        <h1
+          class="text-3xl font-bold text-primary-900 dark:text-primary-50 mb-6"
+        >
           Profile Settings
         </h1>
 
         <!-- Profile Information Section -->
         <div class="mb-8">
-          <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+          <h2
+            class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4"
+          >
             Profile Information
           </h2>
 
           <form @submit.prevent="updateProfileInfo" class="space-y-4">
             <div>
-              <label for="displayName" class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+              <label
+                for="displayName"
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
                 Display Name
               </label>
               <input
@@ -114,7 +147,10 @@ const updateUserPassword = async () => {
             </div>
 
             <div>
-              <label for="email" class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+              <label
+                for="email"
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
                 Email Address
               </label>
               <input
@@ -138,13 +174,18 @@ const updateUserPassword = async () => {
 
         <!-- Password Change Section -->
         <div class="border-t border-primary-200 dark:border-primary-800 pt-8">
-          <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+          <h2
+            class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4"
+          >
             Change Password
           </h2>
 
           <form @submit.prevent="updateUserPassword" class="space-y-4">
             <div>
-              <label for="newPassword" class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+              <label
+                for="newPassword"
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
                 New Password
               </label>
               <input
@@ -157,7 +198,10 @@ const updateUserPassword = async () => {
             </div>
 
             <div>
-              <label for="confirmPassword" class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1">
+              <label
+                for="confirmPassword"
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
                 Confirm New Password
               </label>
               <input
@@ -180,14 +224,27 @@ const updateUserPassword = async () => {
         </div>
 
         <!-- Account Information -->
-        <div class="border-t border-primary-200 dark:border-primary-800 pt-8 mt-8">
-          <h2 class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4">
+        <div
+          class="border-t border-primary-200 dark:border-primary-800 pt-8 mt-8"
+        >
+          <h2
+            class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4"
+          >
             Account Information
           </h2>
           <div class="space-y-2 text-sm text-primary-700 dark:text-primary-300">
-            <p><strong>User ID:</strong> {{ user?.uid }}</p>
-            <p><strong>Email Verified:</strong> {{ user?.emailVerified ? 'Yes' : 'No' }}</p>
-            <p><strong>Account Created:</strong> {{ user?.metadata.creationTime }}</p>
+            <p>
+              <strong>User ID:</strong>
+              {{ user?.uid }}
+            </p>
+            <p>
+              <strong>Email Verified:</strong>
+              {{ user?.emailVerified ? 'Yes' : 'No' }}
+            </p>
+            <p>
+              <strong>Account Created:</strong>
+              {{ user?.metadata.creationTime }}
+            </p>
           </div>
         </div>
       </div>

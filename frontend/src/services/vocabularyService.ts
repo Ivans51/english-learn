@@ -18,7 +18,10 @@ class VocabularyWordsService {
     this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787'
   }
 
-  async createWord(wordData: CreateVocabularyWordRequest, userId?: string): Promise<VocabularyWord> {
+  async createWord(
+    wordData: CreateVocabularyWordRequest,
+    userId?: string,
+  ): Promise<VocabularyWord> {
     const requestData = { ...wordData, userId: userId || wordData.userId }
     const response = await fetch(`${this.apiBaseUrl}/api/vocabulary-words`, {
       method: 'POST',
@@ -29,25 +32,37 @@ class VocabularyWordsService {
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to create vocabulary word: ${response.statusText}`)
+      throw new Error(
+        `Failed to create vocabulary word: ${response.statusText}`,
+      )
     }
 
     return response.json()
   }
 
   async getWords(userId?: string): Promise<VocabularyWord[]> {
-    const url = userId ? `${this.apiBaseUrl}/api/vocabulary-words?userId=${userId}` : `${this.apiBaseUrl}/api/vocabulary-words`
+    const url = userId
+      ? `${this.apiBaseUrl}/api/vocabulary-words?userId=${userId}`
+      : `${this.apiBaseUrl}/api/vocabulary-words`
     const response = await fetch(url)
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch vocabulary words: ${response.statusText}`)
+      throw new Error(
+        `Failed to fetch vocabulary words: ${response.statusText}`,
+      )
     }
 
     return await response.json()
   }
 
-  async updateWord(wordId: string, updates: Partial<VocabularyWord>, userId?: string): Promise<VocabularyWord> {
-    const url = userId ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}` : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
+  async updateWord(
+    wordId: string,
+    updates: Partial<VocabularyWord>,
+    userId?: string,
+  ): Promise<VocabularyWord> {
+    const url = userId
+      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}`
+      : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -57,33 +72,46 @@ class VocabularyWordsService {
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to update vocabulary word: ${response.statusText}`)
+      throw new Error(
+        `Failed to update vocabulary word: ${response.statusText}`,
+      )
     }
 
     return response.json()
   }
 
   async deleteWord(wordId: string, userId?: string): Promise<void> {
-    const url = userId ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}` : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
+    const url = userId
+      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}`
+      : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
     const response = await fetch(url, {
       method: 'DELETE',
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to delete vocabulary word: ${response.statusText}`)
+      throw new Error(
+        `Failed to delete vocabulary word: ${response.statusText}`,
+      )
     }
   }
 
-  saveWord(word: string, definition: string, userId: string = 'anonymous'): Promise<VocabularyWord> {
-    return this.createWord({
-      word,
-      definition,
-      example: `Example usage of "${word}" in conversation.`,
-      level: 'B1',
-      status: 'learning',
-      category: 'Chat Words',
-      userId
-    }, userId)
+  saveWord(
+    word: string,
+    definition: string,
+    userId: string = 'anonymous',
+  ): Promise<VocabularyWord> {
+    return this.createWord(
+      {
+        word,
+        definition,
+        example: `Example usage of "${word}" in conversation.`,
+        level: 'B1',
+        status: 'learning',
+        category: 'Chat Words',
+        userId,
+      },
+      userId,
+    )
   }
 }
 

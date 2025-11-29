@@ -1,32 +1,32 @@
 export interface ChatMessage {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: string;
+  id: string
+  content: string
+  sender: 'user' | 'ai'
+  timestamp: string
 }
 
 export interface ChatRequest {
-  message: string;
-  topicId: string;
-  userId?: string;
-  topicTitle?: string;
+  message: string
+  topicId: string
+  userId?: string
+  topicTitle?: string
 }
 
 export interface ChatResponse {
-  message: string;
-  messageId: string;
-  timestamp: string;
+  message: string
+  messageId: string
+  timestamp: string
 }
 
 export interface ChatHistoryResponse {
-  messages: ChatMessage[];
+  messages: ChatMessage[]
 }
 
 class ChatService {
-  private readonly apiBaseUrl: string;
+  private readonly apiBaseUrl: string
 
   constructor() {
-    this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+    this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787'
   }
 
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
@@ -35,42 +35,51 @@ class ChatService {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(request)
-    });
+      body: JSON.stringify(request),
+    })
 
     if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Chat API error: ${response.status} ${response.statusText}`,
+      )
     }
 
-    return await response.json();
+    return await response.json()
   }
 
-  async getChatHistory(topicId: string, userId: string = 'anonymous'): Promise<ChatHistoryResponse> {
+  async getChatHistory(
+    topicId: string,
+    userId: string = 'anonymous',
+  ): Promise<ChatHistoryResponse> {
     const response = await fetch(
-      `${this.apiBaseUrl}/api/chat/history?topicId=${topicId}&userId=${userId}`
-    );
+      `${this.apiBaseUrl}/api/chat/history?topicId=${topicId}&userId=${userId}`,
+    )
 
     if (!response.ok) {
-      throw new Error(`Chat history API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Chat history API error: ${response.status} ${response.statusText}`,
+      )
     }
 
-    return await response.json();
+    return await response.json()
   }
 
-  async clearChatHistory(topicId: string, userId: string = 'anonymous'): Promise<void> {
-    const response = await fetch(
-      `${this.apiBaseUrl}/api/chat/clear`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ topicId, userId })
-      }
-    );
+  async clearChatHistory(
+    topicId: string,
+    userId: string = 'anonymous',
+  ): Promise<void> {
+    const response = await fetch(`${this.apiBaseUrl}/api/chat/clear`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ topicId, userId }),
+    })
 
     if (!response.ok) {
-      throw new Error(`Clear chat API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Clear chat API error: ${response.status} ${response.statusText}`,
+      )
     }
   }
 
@@ -80,15 +89,17 @@ class ChatService {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ word })
-    });
+      body: JSON.stringify({ word }),
+    })
 
     if (!response.ok) {
-      throw new Error(`Explain API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Explain API error: ${response.status} ${response.statusText}`,
+      )
     }
 
-    return await response.json();
+    return await response.json()
   }
 }
 
-export const chatService = new ChatService();
+export const chatService = new ChatService()

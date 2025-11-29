@@ -5,33 +5,81 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full min-h-0 w-full max-w-7xl mx-auto">
       <!-- Chat Header -->
-      <div class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-3 sm:px-6 py-3 sm:py-4">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div
+        class="bg-white dark:bg-primary-950 border-b border-primary-200 dark:border-primary-800 px-3 sm:px-6 py-3 sm:py-4"
+      >
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+        >
           <div class="flex items-center gap-3 sm:gap-4">
             <button
               @click="goBack"
               class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors flex-shrink-0"
             >
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              <svg
+                class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
               </svg>
             </button>
 
             <div class="min-w-0 flex-1">
-              <h1 class="text-base sm:text-lg font-semibold text-primary-900 dark:text-primary-50 truncate">{{ topic?.title }}</h1>
-              <p class="text-xs sm:text-sm text-primary-600 dark:text-primary-400 truncate">Conversational Practice</p>
+              <h1
+                class="text-base sm:text-lg font-semibold text-primary-900 dark:text-primary-50 truncate"
+              >
+                {{ topic?.title }}
+              </h1>
+              <p
+                class="text-xs sm:text-sm text-primary-600 dark:text-primary-400 truncate"
+              >
+                Conversational Practice
+              </p>
             </div>
 
             <button
-              @click="activeTab === 'chat' ? clearChatHistory() : activeTab = 'chat'"
+              @click="
+                activeTab === 'chat' ? clearChatHistory() : (activeTab = 'chat')
+              "
               class="p-2 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-full transition-colors flex-shrink-0"
-              :title="activeTab === 'chat' ? 'Clear chat history' : 'Back to chat'"
+              :title="
+                activeTab === 'chat' ? 'Clear chat history' : 'Back to chat'
+              "
             >
-              <svg v-if="activeTab === 'chat'" class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              <svg
+                v-if="activeTab === 'chat'"
+                class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                ></path>
               </svg>
-              <svg v-else class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              <svg
+                v-else
+                class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                ></path>
               </svg>
             </button>
           </div>
@@ -44,7 +92,7 @@
                   'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
                   activeTab === 'chat'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800',
                 ]"
               >
                 Chat
@@ -55,11 +103,14 @@
                   'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors relative whitespace-nowrap',
                   activeTab === 'explanations'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800',
                 ]"
               >
                 Explanations
-                <span v-if="explanations.length > 0" class="absolute -top-1 -right-1 bg-warning-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+                <span
+                  v-if="explanations.length > 0"
+                  class="absolute -top-1 -right-1 bg-warning-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center"
+                >
                   {{ explanations.length > 99 ? '99+' : explanations.length }}
                 </span>
               </button>
@@ -69,12 +120,17 @@
                   'px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors relative whitespace-nowrap',
                   activeTab === 'saved'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800'
+                    : 'text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800',
                 ]"
               >
                 Vocabulary
-                <span v-if="vocabularyWords.length > 0" class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
-                  {{ vocabularyWords.length > 99 ? '99+' : vocabularyWords.length }}
+                <span
+                  v-if="vocabularyWords.length > 0"
+                  class="absolute -top-1 -right-1 bg-success-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center"
+                >
+                  {{
+                    vocabularyWords.length > 99 ? '99+' : vocabularyWords.length
+                  }}
                 </span>
               </button>
             </div>
@@ -88,17 +144,20 @@
           v-if="activeTab === 'chat' || !isMobile"
           :class="[
             'transition-all duration-300 flex flex-col min-h-0 h-full',
-            activeTab === 'chat' ? 'flex-1' : 'w-full sm:w-2/3'
+            activeTab === 'chat' ? 'flex-1' : 'w-full sm:w-2/3',
           ]"
         >
           <!-- Messages Area -->
-          <div class="flex-1 overflow-y-auto min-h-0 h-full p-6 space-y-4" ref="messagesContainer">
+          <div
+            class="flex-1 overflow-y-auto min-h-0 h-full p-6 space-y-4"
+            ref="messagesContainer"
+          >
             <div
               v-for="message in messages"
               :key="message.id"
               :class="[
                 'flex',
-                message.sender === 'user' ? 'justify-end' : 'justify-start'
+                message.sender === 'user' ? 'justify-end' : 'justify-start',
               ]"
             >
               <div
@@ -106,7 +165,7 @@
                   'max-w-xs lg:max-w-md px-4 py-2 rounded-lg',
                   message.sender === 'user'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
-                    : 'bg-white dark:bg-black text-primary-900 dark:text-primary-100'
+                    : 'bg-white dark:bg-black text-primary-900 dark:text-primary-100',
                 ]"
               >
                 <div
@@ -114,17 +173,29 @@
                   class="text-sm"
                   @click="handleWordClick($event)"
                 ></div>
-                <div class="text-xs opacity-70 mt-1">{{ formatTime(message.timestamp) }}</div>
+                <div class="text-xs opacity-70 mt-1">
+                  {{ formatTime(message.timestamp) }}
+                </div>
               </div>
             </div>
 
             <!-- Typing Indicator -->
             <div v-if="isTyping" class="flex justify-start">
-              <div class="bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-100 border border-primary-200 dark:border-primary-700 px-4 py-2 rounded-lg">
+              <div
+                class="bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-100 border border-primary-200 dark:border-primary-700 px-4 py-2 rounded-lg"
+              >
                 <div class="flex space-x-1">
-                  <div class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
-                  <div class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                  <div class="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  <div
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                  ></div>
+                  <div
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                    style="animation-delay: 0.1s"
+                  ></div>
+                  <div
+                    class="w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                    style="animation-delay: 0.2s"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -139,14 +210,24 @@
                 type="text"
                 placeholder="Type your message..."
                 class="flex-1 px-4 py-2 border border-primary-200 dark:border-primary-700 rounded-lg bg-white dark:bg-primary-950 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
-              >
+              />
               <button
                 @click="sendMessage"
                 :disabled="!newMessage.trim()"
                 class="px-4 py-2 bg-primary-950 dark:bg-primary-100 text-white dark:text-primary-900 rounded-lg hover:bg-primary-800 dark:hover:bg-primary-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  ></path>
                 </svg>
               </button>
             </div>
@@ -159,15 +240,34 @@
           class="w-full sm:w-1/3 bg-white dark:bg-primary-950 border-l border-primary-200 dark:border-primary-800 flex flex-col"
         >
           <!-- Explanations Tab -->
-          <div v-if="activeTab === 'explanations'" class="flex-1 overflow-y-auto p-6">
-            <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4">Word Explanations</h3>
+          <div
+            v-if="activeTab === 'explanations'"
+            class="flex-1 overflow-y-auto p-6"
+          >
+            <h3
+              class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4"
+            >
+              Word Explanations
+            </h3>
             <div v-if="explanations.length === 0" class="text-center py-8">
               <div class="text-primary-400 dark:text-primary-500 mb-2">
-                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                <svg
+                  class="w-12 h-12 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  ></path>
                 </svg>
               </div>
-              <p class="text-primary-600 dark:text-primary-400 text-sm">Select words in the chat to get explanations</p>
+              <p class="text-primary-600 dark:text-primary-400 text-sm">
+                Select words in the chat to get explanations
+              </p>
             </div>
             <div class="space-y-4">
               <div
@@ -176,34 +276,73 @@
                 class="bg-primary-50 dark:bg-primary-800 rounded-lg p-4"
               >
                 <div class="flex items-center justify-between mb-2">
-                  <h4 class="font-semibold text-primary-900 dark:text-primary-100">{{ explanation.word }}</h4>
+                  <h4
+                    class="font-semibold text-primary-900 dark:text-primary-100"
+                  >
+                    {{ explanation.word }}
+                  </h4>
                   <button
                     @click="saveWord(explanation.word, explanation.definition)"
                     class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200"
                     title="Save to vocabulary"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      ></path>
                     </svg>
                   </button>
                 </div>
-                <p class="text-sm text-primary-700 dark:text-primary-300 mb-2">{{ explanation.definition }}</p>
-                <p v-if="explanation.example" class="text-sm text-primary-600 dark:text-primary-400 italic">"{{ explanation.example }}"</p>
-                <div class="text-xs text-primary-500 dark:text-primary-400">{{ formatTime(explanation.timestamp) }}</div>
+                <p class="text-sm text-primary-700 dark:text-primary-300 mb-2">
+                  {{ explanation.definition }}
+                </p>
+                <p
+                  v-if="explanation.example"
+                  class="text-sm text-primary-600 dark:text-primary-400 italic"
+                >
+                  "{{ explanation.example }}"
+                </p>
+                <div class="text-xs text-primary-500 dark:text-primary-400">
+                  {{ formatTime(explanation.timestamp) }}
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Vocabulary Words Tab -->
           <div v-if="activeTab === 'saved'" class="flex-1 overflow-y-auto p-6">
-            <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4">Vocabulary Words</h3>
+            <h3
+              class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-4"
+            >
+              Vocabulary Words
+            </h3>
             <div v-if="vocabularyWords.length === 0" class="text-center py-8">
               <div class="text-primary-400 dark:text-primary-500 mb-2">
-                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                <svg
+                  class="w-12 h-12 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  ></path>
                 </svg>
               </div>
-              <p class="text-primary-600 dark:text-primary-400 text-sm">No vocabulary words yet</p>
+              <p class="text-primary-600 dark:text-primary-400 text-sm">
+                No vocabulary words yet
+              </p>
             </div>
             <div class="space-y-3">
               <div
@@ -212,19 +351,37 @@
                 class="bg-primary-50 dark:bg-primary-800 rounded-lg p-3"
               >
                 <div class="flex items-center justify-between mb-1">
-                  <h4 class="font-medium text-primary-900 dark:text-primary-100">{{ word.word }}</h4>
+                  <h4
+                    class="font-medium text-primary-900 dark:text-primary-100"
+                  >
+                    {{ word.word }}
+                  </h4>
                   <button
                     @click="removeVocabularyWord(word.id)"
                     class="text-error-500 hover:text-error-700 dark:hover:text-error-400"
                     title="Remove from vocabulary"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      ></path>
                     </svg>
                   </button>
                 </div>
-                <p class="text-sm text-primary-700 dark:text-primary-300 mb-1">{{ word.definition }}</p>
-                <div class="text-xs text-primary-500 dark:text-primary-400">Added {{ formatTime(word.createdAt) }}</div>
+                <p class="text-sm text-primary-700 dark:text-primary-300 mb-1">
+                  {{ word.definition }}
+                </p>
+                <div class="text-xs text-primary-500 dark:text-primary-400">
+                  Added {{ formatTime(word.createdAt) }}
+                </div>
               </div>
             </div>
           </div>
@@ -249,17 +406,22 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import WordTooltip from '@/components/WordTooltip.vue'
-import ToastNotification, {type Toast as ToastType} from '@/components/ToastNotification.vue'
-import {type ChatMessage as APIChatMessage, chatService} from '@/services/chatService'
-import {vocabularyWordsService} from '@/services/vocabularyService'
-import {type Topic, topicService} from '@/services/topicService'
+import ToastNotification, {
+  type Toast as ToastType,
+} from '@/components/ToastNotification.vue'
+import {
+  type ChatMessage as APIChatMessage,
+  chatService,
+} from '@/services/chatService'
+import { vocabularyWordsService } from '@/services/vocabularyService'
+import { type Topic, topicService } from '@/services/topicService'
 import sweetAlertService from '@/services/sweetAlertService'
-import type {VocabularyWord} from '@/types'
-import {useAuth} from '@/composables/useAuth'
+import type { VocabularyWord } from '@/types'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
@@ -279,8 +441,6 @@ interface WordExplanation {
   example?: string
   timestamp: string
 }
-
-
 
 // Reactive data
 const activeTab = ref<'chat' | 'explanations' | 'saved'>('chat')
@@ -325,13 +485,17 @@ const userId = ref('anonymous')
 
 // Watch for changes in the firebaseUser (from useAuth)
 // Watch for changes in the firebaseUser (from useAuth)
-watch(firebaseUser, async (newUser) => {
-  if (newUser) {
-    userId.value = newUser.uid
-  } else {
-    userId.value = 'anonymous'
-  }
-}, { immediate: true }) // Run immediately to catch initial auth state
+watch(
+  firebaseUser,
+  async (newUser) => {
+    if (newUser) {
+      userId.value = newUser.uid
+    } else {
+      userId.value = 'anonymous'
+    }
+  },
+  { immediate: true },
+) // Run immediately to catch initial auth state
 
 const fetchTopic = async () => {
   const topicId = route.params.topicId as string
@@ -348,21 +512,27 @@ const fetchTopic = async () => {
     toastComponent.value?.addToast({
       message: 'Failed to load topic. Please try again.',
       type: 'error',
-      duration: 5000
+      duration: 5000,
     })
     router.push({ name: 'levels' }) // Redirect if topic not found or error
   }
 }
 
 // Watch for topic and auth state to initialize chat
-watch([topic, userId, authLoading], async ([newTopic, , newAuthLoading]) => {
-  if (!newAuthLoading) { // Once auth state is resolved
-    if (newTopic) { // And topic is loaded
-      await initializeChat() // Handles initial chat messages based on newUserId
+watch(
+  [topic, userId, authLoading],
+  async ([newTopic, , newAuthLoading]) => {
+    if (!newAuthLoading) {
+      // Once auth state is resolved
+      if (newTopic) {
+        // And topic is loaded
+        await initializeChat() // Handles initial chat messages based on newUserId
+      }
+      await loadVocabularyWords() // Load/reload vocabulary words whenever userId or auth status changes
     }
-    await loadVocabularyWords() // Load/reload vocabulary words whenever userId or auth status changes
-  }
-}, { immediate: true }) // Run immediately to catch initial states
+  },
+  { immediate: true },
+) // Run immediately to catch initial states
 
 onMounted(async () => {
   await fetchTopic()
@@ -383,8 +553,8 @@ const initializeChat = async () => {
           id: '1',
           content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
           sender: 'ai',
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]
     }
   } else if (!authLoading.value && messages.value.length === 0 && topic.value) {
@@ -394,8 +564,8 @@ const initializeChat = async () => {
         id: '1',
         content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
         sender: 'ai',
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     ]
   }
 }
@@ -408,7 +578,7 @@ const loadChatHistory = async () => {
     if (data.messages && data.messages.length > 0) {
       messages.value = data.messages.map((msg: APIChatMessage) => ({
         ...msg,
-        timestamp: new Date(msg.timestamp)
+        timestamp: new Date(msg.timestamp),
       }))
 
       // Scroll to bottom after loading history
@@ -433,7 +603,7 @@ const loadVocabularyWords = async () => {
     toastComponent.value?.addToast({
       message: 'Failed to load vocabulary words.',
       type: 'error',
-      duration: 3000
+      duration: 3000,
     })
   }
 }
@@ -449,7 +619,7 @@ const sendMessage = async () => {
     id: Date.now().toString(),
     content: messageContent,
     sender: 'user',
-    timestamp: new Date()
+    timestamp: new Date(),
   }
   messages.value.push(userMessage)
 
@@ -466,14 +636,14 @@ const sendMessage = async () => {
       message: messageContent,
       topicId: topic.value.id,
       userId: userId.value,
-      topicTitle: topic.value.title
+      topicTitle: topic.value.title,
     })
 
     const aiResponse: Message = {
       id: data.messageId,
       content: data.message,
       sender: 'ai',
-      timestamp: new Date(data.timestamp)
+      timestamp: new Date(data.timestamp),
     }
 
     isTyping.value = false
@@ -487,9 +657,10 @@ const sendMessage = async () => {
     // Fallback to mock response
     const aiResponse: Message = {
       id: (Date.now() + 1).toString(),
-      content: "I apologize, but I'm having trouble connecting to the server right now. Please try again in a moment.",
+      content:
+        "I apologize, but I'm having trouble connecting to the server right now. Please try again in a moment.",
       sender: 'ai',
-      timestamp: new Date()
+      timestamp: new Date(),
     }
     messages.value.push(aiResponse)
     await nextTick()
@@ -499,7 +670,7 @@ const sendMessage = async () => {
     toastComponent.value?.addToast({
       message: 'Connection error. Please check your internet connection.',
       type: 'error',
-      duration: 5000
+      duration: 5000,
     })
   }
 }
@@ -511,7 +682,7 @@ const clearChatHistory = async () => {
   const confirmed = await sweetAlertService.confirm(
     'Clear Chat History',
     'Are you sure you want to clear all chat messages? This action cannot be undone.',
-    'warning'
+    'warning',
   )
 
   // Only proceed if user confirmed
@@ -526,15 +697,15 @@ const clearChatHistory = async () => {
         id: '1',
         content: `Hello! I'm here to help you practice English conversation about "${topic.value?.title}". Let's start! Feel free to ask questions, share your thoughts, or practice new words. You can also select any word in our conversation to get explanations or save it to your vocabulary.`,
         sender: 'ai',
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     ]
 
     // Show success toast
     toastComponent.value?.addToast({
       message: 'Chat history cleared successfully!',
       type: 'success',
-      duration: 3000
+      duration: 3000,
     })
   } catch (error) {
     console.error('Failed to clear chat history:', error)
@@ -543,7 +714,7 @@ const clearChatHistory = async () => {
     toastComponent.value?.addToast({
       message: 'Failed to clear chat history. Please try again.',
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 }
@@ -560,25 +731,35 @@ const formatTime = (timestamp: Date | string): string => {
 }
 
 const highlightSelectableText = (content: string): string => {
-  const parts = content.split(/<\/?correction>/);
-  let result = '';
+  const parts = content.split(/<\/?correction>/)
+  let result = ''
   for (let i = 0; i < parts.length; i++) {
     if (i % 2 === 0) {
       // This part is outside a correction
-      result += parts[i].replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>');
+      result += parts[i].replace(
+        /\b(\w+)\b/g,
+        '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>',
+      )
     } else {
       // This part is inside a correction
-      const correctedText = parts[i].replace(/\b(\w+)\b/g, '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>');
-      result += `<span class="text-red-500">${correctedText}</span>`;
+      const correctedText = parts[i].replace(
+        /\b(\w+)\b/g,
+        '<span class="selectable-word cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-700 rounded px-1 transition-colors">$1</span>',
+      )
+      result += `<span class="text-red-500">${correctedText}</span>`
     }
   }
-  return result;
-};
+  return result
+}
 
 const handleWordClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement
   // Check if the clicked element is a selectable word
-  if (target && target.classList.contains('selectable-word') && target.textContent) {
+  if (
+    target &&
+    target.classList.contains('selectable-word') &&
+    target.textContent
+  ) {
     const rect = target.getBoundingClientRect()
 
     selectedText.value = target.textContent.trim()
@@ -586,7 +767,7 @@ const handleWordClick = (event: MouseEvent) => {
     // Position tooltip
     tooltipPosition.value = {
       x: rect.left + rect.width / 2,
-      y: rect.top - 10
+      y: rect.top - 10,
     }
 
     showTooltip.value = true
@@ -603,7 +784,7 @@ const handleWordClick = (event: MouseEvent) => {
 document.addEventListener('click', (event) => {
   if (preventTooltipClose.value) {
     // If we just opened the tooltip, prevent this click from closing it
-    return;
+    return
   }
   const target = event.target as HTMLElement
   if (showTooltip.value && !target.closest('.tooltip-content')) {
@@ -618,23 +799,25 @@ const explainWord = async (word?: string) => {
   showTooltip.value = false
 
   // Check if word already explained
-  const existing = explanations.value.find(e => e.word.toLowerCase() === wordToExplain.toLowerCase())
+  const existing = explanations.value.find(
+    (e) => e.word.toLowerCase() === wordToExplain.toLowerCase(),
+  )
   if (existing) {
     activeTab.value = 'explanations'
     return
   }
 
   try {
-    const response = await chatService.explainWord(wordToExplain);
-    const cleanedString = response.definition.replace(/```json\n|\n```/g, '');
-    const parsedDefinition = JSON.parse(cleanedString);
+    const response = await chatService.explainWord(wordToExplain)
+    const cleanedString = response.definition.replace(/```json\n|\n```/g, '')
+    const parsedDefinition = JSON.parse(cleanedString)
 
     const explanation: WordExplanation = {
       id: Date.now().toString(),
       word: wordToExplain,
       definition: parsedDefinition.definition,
       example: parsedDefinition.example,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     explanations.value.unshift(explanation)
@@ -644,14 +827,14 @@ const explainWord = async (word?: string) => {
     toastComponent.value?.addToast({
       message: `"${wordToExplain}" explained successfully!`,
       type: 'success',
-      duration: 3000
+      duration: 3000,
     })
   } catch (error) {
-    console.error('Failed to explain word:', error);
+    console.error('Failed to explain word:', error)
     toastComponent.value?.addToast({
       message: `Failed to explain "${wordToExplain}". Please try again.`,
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 }
@@ -663,38 +846,45 @@ const saveSelectedWord = async (word?: string) => {
   showTooltip.value = false
 
   // Check if word already saved
-  const existing = vocabularyWords.value.find(w => w.word.toLowerCase() === wordToSave.toLowerCase())
+  const existing = vocabularyWords.value.find(
+    (w) => w.word.toLowerCase() === wordToSave.toLowerCase(),
+  )
   if (existing) {
     activeTab.value = 'saved'
     toastComponent.value?.addToast({
       message: `"${wordToSave}" is already in your vocabulary!`,
       type: 'info',
-      duration: 3000
+      duration: 3000,
     })
     return
   }
 
   try {
-    const response = await chatService.explainWord(wordToSave);
-    const cleanedString = response.definition.replace(/```json\n|\n```/g, '');
-    const parsedDefinition = JSON.parse(cleanedString);
+    const response = await chatService.explainWord(wordToSave)
+    const cleanedString = response.definition.replace(/```json\n|\n```/g, '')
+    const parsedDefinition = JSON.parse(cleanedString)
 
-    const newVocabularyWord = await vocabularyWordsService.createWord({
-      word: wordToSave,
-      definition: parsedDefinition.definition,
-      example: parsedDefinition.example || `Example usage of "${wordToSave}" in conversation.`,
-      level: 'B1',
-      status: 'learning',
-      category: 'Chat Words',
-      userId: userId.value
-    }, userId.value)
+    const newVocabularyWord = await vocabularyWordsService.createWord(
+      {
+        word: wordToSave,
+        definition: parsedDefinition.definition,
+        example:
+          parsedDefinition.example ||
+          `Example usage of "${wordToSave}" in conversation.`,
+        level: 'B1',
+        status: 'learning',
+        category: 'Chat Words',
+        userId: userId.value,
+      },
+      userId.value,
+    )
     vocabularyWords.value.unshift(newVocabularyWord)
 
     // Show success toast
     toastComponent.value?.addToast({
       message: `"${wordToSave}" saved to vocabulary!`,
       type: 'success',
-      duration: 3000
+      duration: 3000,
     })
     activeTab.value = 'saved'
   } catch (error) {
@@ -702,7 +892,7 @@ const saveSelectedWord = async (word?: string) => {
     toastComponent.value?.addToast({
       message: `Failed to save "${wordToSave}". Please try again.`,
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 }
@@ -711,44 +901,50 @@ const saveWord = async (word: string, definition: string) => {
   if (userId.value === 'anonymous') return // Don't save if anonymous
 
   // Check if word already saved
-  const existing = vocabularyWords.value.find(w => w.word.toLowerCase() === word.toLowerCase())
+  const existing = vocabularyWords.value.find(
+    (w) => w.word.toLowerCase() === word.toLowerCase(),
+  )
   if (existing) {
     toastComponent.value?.addToast({
       message: `"${word}" is already in your vocabulary!`,
       type: 'info',
-      duration: 3000
+      duration: 3000,
     })
     return
   }
 
   try {
-    const newVocabularyWord = await vocabularyWordsService.saveWord(word, definition, userId.value)
+    const newVocabularyWord = await vocabularyWordsService.saveWord(
+      word,
+      definition,
+      userId.value,
+    )
     vocabularyWords.value.unshift(newVocabularyWord)
     toastComponent.value?.addToast({
       message: `"${word}" saved to vocabulary!`,
       type: 'success',
-      duration: 3000
+      duration: 3000,
     })
   } catch (error) {
     console.error('Failed to save word:', error)
     toastComponent.value?.addToast({
       message: `Failed to save "${word}". Please try again.`,
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 }
 
 const removeVocabularyWord = async (id: string) => {
   if (userId.value === 'anonymous') return // Cannot remove if anonymous
-  const wordToRemove = vocabularyWords.value.find(w => w.id === id)
+  const wordToRemove = vocabularyWords.value.find((w) => w.id === id)
   if (!wordToRemove) return
 
   // Show SweetAlert confirmation dialog
   const confirmed = await sweetAlertService.confirm(
     'Delete Vocabulary Word',
     `Are you sure you want to delete "${wordToRemove.word}" from your vocabulary? This action cannot be undone.`,
-    'warning'
+    'warning',
   )
 
   // Only proceed if user confirmed
@@ -756,20 +952,20 @@ const removeVocabularyWord = async (id: string) => {
 
   try {
     await vocabularyWordsService.deleteWord(id, userId.value)
-    vocabularyWords.value = vocabularyWords.value.filter(w => w.id !== id)
+    vocabularyWords.value = vocabularyWords.value.filter((w) => w.id !== id)
 
     // Show success toast
     toastComponent.value?.addToast({
       message: `"${wordToRemove.word}" removed from vocabulary`,
       type: 'success',
-      duration: 2000
+      duration: 2000,
     })
   } catch (error) {
     console.error('Failed to remove word:', error)
     toastComponent.value?.addToast({
       message: `Failed to remove "${wordToRemove.word}". Please try again.`,
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 }
@@ -792,14 +988,14 @@ const pronounceWord = (word?: string) => {
     toastComponent.value?.addToast({
       message: `Pronouncing "${wordToPronounce}"`,
       type: 'info',
-      duration: 2000
+      duration: 2000,
     })
   } else {
     // Show error toast
     toastComponent.value?.addToast({
       message: 'Speech synthesis not supported in your browser',
       type: 'error',
-      duration: 4000
+      duration: 4000,
     })
   }
 
@@ -817,7 +1013,9 @@ const goBack = () => {
 }
 
 @keyframes bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {

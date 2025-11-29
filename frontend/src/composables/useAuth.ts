@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth'
 
 export function useAuth() {
@@ -26,6 +26,6 @@ export function useAuth() {
   return {
     user,
     loading,
-    isAuthenticated
+    isAuthenticated,
   }
 }
