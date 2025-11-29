@@ -31,10 +31,7 @@
         </div>
         <!-- Add New Topic Button -->
         <button
-          @click="
-            showAddTopicModal = true
-            resetNewTopicForm()
-          "
+          @click="toggleAddTopicModal(true)"
           class="inline-flex items-center px-4 py-2 bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900 text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-200 transition-colors"
         >
           <svg
@@ -230,10 +227,7 @@
       >
         <div
           class="fixed inset-0 bg-primary-950 bg-opacity-75 transition-opacity"
-          @click="
-            showAddTopicModal = false
-            resetNewTopicForm()
-          "
+          @click="toggleAddTopicModal(false)"
         ></div>
         <div
           class="bg-white dark:bg-primary-900 rounded-lg shadow-xl overflow-hidden transform transition-all sm:max-w-lg sm:w-full p-6 relative"
@@ -351,10 +345,7 @@
             <div class="mt-6 flex justify-end space-x-3">
               <button
                 type="button"
-                @click="
-                  showAddTopicModal = false
-                  resetNewTopicForm()
-                "
+                @click="toggleAddTopicModal(false)"
                 class="px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 rounded-md border border-primary-300 dark:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-800 transition-colors"
               >
                 Cancel
@@ -562,6 +553,11 @@ const resetNewTopicForm = () => {
   }
   isEditing.value = false
   editingTopicId.value = null
+}
+
+const toggleAddTopicModal = (show: boolean) => {
+  showAddTopicModal.value = show
+  resetNewTopicForm()
 }
 
 const currentTopics = computed(() => {

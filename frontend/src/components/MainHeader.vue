@@ -42,6 +42,15 @@ const handleLogout = () => {
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
+
+const handleLogoutAndCloseMenu = () => {
+  isMobileMenuOpen.value = false
+  handleLogout()
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
 </script>
 
 <template>
@@ -279,7 +288,7 @@ const toggleMobileMenu = () => {
               v-for="level in levels"
               :key="level"
               :to="`/level/${level}`"
-              @click="isMobileMenuOpen = false"
+              @click="closeMobileMenu"
               :class="[
                 'px-3 py-2 text-sm font-medium rounded border transition-colors flex-1 min-w-0 text-center',
                 currentLevel === level
@@ -297,14 +306,14 @@ const toggleMobileMenu = () => {
           <template v-if="isLoggedIn">
             <router-link
               to="/vocabulary"
-              @click="isMobileMenuOpen = false"
+              @click="closeMobileMenu"
               class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded text-sm font-medium transition-colors text-center"
             >
               My Vocabulary
             </router-link>
             <router-link
               to="/profile"
-              @click="isMobileMenuOpen = false"
+              @click="closeMobileMenu"
               class="w-full bg-primary-900 dark:bg-primary-50 rounded-full flex items-center justify-center text-primary-50 dark:text-primary-950 text-sm font-medium transition-colors hover:bg-primary-800 dark:hover:bg-primary-100 py-2"
               title="Profile"
             >
@@ -324,10 +333,7 @@ const toggleMobileMenu = () => {
               Profile
             </router-link>
             <button
-              @click="
-                handleLogout
-                isMobileMenuOpen = false
-              "
+              @click="handleLogoutAndCloseMenu"
               class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer w-full"
             >
               Logout
@@ -336,7 +342,7 @@ const toggleMobileMenu = () => {
           <template v-else>
             <router-link
               to="/login"
-              @click="isMobileMenuOpen = false"
+              @click="closeMobileMenu"
               class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors text-center"
             >
               Sign In

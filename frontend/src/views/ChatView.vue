@@ -143,13 +143,13 @@
         <div
           v-if="activeTab === 'chat' || !isMobile"
           :class="[
-            'transition-all duration-300 flex flex-col min-h-0 h-full',
+            'transition-all duration-300 flex flex-col h-full',
             activeTab === 'chat' ? 'flex-1' : 'w-full sm:w-2/3',
           ]"
         >
           <!-- Messages Area -->
           <div
-            class="flex-1 overflow-y-auto min-h-0 h-full p-6 space-y-4"
+            class="h-[calc(100vh-240px)] overflow-y-auto overflow-x-hidden p-6 space-y-4 max-w-2xl mx-auto w-full"
             ref="messagesContainer"
           >
             <div
@@ -157,12 +157,12 @@
               :key="message.id"
               :class="[
                 'flex',
-                message.sender === 'user' ? 'justify-end' : 'justify-start',
+                'justify-end',
               ]"
             >
               <div
                 :class="[
-                  'max-w-xs lg:max-w-md px-4 py-2 rounded-lg',
+                  'max-w-[90%] px-4 py-2 rounded-lg',
                   message.sender === 'user'
                     ? 'bg-primary-900 dark:bg-primary-100 text-white dark:text-primary-900'
                     : 'bg-white dark:bg-black text-primary-900 dark:text-primary-100',
@@ -201,9 +201,9 @@
             </div>
           </div>
 
-          <!-- Input Area -->
-          <div class="p-6 border-t border-primary-200 dark:border-primary-800">
-            <div class="flex space-x-2">
+          <!-- Input Area - Fixed at bottom -->
+          <div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-primary-950 border-t border-primary-200 dark:border-primary-800 p-4 sm:p-6 z-10">
+            <div class="flex space-x-2 max-w-2xl mx-auto">
               <input
                 v-model="newMessage"
                 @keydown.enter.prevent="sendMessage"
@@ -582,8 +582,7 @@ const loadChatHistory = async () => {
       }))
 
       // Scroll to bottom after loading history
-      await nextTick()
-      scrollToBottom()
+      await scrollToBottom()
     }
   } catch (error) {
     console.error('Failed to load chat history:', error)
@@ -624,8 +623,7 @@ const sendMessage = async () => {
   messages.value.push(userMessage)
 
   // Scroll to bottom
-  await nextTick()
-  scrollToBottom()
+  await scrollToBottom()
 
   // Show AI typing indicator
   isTyping.value = true
@@ -648,8 +646,7 @@ const sendMessage = async () => {
 
     isTyping.value = false
     messages.value.push(aiResponse)
-    await nextTick()
-    scrollToBottom()
+    await scrollToBottom()
   } catch (error) {
     console.error('Failed to send message:', error)
     isTyping.value = false
@@ -663,8 +660,7 @@ const sendMessage = async () => {
       timestamp: new Date(),
     }
     messages.value.push(aiResponse)
-    await nextTick()
-    scrollToBottom()
+    await scrollToBottom()
 
     // Show error toast
     toastComponent.value?.addToast({
@@ -719,8 +715,10 @@ const clearChatHistory = async () => {
   }
 }
 
-const scrollToBottom = () => {
+const scrollToBottom = async () => {
   if (messagesContainer.value) {
+    // Use nextTick to ensure DOM is updated before scrolling
+    await nextTick()
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
   }
 }
