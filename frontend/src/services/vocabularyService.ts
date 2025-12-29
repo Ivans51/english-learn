@@ -1,14 +1,4 @@
-import type { VocabularyWord } from '@/types'
-
-export interface CreateVocabularyWordRequest {
-  word: string
-  definition: string
-  example: string
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
-  status: 'learning' | 'mastered'
-  category: string
-  userId?: string
-}
+import type { VocabularyWord, VocabularyData, CreateVocabularyWordRequest } from '@/types'
 
 class VocabularyWordsService {
   private baseUrl = '/api/vocabulary-words'
@@ -40,7 +30,7 @@ class VocabularyWordsService {
     return response.json()
   }
 
-  async getWords(userId?: string): Promise<VocabularyWord[]> {
+  async getWords(userId?: string): Promise<VocabularyData> {
     const url = userId
       ? `${this.apiBaseUrl}/api/vocabulary-words?userId=${userId}`
       : `${this.apiBaseUrl}/api/vocabulary-words`
@@ -56,13 +46,13 @@ class VocabularyWordsService {
   }
 
   async updateWord(
-    wordId: string,
+    wordUid: string,
     updates: Partial<VocabularyWord>,
     userId?: string,
   ): Promise<VocabularyWord> {
     const url = userId
-      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}`
-      : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
+      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordUid}?userId=${userId}`
+      : `${this.apiBaseUrl}/api/vocabulary-words/${wordUid}`
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -80,10 +70,10 @@ class VocabularyWordsService {
     return response.json()
   }
 
-  async deleteWord(wordId: string, userId?: string): Promise<void> {
+  async deleteWord(wordUid: string, userId?: string): Promise<void> {
     const url = userId
-      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordId}?userId=${userId}`
-      : `${this.apiBaseUrl}/api/vocabulary-words/${wordId}`
+      ? `${this.apiBaseUrl}/api/vocabulary-words/${wordUid}?userId=${userId}`
+      : `${this.apiBaseUrl}/api/vocabulary-words/${wordUid}`
     const response = await fetch(url, {
       method: 'DELETE',
     })

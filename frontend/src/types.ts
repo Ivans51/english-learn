@@ -1,10 +1,32 @@
 export interface VocabularyWord {
-  id: string
-  word: string
-  definition: string
-  example: string
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
-  status: 'learning' | 'mastered'
-  category: string
-  createdAt: string
+  term: string
+  categoryId: string
+  categoryName: string
+  meanings: string
+  examples: string
+}
+
+export interface CreateVocabularyWordRequest {
+  term: string
+  meanings: string
+  examples: string
+  categoryName: string
+  userId?: string
+}
+
+export interface Category {
+  name: string
+}
+
+export interface VocabularyCollection {
+  [wordUid: string]: VocabularyWord
+}
+
+export interface CategoryCollection {
+  [categoryId: string]: Category
+}
+
+export interface VocabularyData {
+  vocabulary: VocabularyCollection
+  categories: CategoryCollection
 }

@@ -68,13 +68,13 @@ const closeMobileMenu = () => {
           <template v-if="isLoggedIn">
             <router-link
               to="/vocabulary"
-              class="text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               My Vocabulary
             </router-link>
             <router-link
               to="/profile"
-              class="text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Profile
             </router-link>
@@ -216,25 +216,25 @@ const closeMobileMenu = () => {
         class="md:hidden border-t border-primary-200 dark:border-primary-800 mt-2 pt-4 pb-3"
       >
         <!-- Mobile user actions -->
-        <div class="flex flex-col space-y-2">
+        <div class="flex flex-col space-y-3">
           <template v-if="isLoggedIn">
             <router-link
               to="/vocabulary"
               @click="closeMobileMenu"
-              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded text-sm font-medium transition-colors text-center"
+              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-800 dark:hover:bg-primary-100"
             >
               My Vocabulary
             </router-link>
             <router-link
               to="/profile"
               @click="closeMobileMenu"
-              class="text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              class="bg-primary-700 dark:bg-primary-200 text-primary-50 dark:text-primary-900 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-600 dark:hover:bg-primary-300"
             >
               Profile
             </router-link>
             <button
               @click="handleLogoutAndCloseMenu"
-              class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer w-full"
+              class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer w-full"
             >
               Logout
             </button>

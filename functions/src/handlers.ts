@@ -1,6 +1,6 @@
-import { Env, CreateVocabularyWordRequest, ExplainRequest, VocabularyWord } from './types';
+import { Env, CreateVocabularyWordRequest, ExplainRequest, VocabularyWord, VocabularyCollection, CategoryCollection } from './types';
 import { callGeminiAPI, generateExplanationPrompt } from './utils';
-import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord } from './database';
+import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory } from './database';
 import { ErrorResponses, SuccessResponses, logError, validateRequiredFields } from './errors';
 
 export async function handleExplainWordRequest(
@@ -39,26 +39,26 @@ export async function handleCreateVocabularyWord(
 ): Promise<Response> {
   try {
     const body: CreateVocabularyWordRequest = await request.json();
-    const { word, definition, example, level, status, category, userId = 'anonymous' } = body;
+    const { term, meanings, examples, categoryName, userId = 'anonymous' } = body;
 
     const validationError = validateRequiredFields(
       body,
-      ['word', 'definition', 'example', 'level', 'status', 'category'],
+      ['term', 'meanings', 'examples', 'categoryName'],
       corsHeaders
     );
     if (validationError) {
       return validationError;
     }
 
+    // Find or create category
+    const { categoryId } = await findOrCreateCategory(env, userId, categoryName);
+
     const newVocabularyWord: VocabularyWord = {
-      id: crypto.randomUUID(),
-      word,
-      definition,
-      example,
-      level,
-      status,
-      category,
-      createdAt: new Date().toISOString()
+      term,
+      categoryId,
+      categoryName,
+      meanings,
+      examples
     };
 
     await storeVocabularyWord(env, userId, newVocabularyWord);
@@ -79,9 +79,17 @@ export async function handleGetVocabularyWords(
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId') || 'anonymous';
 
-    const words = await getVocabularyWords(env, userId);
+    const [vocabulary, categories] = await Promise.all([
+      getVocabularyWords(env, userId),
+      getCategories(env, userId)
+    ]);
 
-    return SuccessResponses.ok(words, corsHeaders);
+    const responseData = {
+      vocabulary,
+      categories
+    };
+
+    return SuccessResponses.ok(responseData, corsHeaders);
   } catch (error) {
     logError('handleGetVocabularyWords', error);
     return ErrorResponses.internalServerError('Failed to retrieve vocabulary words', corsHeaders);
@@ -96,16 +104,16 @@ export async function handleDeleteVocabularyWord(
 ): Promise<Response> {
   try {
     const userId = url.searchParams.get('userId') || 'anonymous';
-    const wordId = url.pathname.split('/').pop();
+    const wordUid = url.pathname.split('/').pop();
 
-    if (!wordId) {
-      return ErrorResponses.missingRequiredField('word ID in URL', corsHeaders);
+    if (!wordUid) {
+      return ErrorResponses.missingRequiredField('word UID in URL', corsHeaders);
     }
 
-    await deleteVocabularyWord(env, userId, wordId);
+    await deleteVocabularyWord(env, userId, wordUid);
 
     return SuccessResponses.ok(
-      { success: true, message: `Vocabulary word ${wordId} deleted.` },
+      { success: true, message: `Vocabulary word ${wordUid} deleted.` },
       corsHeaders
     );
   } catch (error) {
@@ -122,10 +130,10 @@ export async function handleUpdateVocabularyWord(
 ): Promise<Response> {
   try {
     const userId = url.searchParams.get('userId') || 'anonymous';
-    const wordId = url.pathname.split('/').pop();
+    const wordUid = url.pathname.split('/').pop();
 
-    if (!wordId) {
-      return ErrorResponses.missingRequiredField('word ID in URL', corsHeaders);
+    if (!wordUid) {
+      return ErrorResponses.missingRequiredField('word UID in URL', corsHeaders);
     }
 
     const body: Partial<VocabularyWord> = await request.json();
@@ -134,7 +142,7 @@ export async function handleUpdateVocabularyWord(
       return ErrorResponses.badRequest('No update data provided', corsHeaders);
     }
 
-    const updatedWord = await updateVocabularyWord(env, userId, wordId, body);
+    const updatedWord = await updateVocabularyWord(env, userId, wordUid, body);
 
     return SuccessResponses.ok(updatedWord, corsHeaders);
   } catch (error) {
