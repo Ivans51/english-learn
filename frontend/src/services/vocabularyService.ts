@@ -1,7 +1,6 @@
 import type { VocabularyWord, VocabularyData, CreateVocabularyWordRequest } from '@/types'
 
 class VocabularyWordsService {
-  private baseUrl = '/api/vocabulary-words'
   private apiBaseUrl: string
 
   constructor() {

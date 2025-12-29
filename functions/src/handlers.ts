@@ -58,7 +58,8 @@ export async function handleCreateVocabularyWord(
       categoryId,
       categoryName,
       meanings,
-      examples
+      examples,
+      status: 'pending'
     };
 
     await storeVocabularyWord(env, userId, newVocabularyWord);

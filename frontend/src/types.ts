@@ -4,6 +4,7 @@ export interface VocabularyWord {
   categoryName: string
   meanings: string
   examples: string
+  status?: 'pending' | 'completed'
 }
 
 export interface CreateVocabularyWordRequest {

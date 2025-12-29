@@ -97,6 +97,22 @@
                 </option>
               </select>
             </div>
+
+            <div class="flex-1">
+              <label
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
+                Status
+              </label>
+              <select
+                v-model="selectedStatus"
+                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+              >
+                <option value="">All Words</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -104,11 +120,12 @@
       <!-- Main Content Area -->
       <div>
         <div class="mb-4 sm:mb-6 flex justify-between">
-          <h2
-            class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1"
-          >
-            {{ Object.keys(filteredWords).length }} words
-          </h2>
+          <div class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1">
+            <div>{{ Object.keys(filteredWords).length }} words</div>
+            <div class="text-sm text-primary-600 dark:text-primary-400">
+              {{ completedWordsCount }} completed, {{ pendingWordsCount }} pending
+            </div>
+          </div>
           <div class="sm:w-40">
             <button
               @click="openAddWordModal"
@@ -153,6 +170,7 @@
             v-for="(word, uid) in filteredWords"
             :key="uid"
             class="bg-white dark:bg-black rounded-lg p-1 sm:p-2 hover:shadow-md transition-all border-2 border-b-primary"
+            :class="word.status === 'completed' ? 'opacity-75 bg-green-50 dark:bg-green-950' : ''"
           >
             <div
               class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
@@ -164,6 +182,15 @@
                   >
                     {{ word.term }}
                   </h3>
+                  <span
+                    v-if="word.status === 'completed'"
+                    class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full"
+                  >
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    Completed
+                  </span>
                   <button
                     @click="toggleWordDetails(uid)"
                     class="px-2 py-1 text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors cursor-pointer"
@@ -193,6 +220,30 @@
                 <span class="text-sm text-primary-500 dark:text-primary-400">
                   {{ word.categoryName }}
                 </span>
+                <button
+                  @click="toggleWordStatus(uid, word.status)"
+                  :class="[
+                    'h-8 w-8 flex items-center justify-center rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0 transition-colors',
+                    word.status === 'completed'
+                      ? 'text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
+                      : 'text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400'
+                  ]"
+                  :title="word.status === 'completed' ? 'Mark as pending' : 'Mark as completed'"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                </button>
                 <button
                   @click="openEditWordModal(word, uid)"
                   class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
@@ -330,6 +381,7 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const selectedLevel = ref('') // Keep for MainHeader compatibility
 const selectedCategory = ref('')
+const selectedStatus = ref('') // Filter by completion status
 const showAddWordModal = ref(false)
 const wordToEdit = ref<EditableVocabularyWord | null>(null)
 const expandedWords = ref<Record<string, boolean>>({})
@@ -366,7 +418,10 @@ const filteredWords = computed(() => {
       const matchesCategory =
         !selectedCategory.value || word.categoryId === selectedCategory.value
 
-      if (matchesSearch && matchesCategory) {
+      const matchesStatus =
+        !selectedStatus.value || word.status === selectedStatus.value
+
+      if (matchesSearch && matchesCategory && matchesStatus) {
         acc[uid] = word
       }
 
@@ -374,6 +429,14 @@ const filteredWords = computed(() => {
     },
     {} as Record<string, VocabularyWord>,
   )
+})
+
+const completedWordsCount = computed(() => {
+  return Object.values(filteredWords.value).filter(word => word.status === 'completed').length
+})
+
+const pendingWordsCount = computed(() => {
+  return Object.values(filteredWords.value).filter(word => word.status !== 'completed').length
 })
 
 const handleLevelClick = (level: string) => {
@@ -479,6 +542,38 @@ const updateWord = async (updatedWord: VocabularyWord) => {
     await fireSwal({
       title: 'Error',
       text: 'Failed to update word. Please try again.',
+      icon: 'error',
+    })
+  }
+}
+
+const toggleWordStatus = async (wordUid: string, currentStatus?: 'pending' | 'completed') => {
+  const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
+
+  try {
+    const updated = await vocabularyWordsService.updateWord(
+      wordUid,
+      { status: newStatus },
+      userId.value,
+    )
+
+    // Update local data
+    if (vocabularyData.value) {
+      vocabularyData.value.vocabulary[wordUid] = updated
+    }
+
+    await fireSwal({
+      title: 'Success',
+      text: `Word marked as ${newStatus}`,
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false,
+    })
+  } catch (error) {
+    console.error('Error updating word status:', error)
+    await fireSwal({
+      title: 'Error',
+      text: 'Failed to update word status. Please try again.',
       icon: 'error',
     })
   }
