@@ -169,8 +169,12 @@
           <div
             v-for="(word, uid) in filteredWords"
             :key="uid"
-            class="bg-white dark:bg-black rounded-lg p-1 sm:p-2 hover:shadow-md transition-all border-2 border-b-primary"
-            :class="word.status === 'completed' ? 'opacity-75 bg-green-50 dark:bg-green-950' : ''"
+            class="rounded-lg p-1 sm:p-2 hover:shadow-md transition-all border mb-2"
+            :class="[
+              word.status === 'completed'
+                ? 'opacity-75 bg-green-400 dark:bg-green-950'
+                : 'bg-white dark:bg-black'
+            ]"
           >
             <div
               class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
@@ -182,15 +186,6 @@
                   >
                     {{ word.term }}
                   </h3>
-                  <span
-                    v-if="word.status === 'completed'"
-                    class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full"
-                  >
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Completed
-                  </span>
                   <button
                     @click="toggleWordDetails(uid)"
                     class="px-2 py-1 text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors cursor-pointer"
@@ -204,14 +199,14 @@
                   class="transition-all duration-300"
                 >
                   <div class="space-y-2 mb-3 mt-2">
-                    <p class="text-primary-700 dark:text-primary-300">
-                      {{ word.meanings }}
+                    <p class="text-primary-700 dark:text-primary-300 whitespace-pre-line">
+                      {{ word.meanings.replace(/; /g, '\n') }}
                     </p>
                   </div>
                   <div
-                    class="bg-primary-50 dark:bg-primary-900 p-3 rounded italic text-primary-600 dark:text-primary-400 mb-2"
+                    class="bg-primary-50 dark:bg-primary-900 p-3 rounded italic text-primary-600 dark:text-primary-400 mb-2 whitespace-pre-line"
                   >
-                    "{{ word.examples }}"
+                    "{{ word.examples.replace(/; /g, '\n') }}"
                   </div>
                 </div>
               </div>
@@ -381,7 +376,7 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const selectedLevel = ref('') // Keep for MainHeader compatibility
 const selectedCategory = ref('')
-const selectedStatus = ref('') // Filter by completion status
+const selectedStatus = ref('pending') // Filter by completion status - default to pending
 const showAddWordModal = ref(false)
 const wordToEdit = ref<EditableVocabularyWord | null>(null)
 const expandedWords = ref<Record<string, boolean>>({})
