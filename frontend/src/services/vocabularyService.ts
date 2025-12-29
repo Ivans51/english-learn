@@ -95,6 +95,24 @@ class VocabularyWordsService {
     }
   }
 
+  async explainWord(word: string): Promise<{ definition: string }> {
+    const response = await fetch(`${this.apiBaseUrl}/api/explain`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ word }),
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `Explain API error: ${response.status} ${response.statusText}`,
+      )
+    }
+
+    return await response.json()
+  }
+
 
 }
 
