@@ -108,12 +108,12 @@ const updateUserPassword = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-primary-50 dark:bg-primary-900 transition-colors">
+  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
     <MainHeader />
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div
-        class="bg-white dark:bg-primary-950 rounded-lg shadow-md p-6 transition-colors"
+        class="bg-white dark:bg-black rounded-lg shadow-md p-6 transition-colors"
       >
         <h1
           class="text-3xl font-bold text-primary-900 dark:text-primary-50 mb-6"
@@ -141,7 +141,7 @@ const updateUserPassword = async () => {
                 id="displayName"
                 v-model="displayName"
                 type="text"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 transition-colors"
+                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
                 placeholder="Enter your display name"
               />
             </div>
@@ -157,7 +157,7 @@ const updateUserPassword = async () => {
                 id="email"
                 v-model="email"
                 type="email"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 transition-colors"
+                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
                 placeholder="Enter your email"
               />
             </div>
@@ -192,7 +192,7 @@ const updateUserPassword = async () => {
                 id="newPassword"
                 v-model="newPassword"
                 type="password"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 transition-colors"
+                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
                 placeholder="Enter new password"
               />
             </div>
@@ -208,7 +208,7 @@ const updateUserPassword = async () => {
                 id="confirmPassword"
                 v-model="confirmPassword"
                 type="password"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 transition-colors"
+                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
                 placeholder="Confirm new password"
               />
             </div>
