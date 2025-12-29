@@ -95,24 +95,7 @@ class VocabularyWordsService {
     }
   }
 
-  saveWord(
-    word: string,
-    definition: string,
-    userId: string = 'anonymous',
-  ): Promise<VocabularyWord> {
-    return this.createWord(
-      {
-        word,
-        definition,
-        example: `Example usage of "${word}" in conversation.`,
-        level: 'B1',
-        status: 'learning',
-        category: 'Chat Words',
-        userId,
-      },
-      userId,
-    )
-  }
+
 }
 
 export const vocabularyWordsService = new VocabularyWordsService()

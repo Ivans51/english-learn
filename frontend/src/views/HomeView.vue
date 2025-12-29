@@ -1,52 +1,6 @@
 <script setup lang="ts">
 import MainHeader from '@/components/MainHeader.vue'
-import { ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
-
-const levelsData = ref([
-  {
-    level: 'A1',
-    title: 'Beginner Level',
-    description:
-      'Learn basic English for everyday situations and simple conversations.',
-    topicsAvailable: 3,
-  },
-  {
-    level: 'A2',
-    title: 'Elementary Level',
-    description:
-      'Build upon basics with more complex conversations and everyday situations.',
-    topicsAvailable: 2,
-  },
-  {
-    level: 'B1',
-    title: 'Intermediate Level',
-    description:
-      'Express opinions, discuss topics, and handle more complex situations.',
-    topicsAvailable: 1,
-  },
-  {
-    level: 'B2',
-    title: 'Upper-Intermediate Level',
-    description:
-      'Discuss abstract topics and express ideas with greater fluency and precision.',
-    topicsAvailable: 1,
-  },
-  {
-    level: 'C1',
-    title: 'Advanced Level',
-    description:
-      'Master complex language structures and discuss sophisticated topics.',
-    topicsAvailable: 1,
-  },
-  {
-    level: 'C2',
-    title: 'Proficiency Level',
-    description:
-      'Achieve native-like fluency with nuanced expressions and cultural understanding.',
-    topicsAvailable: 1,
-  },
-])
 
 const { isAuthenticated } = useAuth()
 </script>
@@ -66,8 +20,8 @@ const { isAuthenticated } = useAuth()
         <p
           class="mt-3 max-w-md mx-auto text-base text-primary-500 dark:text-primary-400 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl transition-colors"
         >
-          Master English step by step with our comprehensive learning platform.
-          Choose your level and start your journey to fluency.
+          Build your English vocabulary with our intelligent learning platform.
+          Save words, track progress, and expand your language skills.
         </p>
         <p
           v-if="!isAuthenticated()"
@@ -94,55 +48,6 @@ const { isAuthenticated } = useAuth()
         </div>
       </div>
 
-      <!-- Level Cards -->
-      <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <router-link
-          v-for="levelItem in levelsData"
-          :key="levelItem.level"
-          :to="`/level/${levelItem.level}`"
-          class="bg-white dark:bg-black rounded-lg shadow-md p-6 hover:shadow-lg transition-all block"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <span
-              class="bg-white dark:bg-white text-primary-950 dark:text-primary-950 px-3 py-1 rounded-full text-sm font-medium"
-            >
-              {{ levelItem.level }}
-            </span>
-            <svg
-              class="w-5 h-5 text-primary-400 dark:text-primary-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </div>
-          <h3
-            class="text-lg font-semibold text-primary-900 dark:text-primary-50 mb-2"
-          >
-            {{ levelItem.title }}
-          </h3>
-          <p class="text-primary-600 dark:text-primary-300 text-sm mb-4">
-            {{ levelItem.description }}
-          </p>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-primary-500 dark:text-primary-400">
-              {{ levelItem.topicsAvailable }} topics available
-            </span>
-            <span
-              class="text-primary-900 dark:text-primary-50 hover:text-primary-800 dark:hover:text-primary-100 text-sm font-medium"
-            >
-              Start Learning
-            </span>
-          </div>
-        </router-link>
-      </div>
-
       <!-- How It Works Section -->
       <div
         class="mt-20 bg-primary-100 dark:bg-black rounded-2xl p-8 transition-colors"
@@ -153,7 +58,7 @@ const { isAuthenticated } = useAuth()
           How It Works
         </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="text-center">
             <div
               class="bg-secondary-900 dark:bg-secondary-800 text-primary-50 dark:text-primary-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold"
@@ -163,10 +68,10 @@ const { isAuthenticated } = useAuth()
             <h3
               class="font-semibold text-primary-900 dark:text-primary-50 mb-2"
             >
-              Choose Your Level
+              Save Words
             </h3>
             <p class="text-sm text-primary-600 dark:text-primary-300">
-              Start with your current proficiency level from A1 to C2
+              Build your personal vocabulary collection as you learn
             </p>
           </div>
 
@@ -179,10 +84,10 @@ const { isAuthenticated } = useAuth()
             <h3
               class="font-semibold text-primary-900 dark:text-primary-50 mb-2"
             >
-              Learn the Content
+              Organize & Track
             </h3>
             <p class="text-sm text-primary-600 dark:text-primary-300">
-              Study topics with clear explanations and examples
+              Categorize words by level, status, and custom tags
             </p>
           </div>
 
@@ -195,26 +100,10 @@ const { isAuthenticated } = useAuth()
             <h3
               class="font-semibold text-primary-900 dark:text-primary-50 mb-2"
             >
-              Save Vocabulary
+              Master Vocabulary
             </h3>
             <p class="text-sm text-primary-600 dark:text-primary-300">
-              Build your personal vocabulary collection with one click
-            </p>
-          </div>
-
-          <div class="text-center">
-            <div
-              class="bg-secondary-900 dark:bg-secondary-800 text-primary-50 dark:text-primary-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold"
-            >
-              4
-            </div>
-            <h3
-              class="font-semibold text-primary-900 dark:text-primary-50 mb-2"
-            >
-              Practice with Chat
-            </h3>
-            <p class="text-sm text-primary-600 dark:text-primary-300">
-              Reinforce learning through interactive conversations
+              Review and practice to expand your English vocabulary
             </p>
           </div>
         </div>

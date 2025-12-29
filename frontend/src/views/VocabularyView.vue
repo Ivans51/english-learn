@@ -211,7 +211,6 @@
                   <option value="mastered">Mastered</option>
                 </select>
               </div>
-
               <div class="sm:col-span-2 lg:col-span-1">
                 <button
                   @click="openAddWordModal"

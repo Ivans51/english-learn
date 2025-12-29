@@ -4,8 +4,6 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import VocabularyView from '@/views/VocabularyView.vue'
-import LevelView from '@/views/LevelView.vue'
-import ChatView from '@/views/ChatView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 
@@ -31,18 +29,6 @@ const router = createRouter({
       path: '/vocabulary',
       name: 'vocabulary',
       component: VocabularyView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/level/:level',
-      name: 'level',
-      component: LevelView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/chat/:topicId',
-      name: 'chat',
-      component: ChatView,
       meta: { requiresAuth: true },
     },
     {
