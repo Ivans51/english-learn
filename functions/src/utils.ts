@@ -37,10 +37,16 @@ Topic: ${topic}
 
 Please respond with a JSON object containing:
 - "isCorrect": true/false (boolean indicating if the grammar is correct)
-- "feedback": A constructive feedback message explaining what's correct or what needs improvement
+- "feedback": A constructive feedback message explaining what's correct or what needs improvement. Use **bold text** for important terms, emphasis, and key points. Structure your feedback with clear headings using ## for sections when helpful.
 - "suggestions": An array of specific suggestions for improvement (only if there are errors)
 
-Be encouraging and educational in your feedback. Focus on grammar, sentence structure, and word usage appropriate for the topic: ${topic}.`;
+Be encouraging and educational in your feedback. Use markdown formatting to make your response visually appealing:
+- Use **bold** for important grammar terms, rules, and key concepts
+- Use *italics* for subtle emphasis
+- Format suggestions as plain text items (not markdown lists) that will be numbered automatically
+- Use headings (##) for different sections of feedback when appropriate
+
+Focus on grammar, sentence structure, and word usage appropriate for the topic: ${topic}.`;
 }
 
 export function generatePracticePhrasePrompt(topic: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
@@ -51,14 +57,19 @@ Please respond with a JSON object containing:
 - "translation": A simple translation if the topic is in another language (or empty if English)
 - "grammarFocus": The main grammar point this sentence helps practice
 
-Make the sentence engaging and relevant to the topic: ${topic}. For ${difficulty} difficulty, use appropriate vocabulary and sentence complexity.`;
+Make the sentence engaging and relevant to the topic: ${topic}. For ${difficulty} difficulty, use appropriate vocabulary and sentence complexity.
+
+Use markdown formatting in your response:
+- Make the **grammarFocus** field use **bold text** for the main grammar point
+- Structure any explanations with clear headings using ## when helpful
+- Use bullet points (-) for lists when appropriate`;
 }
 
 export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
-  // Add HTML markup to highlight important parts in red
+  // Add markdown formatting to highlight important parts
   let markedUpText = geminiResponse;
   
-  // Highlight important grammar terms
+  // Format important grammar terms with **bold**
   const grammarTerms = [
     'subject', 'verb', 'object', 'predicate', 'noun', 'adjective', 'adverb', 
     'preposition', 'conjunction', 'pronoun', 'article', 'tense', 'mood',
@@ -67,19 +78,22 @@ export function addHTMLMarkup(geminiResponse: string, userInput: string): string
   
   grammarTerms.forEach(term => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
-    markedUpText = markedUpText.replace(regex, `<span style="color: red; font-weight: bold;">${term}</span>`);
+    markedUpText = markedUpText.replace(regex, `**${term}**`);
   });
   
-  // Highlight suggestions and recommendations
+  // Format suggestions and recommendations with **bold**
   markedUpText = markedUpText.replace(/\b(should|could|must|recommend|suggest|consider|try|avoid)\b/gi, 
-    '<span style="color: red; font-weight: bold;">$1</span>');
+    '**$1**');
   
-  // Highlight common mistakes
+  // Format common mistakes with emphasis
   const mistakeTerms = ['incorrect', 'wrong', 'error', 'mistake', 'problem', 'issue'];
   mistakeTerms.forEach(term => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
-    markedUpText = markedUpText.replace(regex, `<span style="color: red; font-weight: bold;">${term}</span>`);
+    markedUpText = markedUpText.replace(regex, `*${term}*`);
   });
   
-  return `I analyzed your sentence: "${userInput}". Here are my thoughts: ${markedUpText}`;
+  // Format the response with markdown structure
+  const formattedResponse = `## Grammar Analysis\n\nI analyzed your sentence: "${userInput}".\n\n## Feedback\n\n${markedUpText}`;
+  
+  return formattedResponse;
 }

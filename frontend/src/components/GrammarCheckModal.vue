@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
 import {
@@ -40,6 +41,28 @@ const { success: showSuccessToast, error: showErrorToast } = useToast()
 const currentMessage = ref('')
 const chatMessages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
+const inputRef = ref<HTMLInputElement | null>(null)
+
+const focusInput = async () => {
+  await nextTick()
+  inputRef.value?.focus()
+}
+
+// Configure marked options for better rendering
+marked.setOptions({
+  breaks: true, // Convert \n to <br>
+  gfm: true // Enable GitHub flavored markdown
+})
+
+// Convert markdown to HTML
+const renderMarkdown = async (markdownText: string): Promise<string> => {
+  try {
+    return await marked(markdownText)
+  } catch (error) {
+    console.error('Error rendering markdown:', error)
+    return markdownText
+  }
+}
 
 const resetModal = () => {
   currentMessage.value = ''
@@ -93,10 +116,11 @@ const sendMessage = async () => {
     chatMessages.value = chatMessages.value.filter(msg => !msg.isLoading)
 
     // Add assistant response
+    const formattedContent = await formatGrammarFeedback(result)
     const assistantMessage: ChatMessage = {
       id: (Date.now() + 2).toString(),
       type: 'assistant',
-      content: formatGrammarFeedback(result),
+      content: formattedContent,
       timestamp: new Date()
     }
     chatMessages.value.push(assistantMessage)
@@ -111,10 +135,11 @@ const sendMessage = async () => {
     // Remove loading message and show error
     chatMessages.value = chatMessages.value.filter(msg => !msg.isLoading)
 
+    const errorContent = await renderMarkdown('## ⚠️ Error\n\nSorry, I encountered an error while checking your grammar. Please try again.')
     const errorMessage: ChatMessage = {
       id: (Date.now() + 2).toString(),
       type: 'assistant',
-      content: 'Sorry, I encountered an error while checking your grammar. Please try again.',
+      content: errorContent,
       timestamp: new Date()
     }
     chatMessages.value.push(errorMessage)
@@ -124,10 +149,11 @@ const sendMessage = async () => {
     isLoading.value = false
     await nextTick()
     scrollToBottom()
+    focusInput()
   }
 }
 
-const formatGrammarFeedback = (result: GrammarCheckResult | string | unknown): string => {
+const formatGrammarFeedback = async (result: GrammarCheckResult | string | unknown): Promise<string> => {
   try {
     // If result is a string, try to parse it as JSON
     let parsedResult = result
@@ -136,7 +162,8 @@ const formatGrammarFeedback = (result: GrammarCheckResult | string | unknown): s
         parsedResult = JSON.parse(result)
       } catch {
         // If JSON parsing fails, treat the entire string as feedback
-        return `Grammar Feedback:\n\n${result}`
+        const feedback = `## Grammar Feedback\n\n${result}`
+        return await renderMarkdown(feedback)
       }
     }
 
@@ -144,23 +171,27 @@ const formatGrammarFeedback = (result: GrammarCheckResult | string | unknown): s
     if (parsedResult && typeof parsedResult === 'object' && 'isCorrect' in parsedResult) {
       const result = parsedResult as GrammarCheckResult
       if (result.isCorrect) {
-        return `Your sentence is grammatically correct.\n\n${result.feedback || 'Well done!'}`
+        const feedback = `## ✅ Great job!\n\nYour sentence is grammatically correct.\n\n${result.feedback || 'Well done!'}`
+        return await renderMarkdown(feedback)
       } else {
-        let feedback = `❌ I found some areas for improvement:\n\n${result.feedback || 'Please review your grammar.'}`
+        let feedback = `## ❌ Areas for improvement\n\n${result.feedback || 'Please review your grammar.'}`
 
         if (result.suggestions && Array.isArray(result.suggestions) && result.suggestions.length > 0) {
-          feedback += `\n\nSuggestions:\n${result.suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}`
+          const suggestionsText = result.suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
+          feedback += `\n## Suggestions\n${suggestionsText}`
         }
 
-        return feedback
+        return await renderMarkdown(feedback)
       }
     }
 
     // Fallback: treat as general feedback
-    return `📝 Grammar Feedback:\n\n${JSON.stringify(parsedResult, null, 2)}`
+    const fallbackFeedback = `## 📝 Grammar Feedback\n\n${JSON.stringify(parsedResult, null, 2)}`
+    return await renderMarkdown(fallbackFeedback)
   } catch (error) {
     console.error('Error formatting grammar feedback:', error)
-    return `📝 Grammar Feedback:\n\nSorry, there was an error processing the response.`
+    const errorFeedback = `## 📝 Grammar Feedback\n\nSorry, there was an error processing the response.`
+    return await renderMarkdown(errorFeedback)
   }
 }
 
@@ -192,13 +223,14 @@ const generatePracticePhrase = async () => {
     // Remove loading message
     chatMessages.value = chatMessages.value.filter(msg => !msg.isLoading)
 
-    // Add practice phrase
-    const phraseMessage = `📝 Here's a new practice phrase for "${props.topicTitle}":\n\n"${result}"`
+    // Add practice phrase with markdown formatting
+    const phraseContent = `## 📝 Practice Phrase\n\n**Topic:** ${props.topicTitle}\n\n"${result}"`
+    const renderedPhrase = await renderMarkdown(phraseContent)
 
     const assistantMessage: ChatMessage = {
       id: (Date.now() + 1).toString(),
       type: 'assistant',
-      content: phraseMessage,
+      content: renderedPhrase,
       timestamp: new Date()
     }
     chatMessages.value.push(assistantMessage)
@@ -215,10 +247,11 @@ const generatePracticePhrase = async () => {
     // Remove loading message and show error
     chatMessages.value = chatMessages.value.filter(msg => !msg.isLoading)
 
+    const errorContent = await renderMarkdown('## ⚠️ Error\n\nSorry, I encountered an error while generating a practice phrase. Please try again.')
     const errorMessage: ChatMessage = {
       id: (Date.now() + 1).toString(),
       type: 'assistant',
-      content: 'Sorry, I encountered an error while generating a practice phrase. Please try again.',
+      content: errorContent,
       timestamp: new Date()
     }
     chatMessages.value.push(errorMessage)
@@ -228,6 +261,7 @@ const generatePracticePhrase = async () => {
     isLoading.value = false
     await nextTick()
     scrollToBottom()
+    focusInput()
   }
 }
 
@@ -245,13 +279,128 @@ const handleKeyPress = (event: KeyboardEvent) => {
   }
 }
 
-// Watch for modal open/close to reset state
+// Watch for modal open/close to reset state and autofocus
 watch(() => props.isOpen, (newIsOpen) => {
-  if (!newIsOpen) {
+  if (newIsOpen) {
+    focusInput()
+  } else {
     resetModal()
   }
 })
 </script>
+
+<style>
+/* Markdown styling */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-weight: 600;
+  color: rgb(250 250 250); /* text-primary-50 */
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.125rem; /* text-lg */
+  border-bottom: 1px solid rgb(75 85 99); /* border-primary-600 */
+  padding-bottom: 0.25rem;
+}
+
+.markdown-content h3 {
+  font-size: 1rem; /* text-base */
+}
+
+.markdown-content p {
+  margin-bottom: 0.5rem;
+  color: rgb(250 250 250); /* text-primary-50 */
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: rgb(34 197 94); /* text-secondary-400 */
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: rgb(209 213 219); /* text-primary-300 */
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0;
+}
+
+.markdown-content li {
+  margin-bottom: 0.125rem;
+  color: rgb(250 250 250); /* text-primary-50 */
+  line-height: 1.4;
+}
+
+.markdown-content ul li {
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.markdown-content ol {
+  counter-reset: item;
+}
+
+.markdown-content ol li {
+  list-style-type: decimal;
+  list-style-position: outside;
+  margin-left: 0.5rem;
+}
+
+/* Fix for ordered list formatting issues */
+.markdown-content ol {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.markdown-content ol + p {
+  margin-top: 0.5rem;
+}
+
+/* Handle nested lists that might be causing spacing issues */
+.markdown-content ol > li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content ol > li > p {
+  margin: 0.25rem 0;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid rgb(34 197 94); /* border-secondary-500 */
+  padding-left: 1rem;
+  font-style: italic;
+  color: rgb(209 213 219); /* text-primary-300 */
+  margin: 0.5rem 0;
+}
+
+.markdown-content code {
+  background-color: rgb(31 41 55); /* bg-primary-800 */
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem; /* text-sm */
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; /* font-mono */
+  color: rgb(34 197 94); /* text-secondary-300 */
+}
+
+.markdown-content pre {
+  background-color: rgb(31 41 55); /* bg-primary-800 */
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+</style>
 
 <template>
   <TransitionRoot appear :show="isOpen" as="template">
@@ -353,7 +502,7 @@ watch(() => props.isOpen, (newIsOpen) => {
                           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                           <span>{{ message.content }}</span>
                         </div>
-                        <div v-else class="whitespace-pre-wrap" v-html="message.content"></div>
+                        <div v-else class="markdown-content whitespace-pre-wrap" v-html="message.content"></div>
                         <div class="text-xs opacity-70 mt-1">
                           {{ message.timestamp.toLocaleTimeString() }}
                         </div>
@@ -368,6 +517,7 @@ watch(() => props.isOpen, (newIsOpen) => {
                 <div class="flex space-x-3">
                   <div class="flex-1">
                     <input
+                      ref="inputRef"
                       type="text"
                       v-model="currentMessage"
                       @keypress="handleKeyPress"
