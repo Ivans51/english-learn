@@ -39,6 +39,30 @@ export interface ExplainRequest {
   word: string;
 }
 
+export interface GrammarCheckRequest {
+  input: string;
+  topic: string;
+  userId?: string;
+}
+
+export interface GrammarCheckResponse {
+  isCorrect: boolean;
+  feedback: string;
+  suggestions?: string[];
+}
+
+export interface PracticePhraseRequest {
+  topic: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  userId?: string;
+}
+
+export interface PracticePhraseResponse {
+  phrase: string;
+  translation?: string;
+  grammarFocus?: string;
+}
+
 export interface Topic {
   title: string;
   createdAt: string;

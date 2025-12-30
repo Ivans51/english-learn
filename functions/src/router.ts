@@ -8,7 +8,9 @@ import {
   handleCreateTopic,
   handleGetTopics,
   handleDeleteTopic,
-  handleUpdateTopic
+  handleUpdateTopic,
+  handleGrammarCheck,
+  handleGeneratePracticePhrase
 } from './handlers';
 import { corsHeaders } from './utils';
 
@@ -50,6 +52,16 @@ export async function handleApiRequest(
   }
   if (url.pathname.startsWith('/api/topics/') && request.method === 'DELETE') {
     return handleDeleteTopic(request, url, env, corsHeaders);
+  }
+
+  // Grammar check endpoint
+  if (url.pathname === '/api/grammar-check' && request.method === 'POST') {
+    return handleGrammarCheck(request, env, corsHeaders);
+  }
+
+  // Generate practice phrase endpoint
+  if (url.pathname === '/api/practice-phrase' && request.method === 'POST') {
+    return handleGeneratePracticePhrase(request, env, corsHeaders);
   }
 
   // 404 for unknown API routes

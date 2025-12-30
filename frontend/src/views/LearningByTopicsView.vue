@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import MainHeader from '@/components/MainHeader.vue'
 import TopicModal from '@/components/TopicModal.vue'
+import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
 import { topicService } from '@/services/topicService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -18,6 +19,9 @@ const isLoading = ref(false)
 const showAddTopicModal = ref(false)
 const topicToEdit = ref<Topic | null>(null)
 
+const showGrammarCheckModal = ref(false)
+const selectedTopicForGrammar = ref<Topic | null>(null)
+
 // Modal functions
 const openAddTopicModal = () => {
   topicToEdit.value = null
@@ -32,6 +36,17 @@ const openEditTopicModal = (topic: Topic) => {
 const closeTopicModal = () => {
   showAddTopicModal.value = false
   topicToEdit.value = null
+}
+
+// Grammar check modal functions
+const openGrammarCheckModal = (topic: Topic) => {
+  selectedTopicForGrammar.value = { ...topic }
+  showGrammarCheckModal.value = true
+}
+
+const closeGrammarCheckModal = () => {
+  showGrammarCheckModal.value = false
+  selectedTopicForGrammar.value = null
 }
 
 const loadTopicsFromFirebase = async () => {
@@ -264,6 +279,25 @@ watch(authLoading, async (loading) => {
 
               <div class="flex items-center gap-2 sm:gap-2">
                 <button
+                  @click="openGrammarCheckModal(topic)"
+                  class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                  title="Practice grammar"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
                   @click="openEditTopicModal(topic)"
                   class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
                   title="Edit topic"
@@ -368,6 +402,14 @@ watch(authLoading, async (loading) => {
       @close="closeTopicModal"
       @add-topic="addNewTopic"
       @update-topic="updateTopic"
+    />
+
+    <!-- Grammar Check Modal -->
+    <GrammarCheckModal
+      :is-open="showGrammarCheckModal"
+      :topic-title="selectedTopicForGrammar?.title || ''"
+      :topic-id="selectedTopicForGrammar?.id || ''"
+      @close="closeGrammarCheckModal"
     />
   </div>
 </template>
