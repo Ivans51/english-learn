@@ -7,7 +7,7 @@ interface TopicApiResponse {
 }
 
 class TopicService {
-  private baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787'
+  private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787'
 
   async getTopics(userId: string): Promise<Topic[]> {
     try {

@@ -401,7 +401,7 @@ watch(
 )
 
 const filteredWords = computed(() => {
-  if (!vocabularyData.value) return {}
+  if (!vocabularyData.value || !vocabularyData.value.vocabulary) return {}
 
   return Object.entries(vocabularyData.value.vocabulary).reduce(
     (acc, [uid, word]) => {
