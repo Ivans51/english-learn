@@ -1,10 +1,14 @@
 <script setup lang="ts">
-// Main App component
+import { useToast } from '@/composables/useToast'
+import ToastNotification from '@/components/ToastNotification.vue'
+
+const { toasts } = useToast()
 </script>
 
 <template>
   <div id="app">
     <router-view />
+    <ToastNotification v-model="toasts" />
   </div>
 </template>
 

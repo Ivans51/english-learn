@@ -73,6 +73,12 @@ const closeMobileMenu = () => {
               My Vocabulary
             </router-link>
             <router-link
+              to="/learning-topics"
+              class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Learning by Topics
+            </router-link>
+            <router-link
               to="/profile"
               class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
@@ -224,6 +230,13 @@ const closeMobileMenu = () => {
               class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-800 dark:hover:bg-primary-100"
             >
               My Vocabulary
+            </router-link>
+            <router-link
+              to="/learning-topics"
+              @click="closeMobileMenu"
+              class="bg-primary-800 dark:bg-primary-300 text-primary-50 dark:text-primary-950 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-700 dark:hover:bg-primary-400"
+            >
+              Learning by Topics
             </router-link>
             <router-link
               to="/profile"

@@ -38,3 +38,21 @@ export interface CreateVocabularyWordRequest {
 export interface ExplainRequest {
   word: string;
 }
+
+export interface Topic {
+  title: string;
+  createdAt: string;
+}
+
+export interface TopicCollection {
+  [topicId: string]: Topic;
+}
+
+export interface CreateTopicRequest {
+  title: string;
+  userId?: string;
+}
+
+export interface UpdateTopicRequest {
+  title?: string;
+}

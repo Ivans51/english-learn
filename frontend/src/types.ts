@@ -31,3 +31,9 @@ export interface VocabularyData {
   vocabulary: VocabularyCollection
   categories: CategoryCollection
 }
+
+export interface Topic {
+  id: string
+  title: string
+  createdAt: string
+}

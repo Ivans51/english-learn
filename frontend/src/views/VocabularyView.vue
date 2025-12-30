@@ -354,6 +354,7 @@ import WordModal from '@/components/WordModal.vue'
 import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 import type {
   VocabularyWord,
   VocabularyData,
@@ -366,6 +367,7 @@ interface EditableVocabularyWord extends VocabularyWord {
 }
 
 const { user: firebaseUser, loading: authLoading } = useAuth()
+const { success: showSuccessToast, error: showErrorToast } = useToast()
 const userId = ref('anonymous')
 
 // New data structure
@@ -457,11 +459,7 @@ const deleteWord = async (wordUid: string) => {
       }
     } catch (error) {
       console.error('Error deleting word:', error)
-      await fireSwal({
-        title: 'Error',
-        text: 'Failed to delete word. Please try again.',
-        icon: 'error',
-      })
+      showErrorToast('Failed to delete word. Please try again.')
     }
   }
 }
@@ -498,11 +496,7 @@ const addNewWord = async (word: VocabularyWord) => {
     setTimeout(() => loadWordsFromFirebase(), 500)
   } catch (error) {
     console.error('Error creating vocabulary word:', error)
-    await fireSwal({
-      title: 'Error',
-      text: 'Failed to create word. Please try again.',
-      icon: 'error',
-    })
+    showErrorToast('Failed to create word. Please try again.')
   }
 }
 
@@ -534,11 +528,7 @@ const updateWord = async (updatedWord: VocabularyWord) => {
     closeWordModal()
   } catch (error) {
     console.error('Error updating vocabulary word:', error)
-    await fireSwal({
-      title: 'Error',
-      text: 'Failed to update word. Please try again.',
-      icon: 'error',
-    })
+    showErrorToast('Failed to update word. Please try again.')
   }
 }
 
@@ -557,20 +547,10 @@ const toggleWordStatus = async (wordUid: string, currentStatus?: 'pending' | 'co
       vocabularyData.value.vocabulary[wordUid] = updated
     }
 
-    await fireSwal({
-      title: 'Success',
-      text: `Word marked as ${newStatus}`,
-      icon: 'success',
-      timer: 2000,
-      showConfirmButton: false,
-    })
+    showSuccessToast(`Word marked as ${newStatus}`, 2000)
   } catch (error) {
     console.error('Error updating word status:', error)
-    await fireSwal({
-      title: 'Error',
-      text: 'Failed to update word status. Please try again.',
-      icon: 'error',
-    })
+    showErrorToast('Failed to update word status. Please try again.')
   }
 }
 
@@ -588,11 +568,7 @@ const loadWordsFromFirebase = async () => {
     console.error('Error loading words from Firebase:', error)
     vocabularyData.value = { vocabulary: {}, categories: {} }
     categories.value = {}
-    await fireSwal({
-      title: 'Error',
-      text: 'Failed to load words from Firebase. Please try again.',
-      icon: 'error',
-    })
+    showErrorToast('Failed to load words from Firebase. Please try again.')
   } finally {
     isLoading.value = false
   }

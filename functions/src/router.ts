@@ -4,7 +4,11 @@ import {
   handleCreateVocabularyWord,
   handleGetVocabularyWords,
   handleDeleteVocabularyWord,
-  handleUpdateVocabularyWord
+  handleUpdateVocabularyWord,
+  handleCreateTopic,
+  handleGetTopics,
+  handleDeleteTopic,
+  handleUpdateTopic
 } from './handlers';
 import { corsHeaders } from './utils';
 
@@ -32,6 +36,20 @@ export async function handleApiRequest(
   }
   if (url.pathname.startsWith('/api/vocabulary-words/') && request.method === 'DELETE') {
     return handleDeleteVocabularyWord(request, url, env, corsHeaders);
+  }
+
+  // Topics API endpoints
+  if (url.pathname === '/api/topics' && request.method === 'POST') {
+    return handleCreateTopic(request, env, corsHeaders);
+  }
+  if (url.pathname === '/api/topics' && request.method === 'GET') {
+    return handleGetTopics(request, env, corsHeaders);
+  }
+  if (url.pathname.startsWith('/api/topics/') && request.method === 'PUT') {
+    return handleUpdateTopic(request, url, env, corsHeaders);
+  }
+  if (url.pathname.startsWith('/api/topics/') && request.method === 'DELETE') {
+    return handleDeleteTopic(request, url, env, corsHeaders);
   }
 
   // 404 for unknown API routes

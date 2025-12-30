@@ -1,4 +1,4 @@
-import { Env, VocabularyWord, Category, VocabularyCollection, CategoryCollection } from './types';
+import { Env, VocabularyWord, Category, VocabularyCollection, CategoryCollection, Topic, TopicCollection } from './types';
 
 export async function storeVocabularyWord(
   env: Env,
@@ -320,6 +320,161 @@ export async function updateCategory(
     return categoryCollection[categoryId];
   } catch (error) {
     console.error('Error updating category:', error);
+    throw error;
+  }
+}
+
+// Topic functions
+export async function storeTopic(
+  env: Env,
+  userId: string = 'anonymous',
+  topic: Topic
+): Promise<{ topicId: string; topic: Topic }> {
+  try {
+    const topicsUrl = `${env.FIREBASE_DATABASE_URL}/topics/${userId}.json?auth=${env.FIREBASE_SERVICE_ACCOUNT_KEY}`;
+
+    const response = await fetch(topicsUrl);
+
+    let topicCollection: TopicCollection = {};
+
+    if (response.ok) {
+      const existingData = await response.json();
+      if (existingData && typeof existingData === 'object') {
+        topicCollection = existingData as TopicCollection;
+      }
+    }
+
+    // Generate unique ID for the topic
+    const topicId = `topic_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Add createdAt if not present
+    const topicWithTimestamp = {
+      ...topic,
+      createdAt: topic.createdAt || new Date().toISOString()
+    };
+    
+    // Store the topic
+    topicCollection[topicId] = topicWithTimestamp;
+
+    await fetch(topicsUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(topicCollection)
+    });
+
+    return {
+      topicId,
+      topic: topicWithTimestamp
+    };
+  } catch (error) {
+    console.error('Error storing topic:', error);
+    throw error;
+  }
+}
+
+export async function getTopics(
+  env: Env,
+  userId: string = 'anonymous'
+): Promise<TopicCollection> {
+  try {
+    const topicsUrl = `${env.FIREBASE_DATABASE_URL}/topics/${userId}.json?auth=${env.FIREBASE_SERVICE_ACCOUNT_KEY}`;
+    const response = await fetch(topicsUrl);
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data === 'object') {
+        return data as TopicCollection;
+      }
+    }
+    
+    return {};
+  } catch (error) {
+    console.error('Error retrieving topics:', error);
+    return {};
+  }
+}
+
+export async function deleteTopic(
+  env: Env,
+  userId: string = 'anonymous',
+  topicId: string
+): Promise<void> {
+  try {
+    const topicsUrl = `${env.FIREBASE_DATABASE_URL}/topics/${userId}.json?auth=${env.FIREBASE_SERVICE_ACCOUNT_KEY}`;
+
+    const response = await fetch(topicsUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch topics for deletion: ${response.status}`);
+    }
+
+    let topicCollection: TopicCollection = {};
+    const data = await response.json();
+    if (data && typeof data === 'object') {
+      topicCollection = data as TopicCollection;
+    }
+
+    if (topicCollection[topicId]) {
+      delete topicCollection[topicId];
+    } else {
+      console.warn(`Topic with ID ${topicId} not found for deletion.`);
+    }
+
+    await fetch(topicsUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(topicCollection)
+    });
+  } catch (error) {
+    console.error('Error deleting topic:', error);
+    throw error;
+  }
+}
+
+export async function updateTopic(
+  env: Env,
+  userId: string = 'anonymous',
+  topicId: string,
+  updatedFields: Partial<Topic>
+): Promise<Topic> {
+  try {
+    const topicsUrl = `${env.FIREBASE_DATABASE_URL}/topics/${userId}.json?auth=${env.FIREBASE_SERVICE_ACCOUNT_KEY}`;
+
+    const response = await fetch(topicsUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch topics for update: ${response.status}`);
+    }
+
+    let topicCollection: TopicCollection = {};
+    const data = await response.json();
+    if (data && typeof data === 'object') {
+      topicCollection = data as TopicCollection;
+    }
+
+    if (!topicCollection[topicId]) {
+      throw new Error(`Topic with ID ${topicId} not found for update.`);
+    }
+
+    // Update the topic
+    topicCollection[topicId] = {
+      ...topicCollection[topicId],
+      ...updatedFields
+    };
+
+    await fetch(topicsUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(topicCollection)
+    });
+
+    return topicCollection[topicId];
+  } catch (error) {
+    console.error('Error updating topic:', error);
     throw error;
   }
 }

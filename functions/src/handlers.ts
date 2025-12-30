@@ -1,6 +1,6 @@
-import { Env, CreateVocabularyWordRequest, ExplainRequest, VocabularyWord, VocabularyCollection, CategoryCollection } from './types';
+import { Env, CreateVocabularyWordRequest, ExplainRequest, VocabularyWord, VocabularyCollection, CategoryCollection, Topic, TopicCollection, CreateTopicRequest, UpdateTopicRequest } from './types';
 import { callGeminiAPI, generateExplanationPrompt } from './utils';
-import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory } from './database';
+import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory, storeTopic, getTopics, deleteTopic, updateTopic } from './database';
 import { ErrorResponses, SuccessResponses, logError, validateRequiredFields } from './errors';
 
 export async function handleExplainWordRequest(
@@ -149,5 +149,117 @@ export async function handleUpdateVocabularyWord(
   } catch (error) {
     logError('handleUpdateVocabularyWord', error);
     return ErrorResponses.internalServerError('Failed to update vocabulary word', corsHeaders);
+  }
+}
+
+// Topic handlers
+export async function handleCreateTopic(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: CreateTopicRequest = await request.json();
+    const { title, userId = 'anonymous' } = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['title'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const newTopic: Topic = {
+      title,
+      createdAt: new Date().toISOString()
+    };
+
+    const { topicId, topic } = await storeTopic(env, userId, newTopic);
+
+    return SuccessResponses.created({ ...topic, id: topicId }, corsHeaders);
+  } catch (error) {
+    logError('handleCreateTopic', error);
+    return ErrorResponses.internalServerError('Failed to create topic', corsHeaders);
+  }
+}
+
+export async function handleGetTopics(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId') || 'anonymous';
+
+    const topics = await getTopics(env, userId);
+
+    // Transform topics to include ID in the response
+    const topicsWithIds = Object.entries(topics).map(([id, topic]) => ({
+      id,
+      ...topic
+    }));
+
+    return SuccessResponses.ok(topicsWithIds, corsHeaders);
+  } catch (error) {
+    logError('handleGetTopics', error);
+    return ErrorResponses.internalServerError('Failed to retrieve topics', corsHeaders);
+  }
+}
+
+export async function handleDeleteTopic(
+  request: Request,
+  url: URL,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const userId = url.searchParams.get('userId') || 'anonymous';
+    const topicId = url.pathname.split('/').pop();
+
+    if (!topicId) {
+      return ErrorResponses.missingRequiredField('topic ID in URL', corsHeaders);
+    }
+
+    await deleteTopic(env, userId, topicId);
+
+    return SuccessResponses.ok(
+      { success: true, message: `Topic ${topicId} deleted.` },
+      corsHeaders
+    );
+  } catch (error) {
+    logError('handleDeleteTopic', error);
+    return ErrorResponses.internalServerError('Failed to delete topic', corsHeaders);
+  }
+}
+
+export async function handleUpdateTopic(
+  request: Request,
+  url: URL,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const userId = url.searchParams.get('userId') || 'anonymous';
+    const topicId = url.pathname.split('/').pop();
+
+    if (!topicId) {
+      return ErrorResponses.missingRequiredField('topic ID in URL', corsHeaders);
+    }
+
+    const body: UpdateTopicRequest = await request.json();
+
+    if (Object.keys(body).length === 0) {
+      return ErrorResponses.badRequest('No update data provided', corsHeaders);
+    }
+
+    const updatedTopic = await updateTopic(env, userId, topicId, body);
+
+    return SuccessResponses.ok({ ...updatedTopic, id: topicId }, corsHeaders);
+  } catch (error) {
+    logError('handleUpdateTopic', error);
+    return ErrorResponses.internalServerError('Failed to update topic', corsHeaders);
   }
 }

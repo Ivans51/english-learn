@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import VocabularyView from '@/views/VocabularyView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import LearningByTopicsView from '@/views/LearningByTopicsView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 
 const router = createRouter({
@@ -35,6 +36,12 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/learning-topics',
+      name: 'learning-topics',
+      component: LearningByTopicsView,
       meta: { requiresAuth: true },
     },
     // Catch-all route for 404 Not Found
