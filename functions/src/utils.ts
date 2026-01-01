@@ -63,8 +63,46 @@ export function generatePracticePhrasePrompt(topic: string, difficulty: 'easy' |
     - Use bullet points (-) for lists when appropriate`;
 }
 
+export function generateTopicWordsPrompt(topic: string): string {
+  return `You are an English vocabulary teacher. Generate 8-12 common English words related to the topic "${topic}".
+
+    For each word, provide multiple meanings and examples to help English learners understand the word thoroughly.
+    
+    Please respond with a JSON array where each word object has this structure:
+    {
+      "term": "word",
+      "meanings": "Formatted string containing multiple meanings",
+      "examples": "Formatted string containing multiple example sentences"
+    }
+    
+    **Formatting Guidelines:**
+    - **IMPORTANT**: Do NOT use **bold text** in the "term" field - just provide the plain word
+    - Use **bold text** for important vocabulary terms and concepts in meanings and examples only
+    - Provide 2-4 different meanings for each word when applicable
+    - Include 2-3 example sentences per word that demonstrate different contexts
+    - Make definitions clear and easy for English learners to understand
+    - Focus on practical, commonly used meanings
+    
+    **Format Examples:**
+    - Meanings: "1. First meaning with definition; 2. Second meaning with definition; 3. Third meaning with definition"
+    - Examples: "1. First example sentence; 2. Second example sentence; 3. Third example sentence"
+    
+    Example structure for topic "fruits":
+    [
+      {
+        "term": "apple",
+        "meanings": "1. A round fruit with red, green, or yellow skin and crisp flesh; 2. A company that makes computers and other electronic devices; 3. To hit or strike something",
+        "examples": "1. I eat an apple every day for breakfast.; 2. She bought a new Apple laptop for work.; 3. He apple the ball against the wall."
+      }
+    ]
+    
+    Generate words for the topic: ${topic}
+    
+    Respond only with the JSON array, no additional text or explanations.`;
+}
+
 export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
-  // Add markdown formatting to highlight important parts
+  // Add Markdown formatting to highlight important parts
   let markedUpText = geminiResponse;
 
   // Format important grammar terms with **bold**
