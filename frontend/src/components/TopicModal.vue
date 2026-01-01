@@ -74,6 +74,7 @@
                     placeholder="Enter topic title"
                     class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                     required
+                    @input="forceLowercase"
                   />
                 </div>
 
@@ -159,6 +160,12 @@ watch(
 
 function closeModal() {
   emit('close')
+}
+
+function forceLowercase(event: Event) {
+  const target = event.target as HTMLInputElement
+  target.value = target.value.toLowerCase()
+  formData.value.title = target.value
 }
 
 function addOrUpdateTopic() {

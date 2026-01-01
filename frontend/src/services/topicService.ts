@@ -152,7 +152,7 @@ class TopicService {
   async generatePracticePhrase(
     topicTitle: string,
     userId: string,
-  ): Promise<string> {
+  ): Promise<{ phrase: string; translation?: string; grammarFocus?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/api/practice-phrase`, {
         method: 'POST',
@@ -170,8 +170,7 @@ class TopicService {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const result = await response.json()
-      return result.phrase
+      return await response.json()
     } catch (error) {
       console.error('Error generating practice phrase:', error)
       throw error

@@ -1,175 +1,3 @@
-<script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import MainHeader from '@/components/MainHeader.vue'
-import TopicModal from '@/components/TopicModal.vue'
-import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
-import { topicService } from '@/services/topicService'
-import { useAuth } from '@/composables/useAuth'
-import { useToast } from '@/composables/useToast'
-import { fireSwal } from '../utils/swalUtils'
-import type { Topic } from '@/types'
-
-const { user: firebaseUser, loading: authLoading } = useAuth()
-const { success: showSuccessToast, error: showErrorToast } = useToast()
-const userId = ref('anonymous')
-
-const topics = ref<Topic[]>([])
-const isLoading = ref(false)
-
-const showAddTopicModal = ref(false)
-const topicToEdit = ref<Topic | null>(null)
-
-const showGrammarCheckModal = ref(false)
-const selectedTopicForGrammar = ref<Topic | null>(null)
-
-// Modal functions
-const openAddTopicModal = () => {
-  topicToEdit.value = null
-  showAddTopicModal.value = true
-}
-
-const openEditTopicModal = (topic: Topic) => {
-  topicToEdit.value = { ...topic }
-  showAddTopicModal.value = true
-}
-
-const closeTopicModal = () => {
-  showAddTopicModal.value = false
-  topicToEdit.value = null
-}
-
-// Grammar check modal functions
-const openGrammarCheckModal = (topic: Topic) => {
-  selectedTopicForGrammar.value = { ...topic }
-  showGrammarCheckModal.value = true
-}
-
-const closeGrammarCheckModal = () => {
-  showGrammarCheckModal.value = false
-  selectedTopicForGrammar.value = null
-}
-
-const loadTopicsFromFirebase = async () => {
-  try {
-    isLoading.value = true
-    const topicsData = await topicService.getTopics(userId.value)
-    topics.value = topicsData
-  } catch (error) {
-    console.error('Error loading topics from Firebase:', error)
-    topics.value = []
-    showErrorToast('Failed to load topics. Please try again.')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const addNewTopic = async (topicData: { title: string }) => {
-  try {
-    const newTopic = await topicService.createTopic({
-      title: topicData.title,
-      userId: userId.value,
-    })
-
-    // Add to local topics array
-    topics.value.push(newTopic)
-
-    showSuccessToast('Topic created successfully!', 2000)
-  } catch (error) {
-    console.error('Error creating topic:', error)
-    showErrorToast('Failed to create topic. Please try again.')
-  }
-}
-
-const updateTopic = async (updatedTopic: Topic) => {
-  try {
-    const updated = await topicService.updateTopic(
-      updatedTopic.id,
-      { title: updatedTopic.title },
-      userId.value
-    )
-
-    // Update local topics array
-    const index = topics.value.findIndex(t => t.id === updatedTopic.id)
-    if (index !== -1) {
-      topics.value[index] = updated
-    }
-
-    showSuccessToast('Topic updated successfully!', 2000)
-  } catch (error) {
-    console.error('Error updating topic:', error)
-    showErrorToast('Failed to update topic. Please try again.')
-  }
-}
-
-const deleteTopic = async (topicId: string) => {
-  const result = await fireSwal({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-  })
-
-  if (result.isConfirmed) {
-    try {
-      await topicService.deleteTopic(topicId, userId.value)
-
-      // Remove from local topics array
-      const index = topics.value.findIndex(t => t.id === topicId)
-      if (index !== -1) {
-        topics.value.splice(index, 1)
-      }
-
-      showSuccessToast('Topic has been deleted!', 2000)
-    } catch (error) {
-      console.error('Error deleting topic:', error)
-      showErrorToast('Failed to delete topic. Please try again.')
-    }
-  }
-}
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-// Load topics when user changes
-watch(
-  firebaseUser,
-  async (newUser) => {
-    if (newUser) {
-      userId.value = newUser.uid
-    } else {
-      userId.value = 'anonymous'
-    }
-    // Reload topics when user changes
-    if (!authLoading.value) {
-      await loadTopicsFromFirebase()
-    }
-  },
-  { immediate: true },
-)
-
-onMounted(async () => {
-  // Wait for auth to resolve before loading topics
-  if (!authLoading.value) {
-    await loadTopicsFromFirebase()
-  }
-})
-
-// Watch for auth loading to complete
-watch(authLoading, async (loading) => {
-  if (!loading) {
-    await loadTopicsFromFirebase()
-  }
-})
-</script>
-
 <template>
   <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
     <MainHeader />
@@ -210,7 +38,9 @@ watch(authLoading, async (loading) => {
       <!-- Topics List Section -->
       <div>
         <div class="mb-4 sm:mb-6 flex justify-between">
-          <div class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1">
+          <div
+            class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1"
+          >
             <div>{{ topics.length }} topics</div>
             <div class="text-sm text-primary-600 dark:text-primary-400">
               Manage your learning topics
@@ -261,7 +91,9 @@ watch(authLoading, async (loading) => {
             :key="topic.id"
             class="bg-white dark:bg-black rounded-lg p-4 hover:shadow-md transition-all border mb-3"
           >
-            <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+            <div
+              class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
+            >
               <div class="flex-1 min-w-0">
                 <div class="flex sm:items-center gap-2">
                   <h3
@@ -413,3 +245,174 @@ watch(authLoading, async (loading) => {
     />
   </div>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
+import MainHeader from '@/components/MainHeader.vue'
+import TopicModal from '@/components/TopicModal.vue'
+import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
+import { topicService } from '@/services/topicService'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
+import { fireSwal } from '../utils/swalUtils'
+import type { Topic } from '@/types'
+
+const { user: firebaseUser, loading: authLoading } = useAuth()
+const { success: showSuccessToast, error: showErrorToast } = useToast()
+const userId = ref('anonymous')
+
+const topics = ref<Topic[]>([])
+const isLoading = ref(false)
+
+const showAddTopicModal = ref(false)
+const topicToEdit = ref<Topic | null>(null)
+
+const showGrammarCheckModal = ref(false)
+const selectedTopicForGrammar = ref<Topic | null>(null)
+
+// Modal functions
+const openAddTopicModal = () => {
+  topicToEdit.value = null
+  showAddTopicModal.value = true
+}
+
+const openEditTopicModal = (topic: Topic) => {
+  topicToEdit.value = { ...topic }
+  showAddTopicModal.value = true
+}
+
+const closeTopicModal = () => {
+  showAddTopicModal.value = false
+  topicToEdit.value = null
+}
+
+// Grammar check modal functions
+const openGrammarCheckModal = (topic: Topic) => {
+  selectedTopicForGrammar.value = { ...topic }
+  showGrammarCheckModal.value = true
+}
+
+const closeGrammarCheckModal = () => {
+  showGrammarCheckModal.value = false
+  selectedTopicForGrammar.value = null
+}
+
+const loadTopicsFromFirebase = async () => {
+  try {
+    isLoading.value = true
+    topics.value = await topicService.getTopics(userId.value)
+  } catch (error) {
+    console.error('Error loading topics from Firebase:', error)
+    topics.value = []
+    showErrorToast('Failed to load topics. Please try again.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const addNewTopic = async (topicData: { title: string }) => {
+  try {
+    const newTopic = await topicService.createTopic({
+      title: topicData.title,
+      userId: userId.value,
+    })
+
+    // Add to local topics array
+    topics.value.push(newTopic)
+
+    showSuccessToast('Topic created successfully!', 2000)
+  } catch (error) {
+    console.error('Error creating topic:', error)
+    showErrorToast('Failed to create topic. Please try again.')
+  }
+}
+
+const updateTopic = async (updatedTopic: Topic) => {
+  try {
+    const updated = await topicService.updateTopic(
+      updatedTopic.id,
+      { title: updatedTopic.title },
+      userId.value,
+    )
+
+    // Update local topics array
+    const index = topics.value.findIndex((t) => t.id === updatedTopic.id)
+    if (index !== -1) {
+      topics.value[index] = updated
+    }
+
+    showSuccessToast('Topic updated successfully!', 2000)
+  } catch (error) {
+    console.error('Error updating topic:', error)
+    showErrorToast('Failed to update topic. Please try again.')
+  }
+}
+
+const deleteTopic = async (topicId: string) => {
+  const result = await fireSwal({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await topicService.deleteTopic(topicId, userId.value)
+
+      // Remove from local topics array
+      const index = topics.value.findIndex((t) => t.id === topicId)
+      if (index !== -1) {
+        topics.value.splice(index, 1)
+      }
+
+      showSuccessToast('Topic has been deleted!', 2000)
+    } catch (error) {
+      console.error('Error deleting topic:', error)
+      showErrorToast('Failed to delete topic. Please try again.')
+    }
+  }
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+// Load topics when user changes
+watch(
+  firebaseUser,
+  async (newUser) => {
+    if (newUser) {
+      userId.value = newUser.uid
+    } else {
+      userId.value = 'anonymous'
+    }
+    // Reload topics when user changes
+    if (!authLoading.value) {
+      await loadTopicsFromFirebase()
+    }
+  },
+  { immediate: true },
+)
+
+onMounted(async () => {
+  // Wait for auth to resolve before loading topics
+  if (!authLoading.value) {
+    await loadTopicsFromFirebase()
+  }
+})
+
+// Watch for auth loading to complete
+watch(authLoading, async (loading) => {
+  if (!loading) {
+    await loadTopicsFromFirebase()
+  }
+})
+</script>

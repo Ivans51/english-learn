@@ -16,6 +16,7 @@ import {
 import {
   addHTMLMarkup,
   callGeminiAPI,
+  callOpenRouterAPI,
   generateExplanationPrompt,
   generateGrammarCheckPrompt,
   generatePracticePhrasePrompt,
@@ -318,7 +319,7 @@ export async function handleGrammarCheck(
     }
 
     const grammarPrompt = generateGrammarCheckPrompt(input, topic);
-    const geminiResponse = await callGeminiAPI(grammarPrompt, env.GEMINI_API_KEY);
+    const geminiResponse = await callOpenRouterAPI(grammarPrompt, env.OPENROUTER_API_KEY);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate grammar feedback', corsHeaders);
@@ -389,7 +390,7 @@ export async function handleGeneratePracticePhrase(
     }
 
     const practicePrompt = generatePracticePhrasePrompt(topic, difficulty);
-    const geminiResponse = await callGeminiAPI(practicePrompt, env.GEMINI_API_KEY);
+    const geminiResponse = await callOpenRouterAPI(practicePrompt, env.OPENROUTER_API_KEY);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);
@@ -426,8 +427,17 @@ export async function handleGeneratePracticePhrase(
       console.warn('Raw response:', geminiResponse);
 
       // Create a fallback response with the raw text
+      const cleanedResponse = geminiResponse
+        .replace(/```json\s*/gi, '')
+        .replace(/```\s*$/gi, '')
+        .trim();
+
+      // Try to extract just the practice phrase part
+      const phraseMatch = cleanedResponse.match(/["']?phrase["']?\s*:\s*["']([^"']+)["']/i);
+      const extractedPhrase = phraseMatch ? phraseMatch[1] : cleanedResponse;
+
       parsedResponse = {
-        phrase: `Practice phrase for ${topic}: ${geminiResponse}`,
+        phrase: `Practice phrase for ${topic}: ${extractedPhrase}`,
         translation: '',
         grammarFocus: 'General practice'
       };

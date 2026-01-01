@@ -9,16 +9,86 @@ export const corsHeaders = {
 
 export async function callGeminiAPI(prompt: string, apiKey: string): Promise<string | null> {
   try {
-    console.log('Calling Gemini API with prompt.');
-    const genAI = new GoogleGenerativeAI(apiKey);
-    //const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const model = genAI.getGenerativeModel({model: "gemma-3-27b-it"});
+    console.log('Calling Gemini API with prompt:');
+    console.log('=== PROMPT START ===');
+    console.log(prompt);
+    console.log('=== PROMPT END ===');
 
-    const result = await model.generateContent(prompt);
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    // Use a reliable Gemini model with fallback
+    let model = genAI.getGenerativeModel({model: "gemma-3-27b-it"});
+
+    // Enhanced generation config for maximum creativity
+    const generationConfig = {
+      temperature: 1.2, // Even higher temperature for more creativity
+      topK: 60,         // More diversity in word choice
+      topP: 0.98,       // Higher probability distribution
+      maxOutputTokens: 2048,
+      candidateCount: 1,
+    };
+
+    const result = await model.generateContent({
+      contents: [{role: "user", parts: [{text: prompt}]}],
+      generationConfig
+    });
     const response = result.response;
-    return response.text();
+    const responseText = response.text();
+
+    console.log('=== GEMINI RESPONSE START ===');
+    console.log(responseText);
+    console.log('=== GEMINI RESPONSE END ===');
+
+    return responseText;
   } catch (error) {
     console.error('Error calling Gemini API:', error);
+    return null;
+  }
+}
+
+export async function callOpenRouterAPI(prompt: string, apiKey: string, siteUrl: string = 'http://localhost:3000', siteName: string = 'English Learning App'): Promise<string | null> {
+  try {
+    console.log('Calling OpenRouter API with prompt:');
+    console.log('=== PROMPT START ===');
+    console.log(prompt);
+    console.log('=== PROMPT END ===');
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": siteUrl,
+        "X-Title": siteName,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "kwaipilot/kat-coder-pro:free",
+        "messages": [
+          {
+            "role": "user",
+            "content": prompt
+          }
+        ],
+        "temperature": 1.2,
+        "top_p": 0.98,
+        "max_tokens": 2048
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const responseText = data.choices?.[0]?.message?.content;
+
+    console.log('=== OPENROUTER RESPONSE START ===');
+    console.log(responseText);
+    console.log('=== OPENROUTER RESPONSE END ===');
+
+    return responseText || null;
+  } catch (error) {
+    console.error('Error calling OpenRouter API:', error);
     return null;
   }
 }
@@ -48,19 +118,59 @@ export function generateGrammarCheckPrompt(input: string, topic: string): string
 }
 
 export function generatePracticePhrasePrompt(topic: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
-  return `Generate a practice sentence for English learners focused on the topic "${topic}". The sentence should be at ${difficulty} difficulty level.
+  const timestamp = Date.now();
+  const randomVariation = timestamp % 10000;
+  const randomTopics = [
+    "education", "career", "travel", "cooking", "sports", "technology", "environment", "culture", "health", "finance",
+    "entertainment", "science", "art", "nature", "business", "relationships", "hobbies", "history", "food", "music"
+  ];
 
-    Please respond with a JSON object containing:
-    - "phrase": The practice sentence
-    - "translation": A simple translation if the topic is in another language (or empty if English)
-    - "grammarFocus": The main grammar point this sentence helps practice
-    
-    Make the sentence engaging and relevant to the topic: ${topic}. For ${difficulty} difficulty, use appropriate vocabulary and sentence complexity.
-    
-    Use markdown formatting in your response:
-    - Make the **grammarFocus** field use **bold text** for the main grammar point
-    - Structure any explanations with clear headings using ## when helpful
-    - Use bullet points (-) for lists when appropriate`;
+  const randomWords = [
+    "creative", "dynamic", "innovative", "exciting", "challenging", "fascinating", "interesting", "surprising", "unexpected", "unique",
+    "vibrant", "colorful", "adventurous", "mysterious", "wonderful", "amazing", "brilliant", "spectacular", "extraordinary", "remarkable"
+  ];
+
+  // Pick random elements to force variation
+  const randomModifier = randomTopics[Math.floor(Math.random() * randomTopics.length)];
+  const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
+  const randomSentenceStarters = [
+    "Have you ever wondered", "What if I told you", "Imagine a world where", "Did you know that", "Picture this:",
+    "Consider this scenario:", "Think about the time when", "Here's an interesting thought:", "Let me ask you this:", "Here's something surprising:"
+  ];
+
+  const randomStarter = randomSentenceStarters[Math.floor(Math.random() * randomSentenceStarters.length)];
+
+  return `CRITICAL: Generate a COMPLETELY DIFFERENT practice sentence for English learners. Topic: "${topic}" at ${difficulty} difficulty.
+
+ABSOLUTE REQUIREMENTS:
+1. Create a sentence that is fundamentally different from any previous responses
+2. Use completely different context, vocabulary, and structure
+3. Vary the sentence type: sometimes make it a question, sometimes a statement, sometimes conditional
+4. Use different tenses: present, past, future, perfect tenses
+5. Change the grammar focus entirely: sometimes focus on prepositions, sometimes on verb tenses, sometimes on sentence structure
+
+Current request ID: ${randomVariation}
+Random modifier to ensure uniqueness: ${randomModifier}
+Random word injection: ${randomWord}
+Sentence starter pattern: ${randomStarter}
+
+Example of what NOT to do (these are too similar):
+- "In order to qualify for the scholarship..."
+- "In order to get the job..."
+
+Example of what TO do (completely different):
+- "${randomStarter} ${topic} might change in the next decade?"
+- "When I was younger, I never imagined that ${topic} would become so ${randomWord}."
+- "If someone offered you a chance to study ${topic} abroad, would you take it?"
+
+JSON response format:
+{
+  "phrase": "Your unique practice sentence here",
+  "translation": "Simple translation if needed (or empty for English)",
+  "grammarFocus": "Main grammar point this sentence practices"
+}
+
+Make each response completely unique and engaging. The more different from previous responses, the better! Force yourself to be creative and use completely different approaches each time.`;
 }
 
 export function generateTopicWordsPrompt(topic: string): string {
@@ -128,6 +238,6 @@ export function addHTMLMarkup(geminiResponse: string, userInput: string): string
     markedUpText = markedUpText.replace(regex, `*${term}*`);
   });
 
-  // Format the response with markdown structure
+  // Format the response with Markdown structure
   return `## Grammar Analysis\n\nI analyzed your sentence: "${userInput}".\n\n## Feedback\n\n${markedUpText}`;
 }
