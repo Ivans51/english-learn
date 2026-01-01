@@ -72,8 +72,10 @@
                   <input
                     type="text"
                     id="term"
-                    v-model="formData.term"
+                    ref="wordInputRef"
+                    v-model="termLowerCase"
                     placeholder="Enter the word"
+                    @keydown.enter="handleEnterKey"
                     class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                     required
                   />
@@ -172,16 +174,58 @@
                   >
                     Category Name
                   </label>
-                  <input
-                    type="text"
-                    id="categoryName"
-                    v-model="formData.categoryName"
-                    placeholder="Enter category name (e.g., Travel, Business, etc.)"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                    required
-                  />
+
+                  <!-- Category Selection Dropdown -->
+                  <div v-if="!showNewCategoryInput">
+                    <select
+                      v-model="formData.categoryName"
+                      @change="handleCategoryChange"
+                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      <option
+                        v-for="(category, id) in categories"
+                        :key="id"
+                        :value="category.name"
+                      >
+                        {{ category.name }}
+                      </option>
+                      <option value="__add_new__">+ Add New Category</option>
+                    </select>
+                  </div>
+
+                  <!-- New Category Input -->
+                  <div v-else class="space-y-2">
+                    <input
+                      type="text"
+                      id="categoryName"
+                      v-model="formData.categoryName"
+                      placeholder="Enter new category name (e.g., Travel, Business, etc.)"
+                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                      required
+                      ref="categoryInputRef"
+                    />
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        @click="confirmNewCategory"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-3 py-1 text-xs font-medium hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        type="button"
+                        @click="cancelNewCategory"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 text-white px-3 py-1 text-xs font-medium hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+
                   <p class="text-xs text-primary-300 mt-1">
-                    💡 Tip: System will automatically create the category if it doesn't exist
+                    💡 Tip: Select existing category or add a new one
                   </p>
                 </div>
 
@@ -210,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import {
   Dialog,
   DialogPanel,
@@ -221,7 +265,7 @@ import {
 
 import type { VocabularyWord } from '@/types'
 
-const emit = defineEmits(['close', 'add-word', 'update-word'])
+const emit = defineEmits(['close', 'add-word', 'update-word', 'add-category'])
 
 const initialFormData = {
   term: '',
@@ -233,43 +277,90 @@ const initialFormData = {
 const props = defineProps<{
   isOpen: boolean
   currentWord: VocabularyWord | null
+  categories?: Record<string, { name: string }>
 }>()
 
 const formData = ref({ ...initialFormData })
 const isGenerating = ref(false)
+const wordInputRef = ref<HTMLInputElement>()
+const categoryInputRef = ref<HTMLInputElement>()
+const showNewCategoryInput = ref(false)
 
 const isEditing = computed(() => !!props.currentWord)
 
-// Watch for changes in currentWord prop to populate form for editing
+// Computed property for term with automatic lowercase conversion
+const termLowerCase = computed({
+  get: () => formData.value.term,
+  set: (value: string) => {
+    formData.value.term = value.toLowerCase()
+  }
+})
+
+// Watch for currentWord changes to handle form population/reset
 watch(
   () => props.currentWord,
-  (newVal) => {
-    if (newVal) {
+  (currentWordVal) => {
+    if (currentWordVal) {
       // Populate formData with existing word data for editing
-      formData.value.term = newVal.term
-      formData.value.meaningsText = newVal.meanings
-      formData.value.examplesText = newVal.examples
-      formData.value.categoryName = newVal.categoryName
-    } else {
-      // Reset formData for adding a new word
+      formData.value.term = currentWordVal.term
+      formData.value.meaningsText = currentWordVal.meanings
+      formData.value.examplesText = currentWordVal.examples
+      formData.value.categoryName = currentWordVal.categoryName
+    } else if (props.isOpen) {
+      // Reset formData for adding a new word (only when modal is open)
       Object.assign(formData.value, initialFormData)
     }
-  },
-  { immediate: true },
-) // Run immediately on component mount/prop change
+  }
+)
 
-// Reset form when modal opens and currentWord is null (add mode)
+// Watch for modal open state to handle focus and UI state
 watch(
   () => props.isOpen,
-  (newValue) => {
-    if (newValue && !props.currentWord) {
-      Object.assign(formData.value, initialFormData)
+  async (isOpenVal) => {
+    if (!isOpenVal) {
+      // Reset category input state when modal closes
+      showNewCategoryInput.value = false
+    } else {
+      // Set focus on word input when modal opens
+      await nextTick()
+      wordInputRef.value?.focus()
     }
-  },
+  }
 )
 
 function closeModal() {
   emit('close')
+}
+
+function handleCategoryChange(event: Event) {
+  const target = event.target as HTMLSelectElement
+  if (target.value === '__add_new__') {
+    showNewCategoryInput.value = true
+    formData.value.categoryName = ''
+    // Focus the new category input after DOM update
+    nextTick(() => {
+      categoryInputRef.value?.focus()
+    })
+  }
+}
+
+function confirmNewCategory() {
+  if (formData.value.categoryName.trim()) {
+    // Emit event to notify parent to handle new category creation
+    emit('add-category', formData.value.categoryName.trim())
+    showNewCategoryInput.value = false
+  }
+}
+
+function cancelNewCategory() {
+  formData.value.categoryName = ''
+  showNewCategoryInput.value = false
+}
+
+function handleEnterKey(event: KeyboardEvent) {
+  event.preventDefault() // Prevent form submission
+  event.stopPropagation() // Stop event bubbling
+  autoGenerateDefinition() // Call the auto-generate function
 }
 
 async function autoGenerateDefinition() {

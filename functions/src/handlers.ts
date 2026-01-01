@@ -1,6 +1,6 @@
 import { Env, CreateVocabularyWordRequest, ExplainRequest, GrammarCheckRequest, PracticePhraseRequest, VocabularyWord, VocabularyCollection, CategoryCollection, Topic, TopicCollection, CreateTopicRequest, UpdateTopicRequest } from './types';
 import { callGeminiAPI, generateExplanationPrompt, generateGrammarCheckPrompt, generatePracticePhrasePrompt, addHTMLMarkup } from './utils';
-import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory, storeTopic, getTopics, deleteTopic, updateTopic } from './database';
+import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory, storeTopic, getTopics, deleteTopic, updateTopic, deleteCategory, updateCategory } from './database';
 import { ErrorResponses, SuccessResponses, logError, validateRequiredFields } from './errors';
 
 export async function handleExplainWordRequest(
@@ -402,5 +402,81 @@ export async function handleGeneratePracticePhrase(
   } catch (error) {
     logError('handleGeneratePracticePhrase', error);
     return ErrorResponses.invalidRequestBody(corsHeaders);
+  }
+}
+
+// Category handlers
+export async function handleUpdateCategory(
+  request: Request,
+  url: URL,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const userId = url.searchParams.get('userId') || 'anonymous';
+    const categoryId = url.pathname.split('/').pop();
+
+    if (!categoryId) {
+      return ErrorResponses.missingRequiredField('category ID in URL', corsHeaders);
+    }
+
+    const body: { name: string } = await request.json();
+
+    if (!body.name || body.name.trim() === '') {
+      return ErrorResponses.badRequest('Category name is required', corsHeaders);
+    }
+
+    const updatedCategory = await updateCategory(env, userId, categoryId, { name: body.name.trim() });
+
+    return SuccessResponses.ok({ ...updatedCategory, id: categoryId }, corsHeaders);
+  } catch (error) {
+    logError('handleUpdateCategory', error);
+    return ErrorResponses.internalServerError('Failed to update category', corsHeaders);
+  }
+}
+
+export async function handleDeleteCategory(
+  request: Request,
+  url: URL,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const userId = url.searchParams.get('userId') || 'anonymous';
+    const categoryId = url.pathname.split('/').pop();
+
+    if (!categoryId) {
+      return ErrorResponses.missingRequiredField('category ID in URL', corsHeaders);
+    }
+
+    // First, get all vocabulary words to find and delete words with this category
+    const vocabulary = await getVocabularyWords(env, userId);
+    const wordsToDelete: string[] = [];
+
+    // Find all words that belong to this category
+    for (const [wordUid, word] of Object.entries(vocabulary)) {
+      if (word.categoryId === categoryId) {
+        wordsToDelete.push(wordUid);
+      }
+    }
+
+    // Delete all vocabulary words that belong to this category
+    for (const wordUid of wordsToDelete) {
+      await deleteVocabularyWord(env, userId, wordUid);
+    }
+
+    // Finally, delete the category itself
+    await deleteCategory(env, userId, categoryId);
+
+    return SuccessResponses.ok(
+      { 
+        success: true, 
+        message: `Category ${categoryId} deleted along with ${wordsToDelete.length} related words.` 
+      },
+      corsHeaders
+    );
+  } catch (error) {
+    logError('handleDeleteCategory', error);
+    return ErrorResponses.internalServerError('Failed to delete category', corsHeaders);
   }
 }

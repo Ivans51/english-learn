@@ -10,7 +10,9 @@ import {
   handleDeleteTopic,
   handleUpdateTopic,
   handleGrammarCheck,
-  handleGeneratePracticePhrase
+  handleGeneratePracticePhrase,
+  handleUpdateCategory,
+  handleDeleteCategory
 } from './handlers';
 import { corsHeaders } from './utils';
 
@@ -52,6 +54,14 @@ export async function handleApiRequest(
   }
   if (url.pathname.startsWith('/api/topics/') && request.method === 'DELETE') {
     return handleDeleteTopic(request, url, env, corsHeaders);
+  }
+
+  // Categories API endpoints
+  if (url.pathname.startsWith('/api/categories/') && request.method === 'PUT') {
+    return handleUpdateCategory(request, url, env, corsHeaders);
+  }
+  if (url.pathname.startsWith('/api/categories/') && request.method === 'DELETE') {
+    return handleDeleteCategory(request, url, env, corsHeaders);
   }
 
   // Grammar check endpoint

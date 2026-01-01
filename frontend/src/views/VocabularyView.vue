@@ -83,19 +83,31 @@
               >
                 Category
               </label>
-              <select
-                v-model="selectedCategory"
-                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              >
-                <option value="">All Categories</option>
-                <option
-                  v-for="(category, id) in categories"
-                  :key="id"
-                  :value="id"
+              <div class="flex gap-2">
+                <select
+                  v-model="selectedCategory"
+                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
-                  {{ category.name }}
-                </option>
-              </select>
+                  <option value="">All Categories</option>
+                  <option
+                    v-for="(category, id) in categories"
+                    :key="id"
+                    :value="id"
+                  >
+                    {{ category.name }}
+                  </option>
+                </select>
+                <button
+                  @click="navigateToCategories"
+                  class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
+                  title="Manage Categories"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="flex-1">
@@ -340,15 +352,18 @@
     <WordModal
       :is-open="showAddWordModal"
       :current-word="wordToEdit"
+      :categories="categories"
       @close="closeWordModal"
       @add-word="addNewWord"
       @update-word="updateWord"
+      @add-category="addNewCategory"
     />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
 import { fireSwal } from '../utils/swalUtils'
@@ -366,6 +381,7 @@ interface EditableVocabularyWord extends VocabularyWord {
   _uid?: string
 }
 
+const router = useRouter()
 const { user: firebaseUser, loading: authLoading } = useAuth()
 const { success: showSuccessToast, error: showErrorToast } = useToast()
 const userId = ref('anonymous')
@@ -479,6 +495,10 @@ const closeWordModal = () => {
   wordToEdit.value = null
 }
 
+const navigateToCategories = () => {
+  router.push('/categories')
+}
+
 const addNewWord = async (word: VocabularyWord) => {
   try {
     await vocabularyWordsService.createWord(
@@ -530,6 +550,25 @@ const updateWord = async (updatedWord: VocabularyWord) => {
     console.error('Error updating vocabulary word:', error)
     showErrorToast('Failed to update word. Please try again.')
   }
+}
+
+const addNewCategory = (categoryName: string) => {
+  // Generate a unique ID for the new category
+  const newCategoryId = `cat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+  // Add the new category to the categories object
+  categories.value[newCategoryId] = {
+    name: categoryName.trim()
+  }
+
+  // Also update the vocabularyData if it exists
+  if (vocabularyData.value) {
+    vocabularyData.value.categories[newCategoryId] = {
+      name: categoryName.trim()
+    }
+  }
+
+  showSuccessToast(`Category "${categoryName.trim()}" added successfully!`, 2000)
 }
 
 const toggleWordStatus = async (wordUid: string, currentStatus?: 'pending' | 'completed') => {
