@@ -48,11 +48,15 @@
           />
           <button
             @click="handleAddCategory"
-            :disabled="!newCategoryName.trim()"
+            :disabled="!newCategoryName.trim() || isCreating"
             class="px-6 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm font-medium hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
-            <Plus class="w-4 h-4" />
-            Add Category
+            <span
+              v-if="isCreating"
+              class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
+            ></span>
+            <Plus v-else class="w-4 h-4" />
+            {{ isCreating ? 'Adding...' : 'Add Category' }}
           </button>
         </div>
       </div>
@@ -162,11 +166,19 @@
               <button
                 v-if="editingCategory === String(id)"
                 @click="handleSaveEdit(String(id))"
-                :disabled="!editingName.trim() || editingName === category.name"
+                :disabled="
+                  !editingName.trim() ||
+                  editingName === category.name ||
+                  isUpdating
+                "
                 class="p-2 text-primary-600 dark:text-primary-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Save changes"
               >
-                <Check class="w-4 h-4" />
+                <span
+                  v-if="isUpdating"
+                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 dark:border-green-400"
+                ></span>
+                <Check v-else class="w-4 h-4" />
               </button>
 
               <!-- Cancel button -->
@@ -182,10 +194,15 @@
               <!-- Delete button -->
               <button
                 @click="handleDeleteCategory(String(id), category.name)"
-                class="p-2 text-primary-600 dark:text-primary-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors"
+                :disabled="isDeleting"
+                class="p-2 text-primary-600 dark:text-primary-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Delete category and all related words"
               >
-                <Trash2 class="w-4 h-4" />
+                <span
+                  v-if="isDeleting"
+                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 dark:border-red-400"
+                ></span>
+                <Trash2 v-else class="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -198,7 +215,15 @@
 <script setup lang="ts">
 // Watch for user changes
 import { nextTick, onMounted, ref, watch } from 'vue'
-import { ArrowLeft, RefreshCw, Edit3, Check, X, Trash2, Plus } from 'lucide-vue-next'
+import {
+  ArrowLeft,
+  Check,
+  Edit3,
+  Plus,
+  RefreshCw,
+  Trash2,
+  X,
+} from 'lucide-vue-next'
 import MainHeader from '@/components/MainHeader.vue'
 import { fireSwal } from '@/utils/swalUtils'
 import { useToast } from '@/composables/useToast'
@@ -218,6 +243,11 @@ const newCategoryName = ref('')
 const editingCategory = ref<string | null>(null)
 const editingName = ref('')
 const editInput = ref<HTMLInputElement>()
+
+// Loading states for different operations
+const isCreating = ref(false)
+const isUpdating = ref(false)
+const isDeleting = ref(false)
 
 const userId = ref('anonymous')
 
@@ -260,37 +290,52 @@ const getWordCountForCategory = (categoryId: string): number => {
   ).length
 }
 
-const handleAddCategory = () => {
+const handleAddCategory = async () => {
   if (newCategoryName.value.trim()) {
-    // Generate a unique ID for the new category
-    const newCategoryId = `cat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    isCreating.value = true
+    try {
+      // Create the category via API
+      await categoryService.createCategory(
+        newCategoryName.value.trim(),
+        userId.value,
+      )
 
-    // Add the new category to the categories object
-    categories.value[newCategoryId] = {
-      name: newCategoryName.value.trim(),
+      // Reload categories from backend to ensure consistency
+      await loadCategories()
+
+      showSuccessToast(
+        `Category "${newCategoryName.value.trim()}" added successfully!`,
+        2000,
+      )
+      newCategoryName.value = ''
+    } catch (error) {
+      console.error('Error adding category:', error)
+      showErrorToast('Failed to add category. Please try again.')
+    } finally {
+      isCreating.value = false
     }
-
-    // Also update the vocabularyData if it exists
-    if (vocabularyData.value) {
-      vocabularyData.value.categories[newCategoryId] = {
-        name: newCategoryName.value.trim(),
-      }
-    }
-
-    showSuccessToast(
-      `Category "${newCategoryName.value.trim()}" added successfully!`,
-      2000,
-    )
-    newCategoryName.value = ''
   }
 }
 
 const startEdit = (categoryId: string, currentName: string) => {
   editingCategory.value = categoryId
   editingName.value = currentName
+
   nextTick(() => {
-    editInput.value?.focus()
-    editInput.value?.select()
+    const inputElement = editInput.value
+    if (inputElement && typeof inputElement.focus === 'function') {
+      inputElement.focus()
+      inputElement.select()
+    } else {
+      // Fallback: try again after a short delay
+      setTimeout(() => {
+        const fallbackElement = editInput.value
+        if (fallbackElement && typeof fallbackElement.focus === 'function') {
+          fallbackElement.focus()
+          fallbackElement.select()
+        }
+      }, 50)
+    }
   })
 }
 
@@ -301,12 +346,13 @@ const handleSaveEdit = async (categoryId: string) => {
   ) {
     const oldName = categories.value[categoryId]?.name || 'Unknown Category'
 
+    isUpdating.value = true
     try {
       // Update via API
       await categoryService.updateCategory(
         categoryId,
         { name: editingName.value.trim() },
-        userId.value
+        userId.value,
       )
 
       // Reload data from backend to ensure consistency
@@ -319,6 +365,8 @@ const handleSaveEdit = async (categoryId: string) => {
     } catch (error) {
       console.error('Error updating category:', error)
       showErrorToast('Failed to update category. Please try again.')
+    } finally {
+      isUpdating.value = false
     }
   }
   cancelEdit()
@@ -345,6 +393,7 @@ const handleDeleteCategory = async (
   })
 
   if (result.isConfirmed) {
+    isDeleting.value = true
     try {
       // Delete via API (this will also delete all related vocabulary words)
       await categoryService.deleteCategory(categoryId, userId.value)
@@ -359,6 +408,8 @@ const handleDeleteCategory = async (
     } catch (error) {
       console.error('Error deleting category:', error)
       showErrorToast('Failed to delete category. Please try again.')
+    } finally {
+      isDeleting.value = false
     }
   }
 }

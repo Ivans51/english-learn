@@ -1,7 +1,41 @@
-import { Env, CreateVocabularyWordRequest, ExplainRequest, GrammarCheckRequest, PracticePhraseRequest, VocabularyWord, VocabularyCollection, CategoryCollection, Topic, TopicCollection, CreateTopicRequest, UpdateTopicRequest } from './types';
-import { callGeminiAPI, generateExplanationPrompt, generateGrammarCheckPrompt, generatePracticePhrasePrompt, addHTMLMarkup } from './utils';
-import { storeVocabularyWord, getVocabularyWords, deleteVocabularyWord, updateVocabularyWord, getCategories, findOrCreateCategory, storeTopic, getTopics, deleteTopic, updateTopic, deleteCategory, updateCategory } from './database';
-import { ErrorResponses, SuccessResponses, logError, validateRequiredFields } from './errors';
+import {
+  Category,
+  CreateCategoryRequest,
+  CreateTopicRequest,
+  CreateTopicWordsRequest,
+  CreateVocabularyWordRequest,
+  Env,
+  ExplainRequest,
+  GrammarCheckRequest,
+  PracticePhraseRequest,
+  Topic,
+  TopicWord,
+  UpdateTopicRequest,
+  VocabularyWord
+} from './types';
+import {
+  addHTMLMarkup,
+  callGeminiAPI,
+  generateExplanationPrompt,
+  generateGrammarCheckPrompt,
+  generatePracticePhrasePrompt
+} from './utils';
+import {
+  deleteCategory,
+  deleteTopic,
+  deleteVocabularyWord,
+  findOrCreateCategory,
+  getCategories,
+  getTopics,
+  getVocabularyWords,
+  storeCategory,
+  storeTopic,
+  storeVocabularyWord,
+  updateCategory,
+  updateTopic,
+  updateVocabularyWord
+} from './database';
+import {ErrorResponses, logError, SuccessResponses, validateRequiredFields} from './errors';
 
 export async function handleExplainWordRequest(
   request: Request,
@@ -10,7 +44,7 @@ export async function handleExplainWordRequest(
 ): Promise<Response> {
   try {
     const body: ExplainRequest = await request.json();
-    const { word } = body;
+    const {word} = body;
 
     const validationError = validateRequiredFields(body, ['word'], corsHeaders);
     if (validationError) {
@@ -24,7 +58,7 @@ export async function handleExplainWordRequest(
       return ErrorResponses.internalServerError('Failed to generate explanation', corsHeaders);
     }
 
-    return SuccessResponses.ok({ definition: geminiResponse }, corsHeaders);
+    return SuccessResponses.ok({definition: geminiResponse}, corsHeaders);
 
   } catch (error) {
     logError('handleExplainWordRequest', error);
@@ -39,7 +73,7 @@ export async function handleCreateVocabularyWord(
 ): Promise<Response> {
   try {
     const body: CreateVocabularyWordRequest = await request.json();
-    const { term, meanings, examples, categoryName, userId = 'anonymous' } = body;
+    const {term, meanings, examples, categoryName, userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -51,7 +85,7 @@ export async function handleCreateVocabularyWord(
     }
 
     // Find or create category
-    const { categoryId } = await findOrCreateCategory(env, userId, categoryName);
+    const {categoryId} = await findOrCreateCategory(env, userId, categoryName);
 
     const newVocabularyWord: VocabularyWord = {
       term,
@@ -114,7 +148,7 @@ export async function handleDeleteVocabularyWord(
     await deleteVocabularyWord(env, userId, wordUid);
 
     return SuccessResponses.ok(
-      { success: true, message: `Vocabulary word ${wordUid} deleted.` },
+      {success: true, message: `Vocabulary word ${wordUid} deleted.`},
       corsHeaders
     );
   } catch (error) {
@@ -160,7 +194,7 @@ export async function handleCreateTopic(
 ): Promise<Response> {
   try {
     const body: CreateTopicRequest = await request.json();
-    const { title, userId = 'anonymous' } = body;
+    const {title, userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -176,9 +210,9 @@ export async function handleCreateTopic(
       createdAt: new Date().toISOString()
     };
 
-    const { topicId, topic } = await storeTopic(env, userId, newTopic);
+    const {topicId, topic} = await storeTopic(env, userId, newTopic);
 
-    return SuccessResponses.created({ ...topic, id: topicId }, corsHeaders);
+    return SuccessResponses.created({...topic, id: topicId}, corsHeaders);
   } catch (error) {
     logError('handleCreateTopic', error);
     return ErrorResponses.internalServerError('Failed to create topic', corsHeaders);
@@ -226,7 +260,7 @@ export async function handleDeleteTopic(
     await deleteTopic(env, userId, topicId);
 
     return SuccessResponses.ok(
-      { success: true, message: `Topic ${topicId} deleted.` },
+      {success: true, message: `Topic ${topicId} deleted.`},
       corsHeaders
     );
   } catch (error) {
@@ -257,7 +291,7 @@ export async function handleUpdateTopic(
 
     const updatedTopic = await updateTopic(env, userId, topicId, body);
 
-    return SuccessResponses.ok({ ...updatedTopic, id: topicId }, corsHeaders);
+    return SuccessResponses.ok({...updatedTopic, id: topicId}, corsHeaders);
   } catch (error) {
     logError('handleUpdateTopic', error);
     return ErrorResponses.internalServerError('Failed to update topic', corsHeaders);
@@ -271,7 +305,7 @@ export async function handleGrammarCheck(
 ): Promise<Response> {
   try {
     const body: GrammarCheckRequest = await request.json();
-    const { input, topic, userId = 'anonymous' } = body;
+    const {input, topic, userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -295,7 +329,7 @@ export async function handleGrammarCheck(
       // First, try to extract JSON from markdown code blocks
       const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
       let jsonText;
-      
+
       if (jsonMatch) {
         // Extract JSON from code block
         jsonText = jsonMatch[1].trim();
@@ -308,9 +342,9 @@ export async function handleGrammarCheck(
           throw new Error('No JSON found in response');
         }
       }
-      
+
       parsedResponse = JSON.parse(jsonText);
-      
+
       // Validate the parsed response has the expected structure
       if (typeof parsedResponse !== 'object' || parsedResponse === null || !('isCorrect' in parsedResponse)) {
         throw new Error('Invalid response structure');
@@ -318,7 +352,7 @@ export async function handleGrammarCheck(
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
       console.warn('Raw response:', geminiResponse);
-      
+
       // Create a fallback response with HTML markup for important parts
       const fallbackFeedback = addHTMLMarkup(geminiResponse, input);
       parsedResponse = {
@@ -342,7 +376,7 @@ export async function handleGeneratePracticePhrase(
 ): Promise<Response> {
   try {
     const body: PracticePhraseRequest = await request.json();
-    const { topic, difficulty = 'medium', userId = 'anonymous' } = body;
+    const {topic, difficulty = 'medium', userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -366,7 +400,7 @@ export async function handleGeneratePracticePhrase(
       // First, try to extract JSON from markdown code blocks
       const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
       let jsonText;
-      
+
       if (jsonMatch) {
         // Extract JSON from code block
         jsonText = jsonMatch[1].trim();
@@ -379,9 +413,9 @@ export async function handleGeneratePracticePhrase(
           throw new Error('No JSON found in response');
         }
       }
-      
+
       parsedResponse = JSON.parse(jsonText);
-      
+
       // Validate the parsed response has the expected structure
       if (typeof parsedResponse !== 'object' || parsedResponse === null || !('phrase' in parsedResponse)) {
         throw new Error('Invalid response structure');
@@ -389,7 +423,7 @@ export async function handleGeneratePracticePhrase(
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
       console.warn('Raw response:', geminiResponse);
-      
+
       // Create a fallback response with the raw text
       parsedResponse = {
         phrase: `Practice phrase for ${topic}: ${geminiResponse}`,
@@ -406,6 +440,40 @@ export async function handleGeneratePracticePhrase(
 }
 
 // Category handlers
+export async function handleCreateCategory(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: CreateCategoryRequest = await request.json();
+    const {name, userId = 'anonymous'} = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['name'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    // Generate a unique ID for the new category
+    const categoryId = `cat_${Date.now()}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;
+
+    const newCategory: Category = {
+      name: name.trim()
+    };
+
+    await storeCategory(env, userId, categoryId, newCategory);
+
+    return SuccessResponses.created({...newCategory, id: categoryId}, corsHeaders);
+  } catch (error) {
+    logError('handleCreateCategory', error);
+    return ErrorResponses.internalServerError('Failed to create category', corsHeaders);
+  }
+}
+
 export async function handleUpdateCategory(
   request: Request,
   url: URL,
@@ -426,9 +494,9 @@ export async function handleUpdateCategory(
       return ErrorResponses.badRequest('Category name is required', corsHeaders);
     }
 
-    const updatedCategory = await updateCategory(env, userId, categoryId, { name: body.name.trim() });
+    const updatedCategory = await updateCategory(env, userId, categoryId, {name: body.name.trim()});
 
-    return SuccessResponses.ok({ ...updatedCategory, id: categoryId }, corsHeaders);
+    return SuccessResponses.ok({...updatedCategory, id: categoryId}, corsHeaders);
   } catch (error) {
     logError('handleUpdateCategory', error);
     return ErrorResponses.internalServerError('Failed to update category', corsHeaders);
@@ -469,14 +537,150 @@ export async function handleDeleteCategory(
     await deleteCategory(env, userId, categoryId);
 
     return SuccessResponses.ok(
-      { 
-        success: true, 
-        message: `Category ${categoryId} deleted along with ${wordsToDelete.length} related words.` 
+      {
+        success: true,
+        message: `Category ${categoryId} deleted along with ${wordsToDelete.length} related words.`
       },
       corsHeaders
     );
   } catch (error) {
     logError('handleDeleteCategory', error);
     return ErrorResponses.internalServerError('Failed to delete category', corsHeaders);
+  }
+}
+
+// Topic Words handler
+export async function handleCreateTopicWords(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: CreateTopicWordsRequest = await request.json();
+    const {topic, categoryName, userId = 'anonymous'} = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['topic', 'categoryName'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    // First, generate the topic words
+    const topicWordsPrompt = `You are an English vocabulary teacher. Generate 8-12 common English words related to the topic "${topic}".
+
+      For each word, provide multiple meanings and examples to help English learners understand the word thoroughly.
+      
+      Please respond with a JSON array where each word object has this structure:
+      {
+        "term": "word",
+        "meanings": "Formatted string containing multiple meanings",
+        "examples": "Formatted string containing multiple example sentences"
+      }
+      
+      **Formatting Guidelines:**
+      - **IMPORTANT**: Do NOT use **bold text** in the "term" field - just provide the plain word
+      - Use **bold text** for important vocabulary terms and concepts in meanings and examples only
+      - Provide 2-4 different meanings for each word when applicable
+      - Include 2-3 example sentences per word that demonstrate different contexts
+      - Make definitions clear and easy for English learners to understand
+      - Focus on practical, commonly used meanings
+      
+      **Format Examples:**
+      - Meanings: "1. First meaning with definition; 2. Second meaning with definition; 3. Third meaning with definition"
+      - Examples: "1. First example sentence; 2. Second example sentence; 3. Third example sentence"
+      
+      Example structure for topic "fruits":
+      [
+        {
+          "term": "apple",
+          "meanings": "1. A round fruit with red, green, or yellow skin and crisp flesh; 2. A company that makes computers and other electronic devices; 3. To hit or strike something",
+          "examples": "1. I eat an apple every day for breakfast.; 2. She bought a new Apple laptop for work.; 3. He apple the ball against the wall."
+        }
+      ]
+      
+      Generate words for the topic: ${topic}
+      
+      Respond only with the JSON array, no additional text or explanations.`;
+
+    const geminiResponse = await callGeminiAPI(topicWordsPrompt, env.GEMINI_API_KEY);
+
+    if (!geminiResponse) {
+      return ErrorResponses.internalServerError('Failed to generate topic words', corsHeaders);
+    }
+
+    // Parse the JSON response
+    let topicWords: TopicWord[] = [];
+    try {
+      const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+      let jsonText;
+
+      if (jsonMatch) {
+        jsonText = jsonMatch[1].trim();
+      } else {
+        const directJsonMatch = geminiResponse.match(/\[[\s\S]*\]/);
+        if (directJsonMatch) {
+          jsonText = directJsonMatch[0];
+        } else {
+          throw new Error('No JSON array found in response');
+        }
+      }
+
+      topicWords = JSON.parse(jsonText);
+
+      // Validate the response structure
+      if (!Array.isArray(topicWords)) {
+        throw new Error('Response is not an array');
+      }
+
+      // Validate each word object
+      for (const word of topicWords) {
+        if (!word.term || !word.meanings || !word.examples) {
+          throw new Error('Invalid word object structure');
+        }
+      }
+
+    } catch (parseError) {
+      console.warn('Failed to parse Gemini response as JSON:', parseError);
+      return ErrorResponses.internalServerError('Failed to parse generated topic words as JSON', corsHeaders);
+    }
+
+    // Find or create the category
+    const {categoryId} = await findOrCreateCategory(env, userId, categoryName);
+
+    // Create all the vocabulary words
+    const createdWords: VocabularyWord[] = [];
+
+    for (const wordData of topicWords) {
+      try {
+        const newVocabularyWord: VocabularyWord = {
+          term: wordData.term.toLowerCase(),
+          categoryId,
+          categoryName,
+          meanings: wordData.meanings,
+          examples: wordData.examples,
+          status: 'pending'
+        };
+
+        await storeVocabularyWord(env, userId, newVocabularyWord);
+        createdWords.push(newVocabularyWord);
+      } catch (wordError) {
+        console.warn(`Failed to create word "${wordData.term}":`, wordError);
+        // Continue with other words even if one fails
+      }
+    }
+
+    return SuccessResponses.ok(
+      {
+        createdWords,
+        categoryId
+      },
+      corsHeaders
+    );
+  } catch (error) {
+    logError('handleCreateTopicWords', error);
+    return ErrorResponses.internalServerError('Failed to create topic words', corsHeaders);
   }
 }

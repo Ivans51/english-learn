@@ -45,22 +45,10 @@ export interface GrammarCheckRequest {
   userId?: string;
 }
 
-export interface GrammarCheckResponse {
-  isCorrect: boolean;
-  feedback: string;
-  suggestions?: string[];
-}
-
 export interface PracticePhraseRequest {
   topic: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   userId?: string;
-}
-
-export interface PracticePhraseResponse {
-  phrase: string;
-  translation?: string;
-  grammarFocus?: string;
 }
 
 export interface Topic {
@@ -79,4 +67,21 @@ export interface CreateTopicRequest {
 
 export interface UpdateTopicRequest {
   title?: string;
+}
+
+export interface TopicWord {
+  term: string;
+  meanings: string;
+  examples: string;
+}
+
+export interface CreateTopicWordsRequest {
+  topic: string;
+  categoryName: string;
+  userId?: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  userId?: string;
 }

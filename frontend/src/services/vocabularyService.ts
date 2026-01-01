@@ -1,7 +1,13 @@
-import type { VocabularyWord, VocabularyData, CreateVocabularyWordRequest } from '@/types'
+import type {
+  CreateTopicWordsRequest,
+  CreateTopicWordsResponse,
+  CreateVocabularyWordRequest,
+  VocabularyData,
+  VocabularyWord,
+} from '@/types'
 
 class VocabularyWordsService {
-  private apiBaseUrl: string
+  private readonly apiBaseUrl: string
 
   constructor() {
     this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787'
@@ -102,7 +108,23 @@ class VocabularyWordsService {
     return await response.json()
   }
 
+  async createTopicWords(
+    requestData: CreateTopicWordsRequest,
+  ): Promise<CreateTopicWordsResponse> {
+    const response = await fetch(`${this.apiBaseUrl}/api/create-topic-words`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
 
+    if (!response.ok) {
+      throw new Error(`Failed to create topic words: ${response.statusText}`)
+    }
+
+    return await response.json()
+  }
 }
 
 export const vocabularyWordsService = new VocabularyWordsService()

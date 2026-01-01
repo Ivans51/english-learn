@@ -102,9 +102,24 @@
                   class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
                   title="Manage Categories"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    ></path>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    ></path>
                   </svg>
                 </button>
               </div>
@@ -132,16 +147,26 @@
       <!-- Main Content Area -->
       <div>
         <div class="mb-4 sm:mb-6 flex justify-between">
-          <div class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1">
+          <div
+            class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1"
+          >
             <div>{{ Object.keys(filteredWords).length }} words</div>
             <div class="text-sm text-primary-600 dark:text-primary-400">
-              {{ completedWordsCount }} completed, {{ pendingWordsCount }} pending
+              {{ completedWordsCount }} completed,
+              {{ pendingWordsCount }} pending
             </div>
           </div>
-          <div class="sm:w-40">
+          <div class="flex gap-2 sm:w-80">
+            <button
+              @click="openTopicWordsModal"
+              class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer"
+            >
+              <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+              <span class="text-xs sm:text-sm">Add Group Words</span>
+            </button>
             <button
               @click="openAddWordModal"
-              class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
+              class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
             >
               <svg
                 class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
@@ -185,7 +210,7 @@
             :class="[
               word.status === 'completed'
                 ? 'opacity-75 bg-green-400 dark:bg-green-950'
-                : 'bg-white dark:bg-black'
+                : 'bg-white dark:bg-black',
             ]"
           >
             <div
@@ -211,7 +236,9 @@
                   class="transition-all duration-300"
                 >
                   <div class="space-y-2 mb-3 mt-2">
-                    <p class="text-primary-700 dark:text-primary-300 whitespace-pre-line">
+                    <p
+                      class="text-primary-700 dark:text-primary-300 whitespace-pre-line"
+                    >
                       {{ word.meanings.replace(/; /g, '\n') }}
                     </p>
                   </div>
@@ -233,9 +260,13 @@
                     'h-8 w-8 flex items-center justify-center rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0 transition-colors',
                     word.status === 'completed'
                       ? 'text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
-                      : 'text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400'
+                      : 'text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400',
                   ]"
-                  :title="word.status === 'completed' ? 'Mark as pending' : 'Mark as completed'"
+                  :title="
+                    word.status === 'completed'
+                      ? 'Mark as pending'
+                      : 'Mark as completed'
+                  "
                 >
                   <svg
                     class="w-4 h-4"
@@ -324,25 +355,34 @@
               Start building your personal vocabulary collection by adding new
               words.
             </p>
-            <button
-              @click="openAddWordModal"
-              class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 text-xs sm:text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors cursor-pointer"
-            >
-              <svg
-                class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div class="flex gap-2 justify-center">
+              <button
+                @click="openTopicWordsModal"
+                class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-secondary-600 dark:bg-secondary-700 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors cursor-pointer"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                ></path>
-              </svg>
-              Add Your First Word
-            </button>
+                <Layers class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Add Group Words
+              </button>
+              <button
+                @click="openAddWordModal"
+                class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 text-xs sm:text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors cursor-pointer"
+              >
+                <svg
+                  class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+                Add Single Word
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -358,22 +398,32 @@
       @update-word="updateWord"
       @add-category="addNewCategory"
     />
+
+    <!-- Topic Words Modal -->
+    <TopicWordsModal
+      :is-open="showTopicWordsModal"
+      :user-id="userId"
+      @close="closeTopicWordsModal"
+      @words-created="handleTopicWordsCreated"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { Layers } from 'lucide-vue-next'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
+import TopicWordsModal from '@/components/TopicWordsModal.vue'
 import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import type {
-  VocabularyWord,
-  VocabularyData,
   CategoryCollection,
+  VocabularyData,
+  VocabularyWord,
 } from '@/types'
 
 // Extended interface for editing that includes the UID
@@ -398,6 +448,7 @@ const selectedStatus = ref('pending') // Filter by completion status - default t
 const showAddWordModal = ref(false)
 const wordToEdit = ref<EditableVocabularyWord | null>(null)
 const expandedWords = ref<Record<string, boolean>>({})
+const showTopicWordsModal = ref(false)
 
 // Watch for changes in the firebaseUser
 watch(
@@ -445,11 +496,15 @@ const filteredWords = computed(() => {
 })
 
 const completedWordsCount = computed(() => {
-  return Object.values(filteredWords.value).filter(word => word.status === 'completed').length
+  return Object.values(filteredWords.value).filter(
+    (word) => word.status === 'completed',
+  ).length
 })
 
 const pendingWordsCount = computed(() => {
-  return Object.values(filteredWords.value).filter(word => word.status !== 'completed').length
+  return Object.values(filteredWords.value).filter(
+    (word) => word.status !== 'completed',
+  ).length
 })
 
 const handleLevelClick = (level: string) => {
@@ -483,6 +538,20 @@ const deleteWord = async (wordUid: string) => {
 const openAddWordModal = () => {
   wordToEdit.value = null // Ensure no word is being edited
   showAddWordModal.value = true
+}
+
+const openTopicWordsModal = () => {
+  showTopicWordsModal.value = true
+}
+
+const closeTopicWordsModal = () => {
+  showTopicWordsModal.value = false
+}
+
+const handleTopicWordsCreated = (createdWords: VocabularyWord[]) => {
+  // Refresh the vocabulary data to show the new words
+  setTimeout(() => loadWordsFromFirebase(), 500)
+  showSuccessToast(`${createdWords.length} words added successfully!`, 2000)
 }
 
 const openEditWordModal = (word: VocabularyWord, wordUid: string) => {
@@ -558,20 +627,26 @@ const addNewCategory = (categoryName: string) => {
 
   // Add the new category to the categories object
   categories.value[newCategoryId] = {
-    name: categoryName.trim()
+    name: categoryName.trim(),
   }
 
   // Also update the vocabularyData if it exists
   if (vocabularyData.value) {
     vocabularyData.value.categories[newCategoryId] = {
-      name: categoryName.trim()
+      name: categoryName.trim(),
     }
   }
 
-  showSuccessToast(`Category "${categoryName.trim()}" added successfully!`, 2000)
+  showSuccessToast(
+    `Category "${categoryName.trim()}" added successfully!`,
+    2000,
+  )
 }
 
-const toggleWordStatus = async (wordUid: string, currentStatus?: 'pending' | 'completed') => {
+const toggleWordStatus = async (
+  wordUid: string,
+  currentStatus?: 'pending' | 'completed',
+) => {
   const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
 
   try {

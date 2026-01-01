@@ -1,20 +1,22 @@
-import { Env } from './types';
+import {Env} from './types';
 import {
-  handleExplainWordRequest,
-  handleCreateVocabularyWord,
-  handleGetVocabularyWords,
-  handleDeleteVocabularyWord,
-  handleUpdateVocabularyWord,
+  handleCreateCategory,
   handleCreateTopic,
-  handleGetTopics,
+  handleCreateTopicWords,
+  handleCreateVocabularyWord,
+  handleDeleteCategory,
   handleDeleteTopic,
-  handleUpdateTopic,
-  handleGrammarCheck,
+  handleDeleteVocabularyWord,
+  handleExplainWordRequest,
   handleGeneratePracticePhrase,
+  handleGetTopics,
+  handleGetVocabularyWords,
+  handleGrammarCheck,
   handleUpdateCategory,
-  handleDeleteCategory
+  handleUpdateTopic,
+  handleUpdateVocabularyWord
 } from './handlers';
-import { corsHeaders } from './utils';
+import {corsHeaders} from './utils';
 
 export async function handleApiRequest(
   request: Request,
@@ -57,6 +59,9 @@ export async function handleApiRequest(
   }
 
   // Categories API endpoints
+  if (url.pathname === '/api/categories' && request.method === 'POST') {
+    return handleCreateCategory(request, env, corsHeaders);
+  }
   if (url.pathname.startsWith('/api/categories/') && request.method === 'PUT') {
     return handleUpdateCategory(request, url, env, corsHeaders);
   }
@@ -74,9 +79,14 @@ export async function handleApiRequest(
     return handleGeneratePracticePhrase(request, env, corsHeaders);
   }
 
+  // Create topic words endpoint
+  if (url.pathname === '/api/create-topic-words' && request.method === 'POST') {
+    return handleCreateTopicWords(request, env, corsHeaders);
+  }
+
   // 404 for unknown API routes
   return new Response(
-    JSON.stringify({ error: 'API endpoint not found' }),
+    JSON.stringify({error: 'API endpoint not found'}),
     {
       status: 404,
       headers: {

@@ -37,3 +37,14 @@ export interface Topic {
   title: string
   createdAt: string
 }
+
+export interface CreateTopicWordsRequest {
+  topic: string
+  categoryName: string
+  userId?: string
+}
+
+export interface CreateTopicWordsResponse {
+  createdWords: VocabularyWord[]
+  categoryId: string
+}

@@ -5,6 +5,26 @@ class CategoryService {
     this.apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787'
   }
 
+  async createCategory(
+    name: string,
+    userId?: string,
+  ): Promise<{ id: string; name: string }> {
+    const url = `${this.apiBaseUrl}/api/categories`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, userId }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to create category: ${response.statusText}`)
+    }
+
+    return await response.json()
+  }
+
   async updateCategory(
     categoryId: string,
     updates: { name: string },

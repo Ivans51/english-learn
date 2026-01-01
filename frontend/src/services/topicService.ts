@@ -11,19 +11,22 @@ class TopicService {
 
   async getTopics(userId: string): Promise<Topic[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/topics?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/api/topics?userId=${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const topics: TopicApiResponse[] = await response.json()
-      return topics.map(topic => ({
+      return topics.map((topic) => ({
         id: topic.id,
         title: topic.title,
         createdAt: topic.createdAt,
@@ -34,7 +37,10 @@ class TopicService {
     }
   }
 
-  async createTopic(topicData: { title: string; userId: string }): Promise<Topic> {
+  async createTopic(topicData: {
+    title: string
+    userId: string
+  }): Promise<Topic> {
     try {
       const response = await fetch(`${this.baseUrl}/api/topics`, {
         method: 'POST',
@@ -60,15 +66,22 @@ class TopicService {
     }
   }
 
-  async updateTopic(topicId: string, updateData: { title?: string }, userId: string): Promise<Topic> {
+  async updateTopic(
+    topicId: string,
+    updateData: { title?: string },
+    userId: string,
+  ): Promise<Topic> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/topics/${topicId}?userId=${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/api/topics/${topicId}?userId=${userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
         },
-        body: JSON.stringify(updateData),
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -88,12 +101,15 @@ class TopicService {
 
   async deleteTopic(topicId: string, userId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/topics/${topicId}?userId=${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/api/topics/${topicId}?userId=${userId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -104,7 +120,11 @@ class TopicService {
     }
   }
 
-  async checkGrammar(topicTitle: string, userInput: string, userId: string): Promise<{ feedback: string; isCorrect: boolean }> {
+  async checkGrammar(
+    topicTitle: string,
+    userInput: string,
+    userId: string,
+  ): Promise<{ feedback: string; isCorrect: boolean }> {
     try {
       const response = await fetch(`${this.baseUrl}/api/grammar-check`, {
         method: 'POST',
@@ -114,7 +134,7 @@ class TopicService {
         body: JSON.stringify({
           topic: topicTitle,
           input: userInput,
-          userId
+          userId,
         }),
       })
 
@@ -129,7 +149,10 @@ class TopicService {
     }
   }
 
-  async generatePracticePhrase(topicTitle: string, userId: string): Promise<string> {
+  async generatePracticePhrase(
+    topicTitle: string,
+    userId: string,
+  ): Promise<string> {
     try {
       const response = await fetch(`${this.baseUrl}/api/practice-phrase`, {
         method: 'POST',
@@ -139,7 +162,7 @@ class TopicService {
         body: JSON.stringify({
           topic: topicTitle,
           difficulty: 'medium',
-          userId
+          userId,
         }),
       })
 
