@@ -64,7 +64,7 @@ export function generatePracticePhrasePrompt(topic: string, difficulty: 'easy' |
 }
 
 export function generateTopicWordsPrompt(topic: string): string {
-  return `You are an English vocabulary teacher. Generate 8-12 common English words related to the topic "${topic}".
+  return `You are an English vocabulary teacher. Generate 20-30 common English words related to the topic "${topic}".
 
     For each word, provide multiple meanings and examples to help English learners understand the word thoroughly.
     
