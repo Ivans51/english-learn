@@ -10,7 +10,7 @@
       <div class="mb-6">
         <div class="flex items-center mb-4">
           <button
-            @click="$router.go(-1)"
+            @click="handleBackNavigation"
             class="mr-4 p-2 text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
             title="Go back"
           >
@@ -215,6 +215,7 @@
 <script setup lang="ts">
 // Watch for user changes
 import { nextTick, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   ArrowLeft,
   Check,
@@ -234,6 +235,12 @@ import type { CategoryCollection, VocabularyData } from '@/types'
 
 const { success: showSuccessToast, error: showErrorToast } = useToast()
 const { user: firebaseUser, loading: authLoading } = useAuth()
+const router = useRouter()
+
+// Function to handle back navigation
+const handleBackNavigation = () => {
+  router.push('/vocabulary')
+}
 
 const categories = ref<CategoryCollection>({})
 const vocabularyData = ref<VocabularyData | null>(null)

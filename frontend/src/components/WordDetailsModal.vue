@@ -96,9 +96,10 @@
               Examples
             </h4>
             <div class="bg-secondary-900 rounded-lg p-4">
-              <p class="text-secondary-300 whitespace-pre-line leading-relaxed italic">
-                "{{ word.examples.replace(/; /g, '\n') }}"
-              </p>
+              <div
+                class="markdown-content text-secondary-300 leading-relaxed italic"
+                v-html="renderedExamples"
+              ></div>
             </div>
           </div>
 
@@ -168,7 +169,8 @@
 <script setup lang="ts">
 import type { VocabularyWord } from '@/types'
 import { CheckCircle2, Edit3, Trash2, X } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { marked } from 'marked'
 
 interface Props {
   isOpen: boolean
@@ -213,35 +215,37 @@ const handleDelete = () => {
   emit('delete-word', props.wordUid)
   closeModal()
 }
+
+// Markdown rendering
+const renderedExamples = ref('')
+
+// Configure marked options for better rendering
+onMounted(() => {
+  marked.setOptions({
+    breaks: true, // Convert \n to <br>
+    gfm: true, // Enable GitHub flavored markdown
+  })
+})
+
+// Convert markdown to HTML
+const renderMarkdown = async (markdownText: string): Promise<string> => {
+  try {
+    return await marked(markdownText)
+  } catch (error) {
+    console.error('Error rendering markdown:', error)
+    return markdownText
+  }
+}
+
+// Update rendered examples when word changes
+watch(() => props.word.examples, async (newExamples) => {
+  if (newExamples) {
+    // Convert semicolons to line breaks for better formatting
+    const formattedExamples = newExamples.replace(/; /g, '\n')
+    renderedExamples.value = await renderMarkdown(formattedExamples)
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>
-/* Modal backdrop transitions */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-/* Modal content transitions */
-.modal-content-enter-active,
-.modal-content-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-content-enter-from,
-.modal-content-leave-to {
-  opacity: 0;
-  transform: scale(0.95) translateY(4px);
-}
-
-.modal-content-enter-to,
-.modal-content-leave-from {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
 </style>
