@@ -6,10 +6,6 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-defineProps<{
-  currentLevel?: string
-}>()
-
 const { isDark, toggleTheme } = useTheme()
 
 const isLoggedIn = ref(false)

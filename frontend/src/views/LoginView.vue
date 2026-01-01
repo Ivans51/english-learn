@@ -273,12 +273,6 @@ const form = reactive({
   rememberMe: false,
 })
 
-// Pre-fill form for demo purposes
-onMounted(() => {
-  // Form is already pre-filled in the reactive declaration above
-  console.log('Demo login form pre-filled!')
-})
-
 const handleLogin = async () => {
   isLoading.value = true
   errorMessage.value = ''
@@ -286,7 +280,6 @@ const handleLogin = async () => {
   try {
     const auth = getAuth()
     await signInWithEmailAndPassword(auth, form.email, form.password)
-    console.log('Login successful! Redirecting to vocabulary...')
     router.push('/vocabulary')
   } catch (error) {
     console.error('Login error:', error)

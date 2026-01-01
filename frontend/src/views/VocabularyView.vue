@@ -2,10 +2,7 @@
   <main
     class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors"
   >
-    <main-header
-      :current-level="selectedLevel"
-      @level-click="handleLevelClick"
-    />
+    <main-header />
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -306,7 +303,7 @@ const categories = ref<CategoryCollection>({})
 const isLoading = ref(false)
 
 const searchQuery = ref('')
-const selectedLevel = ref('') // Keep for MainHeader compatibility
+
 const selectedCategory = ref('')
 const selectedStatus = ref('pending') // Filter by completion status - default to pending
 const showAddWordModal = ref(false)
@@ -376,10 +373,7 @@ const pendingWordsCount = computed(() => {
   ).length
 })
 
-const handleLevelClick = (level: string) => {
-  // Level filtering removed in new structure
-  console.log('Level click:', level)
-}
+
 
 const deleteWord = async (wordUid: string) => {
   const result = await fireSwal({
