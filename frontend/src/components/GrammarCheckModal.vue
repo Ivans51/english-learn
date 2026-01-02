@@ -304,7 +304,6 @@ const sendMessage = async () => {
 
     // Scroll to bottom
     await nextTick()
-    scrollToBottom()
   } catch (error) {
     console.error('Error checking grammar:', error)
 
@@ -326,7 +325,6 @@ const sendMessage = async () => {
   } finally {
     isLoading.value = false
     await nextTick()
-    scrollToBottom()
     focusInput()
   }
 }
