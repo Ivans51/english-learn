@@ -411,6 +411,7 @@ function addOrUpdateWord() {
       categoryName: formData.value.categoryName,
     }
     emit('update-word', updatedWord)
+    closeModal()
   } else {
     // Add new word
     const wordToAdd: VocabularyWord = {
@@ -421,7 +422,12 @@ function addOrUpdateWord() {
       examples: formData.value.examplesText,
     }
     emit('add-word', wordToAdd)
+
+    // Clean inputs immediately after creating a new word
+    Object.assign(formData.value, initialFormData)
+    showNewCategoryInput.value = false
+
+    closeModal()
   }
-  closeModal()
 }
 </script>

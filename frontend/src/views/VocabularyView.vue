@@ -270,7 +270,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { BookOpen, Layers, Plus, Search, Settings, X } from 'lucide-vue-next'
 import MainHeader from '@/components/MainHeader.vue'
@@ -401,6 +401,15 @@ const deleteWord = async (wordUid: string) => {
 const openAddWordModal = () => {
   wordToEdit.value = null // Ensure no word is being edited
   showAddWordModal.value = true
+}
+
+// Keyboard shortcut handler for Ctrl+K / Cmd+K
+const handleKeyboardShortcut = (event: KeyboardEvent) => {
+  // Check for Ctrl+K (Windows/Linux) or Cmd+K (Mac)
+  if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+    event.preventDefault() // Prevent browser's default behavior
+    openAddWordModal()
+  }
 }
 
 const openTopicWordsModal = () => {
@@ -565,6 +574,14 @@ onMounted(async () => {
   if (!authLoading.value) {
     await loadWordsFromFirebase()
   }
+
+  // Add keyboard shortcut listener
+  document.addEventListener('keydown', handleKeyboardShortcut)
+})
+
+onUnmounted(() => {
+  // Clean up keyboard shortcut listener
+  document.removeEventListener('keydown', handleKeyboardShortcut)
 })
 
 // Watch for auth loading to complete
