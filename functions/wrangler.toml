@@ -24,14 +24,11 @@ account_id = "" # Keep this for production deployment
 # wrangler secret put GEMINI_API_KEY --env production
 
 [observability]
+[observability.logs]
 enabled = false
 head_sampling_rate = 1
-
-[observability.logs]
-enabled = true
-head_sampling_rate = 1
-persist = true
 invocation_logs = true
+persist = true
 
 [observability.traces]
 enabled = false
