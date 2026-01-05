@@ -8,6 +8,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import LearningByTopicsView from '@/views/LearningByTopicsView.vue'
 import CategoriesView from '@/views/CategoriesView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import GrammarCheckView from '@/views/GrammarCheckView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,6 +50,13 @@ const router = createRouter({
       path: '/categories',
       name: 'categories',
       component: CategoriesView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/grammar-check/:topicId/:topicTitle',
+      name: 'grammar-check',
+      component: GrammarCheckView,
+      props: true,
       meta: { requiresAuth: true },
     },
     // Catch-all route for 404 Not Found

@@ -325,18 +325,14 @@ export async function handleGrammarCheck(
       return ErrorResponses.internalServerError('Failed to generate grammar feedback', corsHeaders);
     }
 
-    // Try to parse JSON response from Gemini
     let parsedResponse;
     try {
-      // First, try to extract JSON from markdown code blocks
       const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
       let jsonText;
 
       if (jsonMatch) {
-        // Extract JSON from code block
         jsonText = jsonMatch[1].trim();
       } else {
-        // If no code block, try to find JSON directly in the text
         const directJsonMatch = geminiResponse.match(/\{[\s\S]*\}/);
         if (directJsonMatch) {
           jsonText = directJsonMatch[0];
@@ -347,15 +343,34 @@ export async function handleGrammarCheck(
 
       parsedResponse = JSON.parse(jsonText);
 
-      // Validate the parsed response has the expected structure
       if (typeof parsedResponse !== 'object' || parsedResponse === null || !('isCorrect' in parsedResponse)) {
         throw new Error('Invalid response structure');
       }
+
+      if (typeof parsedResponse.feedback === 'string' && parsedResponse.feedback.includes('"isCorrect"')) {
+        try {
+          const nestedFeedback = JSON.parse(parsedResponse.feedback)
+          if (nestedFeedback && typeof nestedFeedback === 'object') {
+            if ('feedback' in nestedFeedback && typeof nestedFeedback.feedback === 'string' && nestedFeedback.feedback.trim()) {
+              parsedResponse.feedback = nestedFeedback.feedback
+            }
+            if ('suggestions' in nestedFeedback && Array.isArray(nestedFeedback.suggestions)) {
+              parsedResponse.suggestions = nestedFeedback.suggestions
+            }
+          }
+        } catch {
+        }
+      }
+
+      if (typeof parsedResponse.feedback === 'string' && parsedResponse.feedback.trim()) {
+        const headingPattern = /^##\s+(?:Grammar Analysis|Grammar Feedback|Feedback)[\s\S]*?(?=##\s+[\w]|$)/
+        parsedResponse.feedback = parsedResponse.feedback.replace(headingPattern, '').trim()
+      }
+
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
       console.warn('Raw response:', geminiResponse);
 
-      // Create a fallback response with HTML markup for important parts
       const fallbackFeedback = addHTMLMarkup(geminiResponse, input);
       parsedResponse = {
         isCorrect: false,

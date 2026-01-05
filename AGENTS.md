@@ -11,28 +11,28 @@ English Learn is a full-stack monorepo with Vue.js 3 frontend (TypeScript, Tailw
 ### Root Commands (Monorepo)
 
 ```bash
-npm run dev                    # Start both frontend and backend dev servers
-npm run dev:frontend           # Start only Vue.js frontend (port 5173)
-npm run dev:functions          # Start only Cloudflare Workers (port 8787)
-npm run build                  # Build both projects for production
-npm run install:all            # Install all dependencies
+pnpm run dev                    # Start both frontend and backend dev servers
+pnpm run dev:frontend           # Start only Vue.js frontend (port 5173)
+pnpm run dev:functions          # Start only Cloudflare Workers (port 8787)
+pnpm run build                  # Build both projects for production
+pnpm run install:all            # Install all dependencies
 ```
 
 ### Frontend Commands (in `frontend/` directory)
 
 ```bash
-npm run dev                    # Vite development server
-npm run build                  # Production build with type-checking
-npm run preview                # Preview production build
-npm run type-check             # Run vue-tsc type-checking only
-npm run lint                   # Run ESLint and auto-fix issues
+pnpm run dev                    # Vite development server
+pnpm run build                  # Production build with type-checking
+pnpm run preview                # Preview production build
+pnpm run type-check             # Run vue-tsc type-checking only
+pnpm run lint                   # Run ESLint and auto-fix issues
 ```
 
 ### Backend Commands (in `functions/` directory)
 
 ```bash
-npm run dev                    # Start Wrangler dev server
-npm run deploy                 # Deploy to Cloudflare Workers
+pnpm run dev                    # Start Wrangler dev server
+pnpm run deploy                 # Deploy to Cloudflare Workers
 ```
 
 ## Code Style Guidelines
@@ -182,7 +182,7 @@ frontend/src/
 
 ### Linting and Formatting
 
-- Run `npm run lint` before committing to auto-fix issues
+- Run `pnpm run lint` before committing to auto-fix issues
 - ESLint uses Vue 3 + TypeScript recommended rules
 - Prettier handles code formatting (integrated with ESLint)
 
@@ -198,7 +198,7 @@ Follow Conventional Commits:
 
 1. Create feature branch: `feature/short-description`
 2. Make changes following these guidelines
-3. Run `npm run lint` to fix formatting issues
-4. Run `npm run type-check` to verify TypeScript
+3. Run `pnpm run lint` to fix formatting issues
+4. Run `pnpm run type-check` to verify TypeScript
 5. Test in browser at `http://localhost:5173`
 6. Commit changes with descriptive message
