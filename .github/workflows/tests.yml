@@ -19,7 +19,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install pnpm
-        run: npm install -g pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run lint
@@ -38,7 +40,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install pnpm
-        run: npm install -g pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run frontend tests
