@@ -4,13 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:functions\"",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:functions": "cd functions && npm run dev",
-    "build": "npm run build:frontend && npm run build:functions",
-    "build:frontend": "cd frontend && npm run build",
-    "build:functions": "cd functions && npm run deploy",
-    "install:all": "npm install && cd frontend && npm install && cd ../functions && npm install"
+    "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:functions\"",
+    "dev:frontend": "cd frontend && pnpm run dev",
+    "dev:functions": "cd functions && pnpm run dev",
+    "build": "pnpm run build:frontend && pnpm run build:functions",
+    "build:frontend": "cd frontend && pnpm run build",
+    "build:functions": "cd functions && pnpm run deploy",
+    "install:all": "pnpm install && cd frontend && pnpm install && cd ../functions && pnpm install",
+    "test": "pnpm run test:frontend && pnpm run test:functions",
+    "test:frontend": "cd frontend && pnpm run test:run",
+    "test:functions": "cd functions && pnpm run test:run",
+    "test:coverage": "pnpm run test:coverage:frontend && pnpm run test:coverage:functions",
+    "test:coverage:frontend": "cd frontend && pnpm run test:coverage",
+    "test:coverage:functions": "cd functions && pnpm run test:coverage"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
