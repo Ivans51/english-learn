@@ -67,7 +67,7 @@ describe('CategoryService', () => {
       }
       vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response)
 
-      const result = await categoryService.updateCategory(
+      await categoryService.updateCategory(
         'cat_123',
         { name: 'Updated' },
         'user123'

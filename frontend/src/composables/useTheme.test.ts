@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 describe('useTheme logic', () => {
   describe('theme toggle logic', () => {
@@ -107,7 +107,7 @@ describe('useTheme logic', () => {
 
     it('handles add then remove', () => {
       classes.push('dark')
-      let index = classes.indexOf('dark')
+      const index = classes.indexOf('dark')
       if (index > -1) {
         classes.splice(index, 1)
       }

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { useToast, type ToastMessage } from './useToast'
+import { describe, it, expect, beforeEach } from 'vitest'
+import type { ToastMessage } from './useToast'
 
 describe('useToast', () => {
   let toasts: ToastMessage[] = []
@@ -27,13 +27,13 @@ describe('useToast', () => {
     })
 
     it('adds toast with custom duration', () => {
-      const id = addToast('Test', 'info', toasts, 1000)
+      addToast('Test', 'info', toasts, 1000)
 
       expect(toasts[0].duration).toBe(1000)
     })
 
     it('uses default duration of 5000', () => {
-      const id = addToast('Test', 'info', toasts)
+      addToast('Test', 'info', toasts)
 
       expect(toasts[0].duration).toBe(5000)
     })
@@ -72,28 +72,28 @@ describe('useToast', () => {
 
   describe('convenience methods', () => {
     it('success creates success toast', () => {
-      const id = success('Success', toasts)
+      success('Success', toasts)
 
       expect(toasts[0].type).toBe('success')
       expect(toasts[0].message).toBe('Success')
     })
 
     it('error creates error toast', () => {
-      const id = error('Error', toasts)
+      error('Error', toasts)
 
       expect(toasts[0].type).toBe('error')
       expect(toasts[0].message).toBe('Error')
     })
 
     it('warning creates warning toast', () => {
-      const id = warning('Warning', toasts)
+      warning('Warning', toasts)
 
       expect(toasts[0].type).toBe('warning')
       expect(toasts[0].message).toBe('Warning')
     })
 
     it('info creates info toast', () => {
-      const id = info('Info', toasts)
+      info('Info', toasts)
 
       expect(toasts[0].type).toBe('info')
       expect(toasts[0].message).toBe('Info')
@@ -102,7 +102,7 @@ describe('useToast', () => {
 
   describe('toast structure', () => {
     it('toast has required fields', () => {
-      const id = addToast('Test', 'success', toasts)
+      addToast('Test', 'success', toasts)
 
       const toast = toasts[0]
       expect(toast.id).toBeDefined()
@@ -147,18 +147,18 @@ function clearAll(toasts: ToastMessage[]): void {
   toasts.length = 0
 }
 
-function success(message: string, toasts: ToastMessage[]): string {
-  return addToast(message, 'success', toasts)
+function success(message: string, toasts: ToastMessage[]): void {
+  addToast(message, 'success', toasts)
 }
 
-function error(message: string, toasts: ToastMessage[]): string {
-  return addToast(message, 'error', toasts)
+function error(message: string, toasts: ToastMessage[]): void {
+  addToast(message, 'error', toasts)
 }
 
-function warning(message: string, toasts: ToastMessage[]): string {
-  return addToast(message, 'warning', toasts)
+function warning(message: string, toasts: ToastMessage[]): void {
+  addToast(message, 'warning', toasts)
 }
 
-function info(message: string, toasts: ToastMessage[]): string {
-  return addToast(message, 'info', toasts)
+function info(message: string, toasts: ToastMessage[]): void {
+  addToast(message, 'info', toasts)
 }
