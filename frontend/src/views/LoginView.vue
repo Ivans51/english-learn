@@ -86,46 +86,8 @@
                   @click="togglePasswordVisibility"
                   class="text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
                 >
-                  <svg
-                    v-if="passwordFieldType === 'password'"
-                    class="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    class="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064 7-9.542-7 .644 0 1.274.083 1.88.238M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9"
-                    />
-                  </svg>
+                  <Eye v-if="passwordFieldType === 'password'" class="h-5 w-5" />
+                  <EyeOff v-else class="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -165,28 +127,9 @@
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <span v-if="isLoading" class="flex items-center">
-                <svg
-                  class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Signing in...
-              </span>
+                  <Loader2 class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                  Signing in...
+                </span>
               <span v-else>Sign in</span>
             </button>
           </div>
@@ -255,46 +198,42 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { useAuth } from '@/composables/useAuth'
+import { Eye, EyeOff, Loader2 } from 'lucide-vue-next'
 
-const router = useRouter()
-const isLoading = ref(false)
-const errorMessage = ref('')
-const passwordFieldType = ref('password')
-
-const togglePasswordVisibility = () => {
-  passwordFieldType.value =
-    passwordFieldType.value === 'password' ? 'text' : 'password'
+interface LoginForm {
+  email: string
+  password: string
+  rememberMe: boolean
 }
 
-const form = reactive({
+const router = useRouter()
+const { login, getAuthErrorMessage } = useAuth()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
+const passwordFieldType = ref<'password' | 'text'>('password')
+
+const form = reactive<LoginForm>({
   email: '',
   password: '',
   rememberMe: false,
 })
 
-const handleLogin = async () => {
+const togglePasswordVisibility = (): void => {
+  passwordFieldType.value = passwordFieldType.value === 'password' ? 'text' : 'password'
+}
+
+const handleLogin = async (): Promise<void> => {
   isLoading.value = true
   errorMessage.value = ''
 
   try {
-    const auth = getAuth()
-    await signInWithEmailAndPassword(auth, form.email, form.password)
+    await login({ email: form.email, password: form.password })
     router.push('/vocabulary')
   } catch (error) {
     console.error('Login error:', error)
-    if (error instanceof Error && 'code' in error) {
-      switch ((error as { code: string }).code) {
-        case 'auth/invalid-credential':
-          errorMessage.value = 'Invalid email or password. Please try again.'
-          break
-        default:
-          errorMessage.value =
-            'An unexpected error occurred. Please try again later.'
-      }
-    } else {
-      errorMessage.value = 'An unknown error occurred.'
-    }
+    errorMessage.value = getAuthErrorMessage(error)
   } finally {
     isLoading.value = false
   }
