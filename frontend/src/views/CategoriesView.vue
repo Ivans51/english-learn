@@ -347,36 +347,36 @@ const startEdit = (categoryId: string, currentName: string) => {
 }
 
 const handleSaveEdit = async (categoryId: string) => {
-  if (
-    editingName.value.trim() &&
-    editingName.value.trim() !== categories.value[categoryId]?.name
-  ) {
-    const oldName = categories.value[categoryId]?.name || 'Unknown Category'
+  const trimmedName = editingName.value.trim()
+  const currentCategory = categories.value[categoryId]
+  const oldName = currentCategory?.name
 
-    isUpdating.value = true
-    try {
-      // Update via API
-      await categoryService.updateCategory(
-        categoryId,
-        { name: editingName.value.trim() },
-        userId.value,
-      )
-
-      // Reload data from backend to ensure consistency
-      await loadCategories()
-
-      showSuccessToast(
-        `Category updated from "${oldName}" to "${editingName.value.trim()}"!`,
-        2000,
-      )
-    } catch (error) {
-      console.error('Error updating category:', error)
-      showErrorToast('Failed to update category. Please try again.')
-    } finally {
-      isUpdating.value = false
-    }
+  if (!trimmedName || trimmedName === oldName) {
+    cancelEdit()
+    return
   }
-  cancelEdit()
+
+  isUpdating.value = true
+  try {
+    await categoryService.updateCategory(
+      categoryId,
+      { name: trimmedName },
+      userId.value,
+    )
+
+    await loadCategories()
+
+    showSuccessToast(
+      `Category updated from "${oldName}" to "${trimmedName}"!`,
+      2000,
+    )
+  } catch (error) {
+    console.error('Error updating category:', error)
+    showErrorToast('Failed to update category. Please try again.')
+  } finally {
+    isUpdating.value = false
+    cancelEdit()
+  }
 }
 
 const cancelEdit = () => {
