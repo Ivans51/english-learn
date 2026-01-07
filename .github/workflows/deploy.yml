@@ -35,6 +35,7 @@ jobs:
   deploy-workers:
     needs: test
     runs-on: ubuntu-latest
+    environment: environments
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,6 +57,7 @@ jobs:
   deploy-pages:
     needs: test
     runs-on: ubuntu-latest
+    environment: environments
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
