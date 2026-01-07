@@ -1,0 +1,64 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enable corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: pnpm install --frozen-lockfile
+      - name: Install backend dependencies
+        working-directory: ./functions
+        run: pnpm install --frozen-lockfile
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: pnpm run test:run
+      - name: Run backend tests
+        working-directory: ./functions
+        run: pnpm run test:run
+      - name: Build frontend
+        working-directory: ./frontend
+        run: pnpm run build
+
+  deploy-workers:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy --env production
+        working-directory: ./functions
+
+  deploy-pages:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build frontend
+        working-directory: ./frontend
+        run: pnpm run build
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./frontend/dist --project-name=english-learn --branch=production
+      - name: Output deployment URL
+        run: |
+          echo "Deployment URL: ${{ steps.deploy.outputs.deployment-url }}"
