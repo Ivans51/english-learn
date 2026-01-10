@@ -16,6 +16,7 @@ import {
 import {
   addHTMLMarkup,
   callGeminiAPI,
+  callMistralAPI,
   callOpenRouterAPI,
   generateCategorySuggestionPrompt,
   generateExplanationPrompt,
@@ -55,16 +56,16 @@ export async function handleExplainWordRequest(
     }
 
     const explanationPrompt = generateExplanationPrompt(word);
-    const geminiResponse = await callGeminiAPI(explanationPrompt, env.GEMINI_API_KEY);
+    const mistralResponse = await callMistralAPI(explanationPrompt, env.MISTRAL_API_KEY);
 
-    if (!geminiResponse) {
+    if (!mistralResponse) {
       return ErrorResponses.internalServerError('Failed to generate explanation', corsHeaders);
     }
 
     let suggestedCategory: string | undefined;
     try {
       const categoryPrompt = generateCategorySuggestionPrompt(word);
-      const categoryResponse = await callGeminiAPI(categoryPrompt, env.GEMINI_API_KEY);
+      const categoryResponse = await callMistralAPI(categoryPrompt, env.MISTRAL_API_KEY);
       
       if (categoryResponse) {
         suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
@@ -75,7 +76,7 @@ export async function handleExplainWordRequest(
     }
 
     return SuccessResponses.ok({
-      description: geminiResponse,
+      description: mistralResponse,
       suggestedCategory
     }, corsHeaders);
 

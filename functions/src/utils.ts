@@ -46,7 +46,7 @@ export async function callGeminiAPI(prompt: string, apiKey: string): Promise<str
   }
 }
 
-export async function callOpenRouterAPI(prompt: string, apiKey: string, siteUrl: string = 'http://localhost:3000', siteName: string = 'English Learning App'): Promise<string | null> {
+export async function callOpenRouterAPI(prompt: string, apiKey: string): Promise<string | null> {
   try {
     console.log('Calling OpenRouter API with prompt:');
     console.log('=== PROMPT START ===');
@@ -57,21 +57,16 @@ export async function callOpenRouterAPI(prompt: string, apiKey: string, siteUrl:
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": siteUrl,
-        "X-Title": siteName,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "model": "kwaipilot/kat-coder-pro:free",
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
         "messages": [
           {
             "role": "user",
             "content": prompt
           }
         ],
-        "temperature": 1.2,
-        "top_p": 0.98,
-        "max_tokens": 2048
       })
     });
 
@@ -89,6 +84,49 @@ export async function callOpenRouterAPI(prompt: string, apiKey: string, siteUrl:
     return responseText || null;
   } catch (error) {
     console.error('Error calling OpenRouter API:', error);
+    return null;
+  }
+}
+
+export async function callMistralAPI(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    console.log('Calling Mistral API with prompt:');
+    console.log('=== PROMPT START ===');
+    console.log(prompt);
+    console.log('=== PROMPT END ===');
+
+    const response = await fetch("https://codestral.mistral.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "codestral-latest",
+        "messages": [
+          {
+            "role": "user",
+            "content": prompt
+          }
+        ],
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const responseText = data.choices?.[0]?.message?.content;
+
+    console.log('=== MISTRAL RESPONSE START ===');
+    console.log(responseText);
+    console.log('=== MISTRAL RESPONSE END ===');
+
+    return responseText || null;
+  } catch (error) {
+    console.error('Error calling Mistral API:', error);
     return null;
   }
 }

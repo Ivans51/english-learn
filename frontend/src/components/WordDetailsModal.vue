@@ -150,6 +150,7 @@ const toggleWordStatus = () => {
 
 const handleDelete = () => {
   emit('delete-word', props.wordUid)
+  closeModal()
 }
 
 // Markdown rendering

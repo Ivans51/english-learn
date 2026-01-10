@@ -2,6 +2,7 @@ export interface Env {
   // Define your environment bindings here
   GEMINI_API_KEY: string;
   OPENROUTER_API_KEY: string;
+  MISTRAL_API_KEY: string;
   FIREBASE_PROJECT_ID: string;
   FIREBASE_DATABASE_URL: string;
   FIREBASE_SERVICE_ACCOUNT_KEY: string;
