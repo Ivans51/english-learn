@@ -75,7 +75,7 @@ export async function handleExplainWordRequest(
     }
 
     return SuccessResponses.ok({
-      definition: geminiResponse,
+      description: geminiResponse,
       suggestedCategory
     }, corsHeaders);
 
@@ -92,11 +92,11 @@ export async function handleCreateVocabularyWord(
 ): Promise<Response> {
   try {
     const body: CreateVocabularyWordRequest = await request.json();
-    const {term, meanings, examples, categoryName, userId = 'anonymous'} = body;
+    const {term, description, categoryName, userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
-      ['term', 'meanings', 'examples', 'categoryName'],
+      ['term', 'description', 'categoryName'],
       corsHeaders
     );
     if (validationError) {
@@ -110,8 +110,7 @@ export async function handleCreateVocabularyWord(
       term,
       categoryId,
       categoryName,
-      meanings,
-      examples,
+      description,
       status: 'pending'
     };
 
@@ -646,7 +645,7 @@ export async function handleCreateTopicWords(
 
       // Validate each word object
       for (const word of topicWords) {
-        if (!word.term || !word.meanings || !word.examples) {
+        if (!word.term || !word.description) {
           throw new Error('Invalid word object structure');
         }
       }
@@ -668,8 +667,7 @@ export async function handleCreateTopicWords(
           term: wordData.term.toLowerCase(),
           categoryId,
           categoryName,
-          meanings: wordData.meanings,
-          examples: wordData.examples,
+          description: wordData.description,
           status: 'pending'
         };
 

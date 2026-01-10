@@ -15,8 +15,7 @@ export interface VocabularyWord {
   term: string;
   categoryId: string;
   categoryName: string;
-  meanings: string;
-  examples: string;
+  description: string;
   status?: 'pending' | 'completed';
 }
 
@@ -30,8 +29,7 @@ export interface CategoryCollection {
 
 export interface CreateVocabularyWordRequest {
   term: string;
-  meanings: string;
-  examples: string;
+  description: string;
   categoryName: string;
   userId?: string;
 }
@@ -41,7 +39,7 @@ export interface ExplainRequest {
 }
 
 export interface ExplainResponse {
-  definition: string;
+  description: string;
   suggestedCategory?: string;
 }
 
@@ -77,8 +75,7 @@ export interface UpdateTopicRequest {
 
 export interface TopicWord {
   term: string;
-  meanings: string;
-  examples: string;
+  description: string;
 }
 
 export interface CreateTopicWordsRequest {

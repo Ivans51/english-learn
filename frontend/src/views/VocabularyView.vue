@@ -439,8 +439,7 @@ const filteredWords = computed(() => {
       const matchesSearch =
         q === '' ||
         word.term.toLowerCase().includes(q) ||
-        word.meanings.toLowerCase().includes(q) ||
-        word.examples.toLowerCase().includes(q)
+        word.description.toLowerCase().includes(q)
 
       const matchesCategory =
         Object.keys(categories.value).length === 0 ||
@@ -543,8 +542,7 @@ const addNewWord = async (word: VocabularyWord) => {
     const createdWord = await vocabularyWordsService.createWord(
       {
         term: word.term,
-        meanings: word.meanings,
-        examples: word.examples,
+        description: word.description,
         categoryName: word.categoryName,
         userId: userId.value,
       },
@@ -576,8 +574,7 @@ const updateWord = async (updatedWord: VocabularyWord) => {
       wordUid,
       {
         term: updatedWord.term,
-        meanings: updatedWord.meanings,
-        examples: updatedWord.examples,
+        description: updatedWord.description,
         categoryName: updatedWord.categoryName,
       },
       userId.value,

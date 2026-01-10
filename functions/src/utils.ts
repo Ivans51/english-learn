@@ -94,7 +94,39 @@ export async function callOpenRouterAPI(prompt: string, apiKey: string, siteUrl:
 }
 
 export function generateExplanationPrompt(word: string): string {
-  return `Please provide multiple meanings for the English word "${word}". For each meaning, include a simple definition and an example sentence. The definitions should be easy for an English learner to understand. Format your response as JSON with two keys: "definition" and "examples". The "definition" field should contain bullet-point formatted definitions (without examples) separated by semicolons, like: "- To do something, simple definition; - To be something, simple definition; - To have something, simple definition". The "examples" field should contain bullet-point formatted example sentences that correspond to each meaning separated by semicolons, like: "- Example sentence for the first meaning; - Example sentence for the second meaning; - Example sentence for the third meaning". Provide 2-4 different meanings where applicable. For example: { "definition": "- To do something, simple definition; - To be something, simple definition", "examples": "- Example sentence for the first meaning; - Example sentence for the second meaning" }.`;
+  return `Please provide a comprehensive explanation for the English word "${word}" for Spanish-speaking learners.
+    Format the response as plain text with bold headers (no JSON). Use this structure:
+
+**Meaning:**
+• First meaning (category): brief definition
+• Second meaning (category): brief definition
+• Third meaning (category): brief definition
+
+**Usage:**
+Brief explanation of when/how to use this word. Include any nuances between different meanings.
+
+**Examples:**
+- "First example sentence."
+  → "Spanish translation."
+- "Second example sentence."
+  → "Spanish translation."
+- "Third example sentence."
+  → "Spanish translation."
+
+**Common Alternatives:**
+• For first meaning: "Spanish equivalent" - explanation
+• For second meaning: "Spanish equivalent" - explanation
+
+Guidelines:
+- List 2-4 meanings with categories in parentheses
+- Provide 2-3 example sentences as a markdown list
+- Always use → for Spanish translations (on a new line, indented)
+- List common alternatives for each meaning
+- Make definitions clear and easy for English learners to understand
+- Use bold English headers: **Meaning:**, **Usage:**, **Examples:**, **Common Alternatives:**
+- Use • bullet points for lists
+
+Respond only with the formatted explanation, no JSON or code blocks.`;
 }
 
 export function generateGrammarCheckPrompt(input: string, topic: string): string {
@@ -176,38 +208,45 @@ Make each response completely unique and engaging. The more different from previ
 export function generateTopicWordsPrompt(topic: string): string {
   return `You are an English vocabulary teacher. Generate 20-30 common English words related to the topic "${topic}".
 
-    For each word, provide multiple meanings and examples to help English learners understand the word thoroughly.
-    
+    For each word, provide a comprehensive description including Spanish translation, meanings, and English examples.
+
     Please respond with a JSON array where each word object has this structure:
     {
       "term": "word",
-      "meanings": "Formatted string containing multiple meanings",
-      "examples": "Formatted string containing multiple example sentences"
+      "description": "Comprehensive description with Spanish translation, meanings, and examples"
     }
-    
+
     **Formatting Guidelines:**
     - **IMPORTANT**: Do NOT use **bold text** in the "term" field - just provide the plain word
-    - Use **bold text** for important vocabulary terms and concepts in meanings and examples only
-    - Provide 2-4 different meanings for each word when applicable
-    - Include 2-3 example sentences per word that demonstrate different contexts
-    - Make definitions clear and easy for English learners to understand
-    - Focus on practical, commonly used meanings
-    
-    **Format Examples:**
-    - Meanings: "1. First meaning with definition; 2. Second meaning with definition; 3. Third meaning with definition"
-    - Examples: "1. First example sentence; 2. Second example sentence; 3. Third example sentence"
-    
+    - Use **bold text** for section headers (**Traducción:**, **Meanings:**, **Examples:**)
+    - Use bullet dots (•) for all lists
+    - Include Spanish translation at the beginning using **Traducción:** format
+    - Add line breaks between sections
+    - Provide 2-4 meanings with categories in parentheses
+    - Provide 2-4 example sentences in English only, with meaning category in parentheses
+
+    **Description Format:**
+    **Traducción:** [spanish translation]
+
+    **Meanings:**
+    • [first meaning] ([category])
+    • [second meaning] ([category])
+    • [third meaning] ([category])
+
+    **Examples:**
+    • ([category]) [English example sentence]
+    • ([category]) [English example sentence]
+
     Example structure for topic "fruits":
     [
       {
         "term": "apple",
-        "meanings": "1. A round fruit with red, green, or yellow skin and crisp flesh; 2. A company that makes computers and other electronic devices; 3. To hit or strike something",
-        "examples": "1. I eat an apple every day for breakfast.; 2. She bought a new Apple laptop for work.; 3. He apple the ball against the wall."
+        "description": "**Traducción:** manzana\\n\\n**Meanings:**\\n• A round fruit with red, green, or yellow skin and crisp flesh (Food)\\n• A company that makes computers and other electronic devices (Business)\\n• To hit or strike something (Informal)\\n\\n**Examples:**\\n• (Food) I eat an apple every day for breakfast.\\n• (Business) She bought a new Apple laptop for work.\\n• (Informal) He appleed the ball against the wall."
       }
     ]
-    
+
     Generate words for the topic: ${topic}
-    
+
     Respond only with the JSON array, no additional text or explanations.`;
 }
 

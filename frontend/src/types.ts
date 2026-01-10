@@ -2,15 +2,13 @@ export interface VocabularyWord {
   term: string
   categoryId: string
   categoryName: string
-  meanings: string
-  examples: string
+  description: string
   status?: 'pending' | 'completed'
 }
 
 export interface CreateVocabularyWordRequest {
   term: string
-  meanings: string
-  examples: string
+  description: string
   categoryName: string
   userId?: string
 }
@@ -39,7 +37,7 @@ export interface Topic {
 }
 
 export interface ExplainWordResponse {
-  definition: string
+  description: string
   suggestedCategory?: string
 }
 

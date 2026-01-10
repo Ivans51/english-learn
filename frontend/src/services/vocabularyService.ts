@@ -90,7 +90,7 @@ class VocabularyWordsService {
     }
   }
 
-  async explainWord(word: string): Promise<{ definition: string }> {
+  async explainWord(word: string): Promise<{ description: string }> {
     const response = await fetch(`${this.apiBaseUrl}/api/explain`, {
       method: 'POST',
       headers: {
