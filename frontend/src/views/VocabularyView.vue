@@ -7,18 +7,28 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Always Visible Sidebar -->
-      <div class="w-full mb-6 pb-6 border-b border-gray-600">
+      <div class="w-full mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-600">
         <!-- Header -->
         <div class="mb-4">
-          <div class="flex items-center mb-2">
-            <BookOpen
-              class="w-6 h-6 mr-2 text-primary-600 dark:text-primary-400"
-            />
-            <h1
-              class="text-xl sm:text-2xl font-bold text-primary-900 dark:text-primary-50"
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center">
+              <BookOpen
+                class="w-6 h-6 mr-2 text-primary-600 dark:text-primary-400"
+              />
+              <h1
+                class="text-xl sm:text-2xl font-bold text-primary-900 dark:text-primary-50"
+              >
+                My Vocabulary
+              </h1>
+            </div>
+            <button
+              @click="showSearchFilter = !showSearchFilter"
+              class="sm:hidden p-2 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+              title="Toggle filters"
             >
-              My Vocabulary
-            </h1>
+              <Search v-if="!showSearchFilter" class="w-5 h-5" />
+              <X v-else class="w-5 h-5" />
+            </button>
           </div>
           <p
             class="text-sm sm:text-base text-primary-600 dark:text-primary-400"
@@ -28,7 +38,7 @@
         </div>
 
         <!-- Search & Filter -->
-        <div class="bg-white dark:bg-black rounded-lg p-4 transition-colors">
+        <div class="hidden sm:block bg-white dark:bg-black rounded-lg p-4 transition-colors">
           <h3
             class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center"
           >
@@ -54,7 +64,7 @@
               />
             </div>
 
-            <div class="flex-1">
+            <div class="flex-1 hidden sm:block">
               <label
                 class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
               >
@@ -101,35 +111,139 @@
             </div>
           </div>
         </div>
+
+        <!-- Mobile Search & Filter (collapsible) -->
+        <div
+          v-if="showSearchFilter"
+          class="sm:hidden bg-white dark:bg-black rounded-lg p-4 transition-colors"
+        >
+          <h3
+            class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center"
+          >
+            <Search
+              class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400"
+            />
+            Search & Filter
+          </h3>
+
+          <div class="flex flex-col gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
+                Search Words
+              </label>
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search vocabulary..."
+                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
+                Category
+              </label>
+              <div class="flex gap-2">
+                <select
+                  v-model="selectedCategory"
+                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                >
+                  <option value="">select category</option>
+                  <option
+                    v-for="(category, id) in categories"
+                    :key="id"
+                    :value="id"
+                  >
+                    {{ category.name }}
+                  </option>
+                </select>
+                <button
+                  @click="navigateToCategories"
+                  class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
+                  title="Manage Categories"
+                >
+                  <Settings class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
+              >
+                Status
+              </label>
+              <select
+                v-model="selectedStatus"
+                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+              >
+                <option value="">All Words</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Main Content Area -->
       <div>
-        <div class="mb-4 sm:mb-6 flex justify-between">
-          <div
-            class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-1"
-          >
-            <div>{{ Object.keys(filteredWords).length }} words</div>
-            <div class="text-sm text-primary-600 dark:text-primary-400">
-              {{ completedWordsCount }} completed,
-              {{ pendingWordsCount }} pending
+        <div class="mb-4 sm:mb-6">
+          <div class="flex flex-col sm:flex-row justify-between gap-4">
+            <div
+              class="text-lg sm:text-lg font-medium text-primary-900 dark:text-primary-50"
+            >
+              <div class="text-xl sm:text-lg font-bold">{{ Object.keys(filteredWords).length }} words</div>
+              <div class="text-sm text-primary-600 dark:text-primary-400 mt-1">
+                {{ completedWordsCount }} completed,
+                {{ pendingWordsCount }} pending
+              </div>
+            </div>
+            <div class="flex gap-2 sm:w-80">
+              <button
+                @click="openTopicWordsModal"
+                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                <span class="text-xs sm:text-sm">Add Group Words</span>
+              </button>
+              <button
+                @click="openAddWordModal"
+                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                <Plus class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                <span class="text-xs sm:text-sm">Add New Word</span>
+              </button>
             </div>
           </div>
-          <div class="flex gap-2 sm:w-80">
-            <button
-              @click="openTopicWordsModal"
-              class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer"
-            >
-              <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-              <span class="text-xs sm:text-sm">Add Group Words</span>
-            </button>
-            <button
-              @click="openAddWordModal"
-              class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
-            >
-              <Plus class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-              <span class="text-xs sm:text-sm">Add New Word</span>
-            </button>
+          <div class="mt-4 sm:hidden">
+            <div class="flex gap-2 w-full">
+              <select
+                v-model="selectedCategory"
+                class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+              >
+                <option value="">select category</option>
+                <option
+                  v-for="(category, id) in categories"
+                  :key="id"
+                  :value="id"
+                >
+                  {{ category.name }}
+                </option>
+              </select>
+              <button
+                @click="navigateToCategories"
+                class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
+                title="Manage Categories"
+              >
+                <Settings class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -212,8 +326,7 @@
             <p
               class="text-sm sm:text-base text-primary-500 dark:text-primary-400 mb-6 max-w-sm mx-auto"
             >
-              Start building your personal vocabulary collection by adding new
-              words.
+              Start building your personal vocabulary collection by adding new words.
             </p>
             <div class="flex gap-2 justify-center">
               <button
@@ -314,6 +427,7 @@ const selectedWordForDetails = ref<{
   uid: string
 } | null>(null)
 const showTopicWordsModal = ref(false)
+const showSearchFilter = ref(false)
 
 // Watch for changes in the firebaseUser
 watch(
@@ -442,7 +556,7 @@ const navigateToCategories = () => {
 
 const addNewWord = async (word: VocabularyWord) => {
   try {
-    await vocabularyWordsService.createWord(
+    const createdWord = await vocabularyWordsService.createWord(
       {
         term: word.term,
         meanings: word.meanings,
@@ -453,8 +567,12 @@ const addNewWord = async (word: VocabularyWord) => {
       userId.value,
     )
     closeWordModal()
-    // Refresh to get the real data from backend
     setTimeout(() => loadWordsFromFirebase(), 500)
+    
+    // Auto-select the category of the newly created word
+    if (createdWord.categoryId) {
+      selectedCategory.value = createdWord.categoryId
+    }
   } catch (error) {
     console.error('Error creating vocabulary word:', error)
     showErrorToast('Failed to create word. Please try again.')

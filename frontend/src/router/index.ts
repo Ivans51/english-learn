@@ -97,6 +97,8 @@ router.beforeEach(async (to, from, next) => {
   ) {
     // Redirect authenticated users away from login/register pages
     next({ name: 'home' })
+  } else if (to.name === 'home' && isAuthenticated) {
+    next({ name: 'vocabulary' })
   } else {
     next()
   }

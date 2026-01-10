@@ -40,6 +40,11 @@ export interface ExplainRequest {
   word: string;
 }
 
+export interface ExplainResponse {
+  definition: string;
+  suggestedCategory?: string;
+}
+
 export interface GrammarCheckRequest {
   input: string;
   topic: string;

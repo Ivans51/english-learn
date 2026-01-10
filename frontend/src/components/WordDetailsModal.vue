@@ -24,33 +24,30 @@
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
           <div
-            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-2xl w-full mx-auto max-h-[90vh] overflow-y-auto border border-primary-700"
+            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-2xl w-full mx-auto max-h-[90vh] overflow-y-auto"
             @click.stop
           >
-        <!-- Header -->
-        <div class="flex items-center justify-between p-6 border-b border-primary-700">
-          <h2 class="text-xl font-semibold text-primary-50">
-            Word Details
-          </h2>
-          <button
-            @click="closeModal"
-            class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors"
-          >
-            <X class="w-6 h-6" />
-          </button>
-        </div>
+        <!-- Close Button -->
+        <button
+          @click="closeModal"
+          class="absolute top-4 right-4 text-primary-400 hover:text-primary-200 focus:outline-none transition-colors"
+        >
+          <X class="w-6 h-6" />
+        </button>
 
         <!-- Content -->
         <div class="p-6">
           <!-- Word Term -->
           <div class="mb-6">
-            <h3 class="text-2xl font-bold text-primary-50 mb-2">
+            <h2 class="text-2xl font-bold text-primary-50">
               {{ word.term }}
-            </h3>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-800 text-primary-200">
-              {{ word.categoryName }}
+            </h2>
+            <span class="text-sm text-primary-400">
+              category: {{ word.categoryName }}
             </span>
           </div>
+
+          <hr class="border-primary-700 mb-4" />
 
           <!-- Meanings -->
           <div class="mb-6">
@@ -71,7 +68,7 @@
               Meanings
             </h4>
             <div class="bg-primary-800 rounded-lg p-4">
-              <p class="text-primary-300 whitespace-pre-line leading-relaxed">
+              <p class="text-primary-200 whitespace-pre-line leading-relaxed">
                 {{ word.meanings.replace(/; /g, '\n') }}
               </p>
             </div>
@@ -95,49 +92,31 @@
               </svg>
               Examples
             </h4>
-            <div class="bg-secondary-900 rounded-lg p-4">
+            <div class="bg-primary-800 rounded-lg p-4">
               <div
-                class="markdown-content text-secondary-300 leading-relaxed italic"
+                class="text-primary-200 leading-relaxed italic"
                 v-html="renderedExamples"
               ></div>
             </div>
           </div>
 
-            <!-- Status Badge -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+              <!-- Status Badge -->
+              <div class="flex items-center justify-between">
+                <button
+                  @click="toggleWordStatus"
+                  class="text-sm px-3 py-1 rounded cursor-pointer transition-colors hover:opacity-80"
                   :class="[
                     localWordStatus === 'completed'
-                      ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                      : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                      ? 'bg-green-900/60 text-green-200'
+                      : 'bg-yellow-900/40 text-yellow-200'
                   ]"
+                  title="Click to change status"
                 >
-                  {{ localWordStatus === 'completed' ? 'Completed' : 'Pending' }}
-                </span>
-              </div>
+                  {{ localWordStatus === 'completed' ? 'completed' : 'pending' }}
+                </button>
 
               <!-- Action Buttons -->
               <div class="flex items-center justify-center space-x-2 pt-4 border-t border-primary-700">
-                <button
-                  @click="toggleWordStatus"
-                  :class="[
-                    'h-8 w-8 flex items-center justify-center rounded border cursor-pointer transition-colors',
-                    localWordStatus === 'completed'
-                      ? 'text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 border-green-300 dark:border-green-600'
-                      : 'text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 border-primary-300 dark:border-primary-600',
-                  ]"
-                  :title="
-                    localWordStatus === 'completed'
-                      ? 'Mark as pending'
-                      : 'Mark as completed'
-                  "
-                >
-                  <CheckCircle2
-                    class="w-4 h-4"
-                  />
-                </button>
                 <button
                   @click="openEditModal"
                   class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
@@ -168,7 +147,7 @@
 
 <script setup lang="ts">
 import type { VocabularyWord } from '@/types'
-import { CheckCircle2, Edit3, Trash2, X } from 'lucide-vue-next'
+import { Edit3, Trash2, X } from 'lucide-vue-next'
 import { ref, watch, onMounted } from 'vue'
 import { marked } from 'marked'
 

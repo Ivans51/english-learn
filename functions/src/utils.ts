@@ -211,6 +211,12 @@ export function generateTopicWordsPrompt(topic: string): string {
     Respond only with the JSON array, no additional text or explanations.`;
 }
 
+export function generateCategorySuggestionPrompt(term: string): string {
+  return `Suggest a single, concise category name (1-2 words max) for the English word "${term}". Consider common vocabulary categories like: Business, Travel, Technology, Food, Health, Sports, Entertainment, Education, Nature, Finance, Relationships, Hobbies, etc.
+
+Respond with ONLY the category name, no explanation, no markdown, no quotes.`;
+}
+
 export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
   // Add Markdown formatting to highlight important parts
   let markedUpText = geminiResponse;

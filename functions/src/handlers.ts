@@ -17,6 +17,7 @@ import {
   addHTMLMarkup,
   callGeminiAPI,
   callOpenRouterAPI,
+  generateCategorySuggestionPrompt,
   generateExplanationPrompt,
   generateGrammarCheckPrompt,
   generatePracticePhrasePrompt,
@@ -60,7 +61,23 @@ export async function handleExplainWordRequest(
       return ErrorResponses.internalServerError('Failed to generate explanation', corsHeaders);
     }
 
-    return SuccessResponses.ok({definition: geminiResponse}, corsHeaders);
+    let suggestedCategory: string | undefined;
+    try {
+      const categoryPrompt = generateCategorySuggestionPrompt(word);
+      const categoryResponse = await callGeminiAPI(categoryPrompt, env.GEMINI_API_KEY);
+      
+      if (categoryResponse) {
+        suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
+        suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
+      }
+    } catch (categoryError) {
+      console.warn('Failed to generate category suggestion:', categoryError);
+    }
+
+    return SuccessResponses.ok({
+      definition: geminiResponse,
+      suggestedCategory
+    }, corsHeaders);
 
   } catch (error) {
     logError('handleExplainWordRequest', error);

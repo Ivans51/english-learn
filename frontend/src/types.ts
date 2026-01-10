@@ -38,6 +38,11 @@ export interface Topic {
   createdAt: string
 }
 
+export interface ExplainWordResponse {
+  definition: string
+  suggestedCategory?: string
+}
+
 export interface CreateTopicWordsRequest {
   topic: string
   categoryName: string
