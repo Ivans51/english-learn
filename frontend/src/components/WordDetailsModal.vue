@@ -47,7 +47,7 @@
             </span>
           </div>
 
-          <hr class="border-primary-700 mb-4" />
+          <hr class="mb-4" />
 
           <!-- Meanings -->
           <div class="mb-6">

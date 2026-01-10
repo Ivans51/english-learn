@@ -328,22 +328,6 @@
             >
               Start building your personal vocabulary collection by adding new words.
             </p>
-            <div class="flex gap-2 justify-center">
-              <button
-                @click="openTopicWordsModal"
-                class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-secondary-600 dark:bg-secondary-700 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors cursor-pointer"
-              >
-                <Layers class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Add Group Words
-              </button>
-              <button
-                @click="openAddWordModal"
-                class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 text-xs sm:text-sm font-medium rounded-md hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors cursor-pointer"
-              >
-                <Plus class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Add Single Word
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -568,7 +552,7 @@ const addNewWord = async (word: VocabularyWord) => {
     )
     closeWordModal()
     setTimeout(() => loadWordsFromFirebase(), 500)
-    
+
     // Auto-select the category of the newly created word
     if (createdWord.categoryId) {
       selectedCategory.value = createdWord.categoryId

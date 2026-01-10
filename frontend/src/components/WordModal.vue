@@ -27,7 +27,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all border border-primary-700"
+              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
@@ -123,110 +123,28 @@
                   </button>
                 </div>
 
-                <div>
-                  <label
-                    for="meanings"
-                    class="block text-sm font-medium text-primary-50 mb-1"
-                  >
-                    Meanings
-                    <span class="text-primary-300 text-xs">
-                      (Optional - will auto-generate if empty)
-                    </span>
-                  </label>
-                  <textarea
-                    id="meanings"
-                    v-model="formData.meaningsText"
-                    placeholder="Enter meanings separated by semicolons (;) or leave empty to auto-generate"
-                    rows="5"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                  ></textarea>
-                  <p class="text-xs text-primary-300 mt-1">
-                    💡 Tip: Leave empty to automatically generate meanings
-                  </p>
+                <div v-if="formData.categoryName" class="mt-3">
+                  <span class="text-xs text-primary-300">Category:</span>
+                  <span class="ml-2 text-sm text-primary-50">{{ formData.categoryName }}</span>
                 </div>
 
-                <div>
-                  <label
-                    for="examples"
-                    class="block text-sm font-medium text-primary-50 mb-1"
-                  >
-                    Example Sentences
-                    <span class="text-primary-300 text-xs">
-                      (Optional - will auto-generate if empty)
-                    </span>
-                  </label>
-                  <textarea
-                    id="examples"
-                    v-model="formData.examplesText"
-                    placeholder="Enter example sentences separated by semicolons (;) or leave empty to auto-generate"
-                    rows="5"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                  ></textarea>
-                  <p class="text-xs text-primary-300 mt-1">
-                    💡 Tip: Leave empty to auto-generate contextual examples
-                  </p>
-                </div>
-
-                <div>
-                  <label
-                    for="categoryName"
-                    class="block text-sm font-medium text-primary-50 mb-1"
-                  >
-                    Category Name
-                  </label>
-
-                  <!-- Category Selection Dropdown -->
-                  <div v-if="!showNewCategoryInput">
-                    <select
-                      v-model="formData.categoryName"
-                      @change="handleCategoryChange"
-                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      <option
-                        v-for="(category, id) in allCategories"
-                        :key="id"
-                        :value="category.name"
-                      >
-                        {{ category.name }}
-                      </option>
-                      <option value="__add_new__">+ Add New Category</option>
-                    </select>
-                  </div>
-
-                  <!-- New Category Input -->
-                  <div v-else class="space-y-2">
-                    <input
-                      type="text"
-                      id="categoryName"
-                      v-model="formData.categoryName"
-                      placeholder="Enter new category name (e.g., Travel, Business, etc.)"
-                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                      required
-                      ref="categoryInputRef"
-                    />
-                    <div class="flex gap-2">
-                      <button
-                        type="button"
-                        @click="confirmNewCategory"
-                        class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-3 py-1 text-xs font-medium hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors"
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        type="button"
-                        @click="cancelNewCategory"
-                        class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 text-white px-3 py-1 text-xs font-medium hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-                      >
-                        Cancel
-                      </button>
+                <div v-if="formData.meaningsText || formData.examplesText" class="mt-3 space-y-3 max-h-48 overflow-y-auto pr-2">
+                  <div v-if="formData.meaningsText">
+                    <label class="block text-xs font-medium text-primary-300 mb-1">
+                      Meanings
+                    </label>
+                    <div class="text-sm text-primary-50 whitespace-pre-wrap bg-primary-800/50 p-2 rounded border border-primary-700/50">
+                      {{ formData.meaningsText }}
                     </div>
                   </div>
-
-                  <p class="text-xs text-primary-300 mt-1">
-                    💡 Tip: Select existing category or add a new one
-                  </p>
+                  <div v-if="formData.examplesText">
+                    <label class="block text-xs font-medium text-primary-300 mb-1">
+                      Example Sentences
+                    </label>
+                    <div class="text-sm text-primary-50 whitespace-pre-wrap bg-primary-800/50 p-2 rounded border border-primary-700/50">
+                      {{ formData.examplesText }}
+                    </div>
+                  </div>
                 </div>
 
                 <div class="mt-6 flex justify-end space-x-3">
@@ -263,12 +181,9 @@ import {
   TransitionRoot,
 } from '@headlessui/vue'
 
-import type { VocabularyWord, CategoryCollection, ExplainWordResponse } from '@/types'
-import { useToast } from '@/composables/useToast'
+import type { VocabularyWord, ExplainWordResponse } from '@/types'
 
-const emit = defineEmits(['close', 'add-word', 'update-word', 'add-category'])
-
-const { error: showErrorToast } = useToast()
+const emit = defineEmits(['close', 'add-word', 'update-word'])
 
 const initialFormData = {
   term: '',
@@ -286,16 +201,8 @@ const props = defineProps<{
 const formData = ref({ ...initialFormData })
 const isGenerating = ref(false)
 const wordInputRef = ref<HTMLInputElement>()
-const categoryInputRef = ref<HTMLInputElement>()
-const showNewCategoryInput = ref(false)
-const tempCategories = ref<CategoryCollection>({})
 
 const isEditing = computed(() => !!props.currentWord)
-
-const allCategories = computed(() => ({
-  ...(props.categories || {}),
-  ...tempCategories.value
-}))
 
 // Computed property for term with automatic lowercase conversion
 const termLowerCase = computed({
@@ -324,8 +231,7 @@ watch(
   () => props.isOpen,
   async (isOpenVal) => {
     if (!isOpenVal) {
-      showNewCategoryInput.value = false
-      tempCategories.value = {}
+      resetForm()
     } else if (!props.currentWord) {
       // Reset form when opening for a new word (not editing)
       resetForm()
@@ -344,8 +250,7 @@ watch(
   () => props.isOpen,
   async (isOpenVal) => {
     if (!isOpenVal) {
-      showNewCategoryInput.value = false
-      tempCategories.value = {}
+      resetForm()
     } else {
       await nextTick()
       wordInputRef.value?.focus()
@@ -359,33 +264,6 @@ function closeModal() {
 
 function resetForm() {
   Object.assign(formData.value, initialFormData)
-  tempCategories.value = {}
-  showNewCategoryInput.value = false
-}
-
-function handleCategoryChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  if (target.value === '__add_new__') {
-    showNewCategoryInput.value = true
-    formData.value.categoryName = ''
-    // Focus the new category input after DOM update
-    nextTick(() => {
-      categoryInputRef.value?.focus()
-    })
-  }
-}
-
-function confirmNewCategory() {
-  if (formData.value.categoryName.trim()) {
-    // Emit event to notify parent to handle new category creation
-    emit('add-category', formData.value.categoryName.trim())
-    showNewCategoryInput.value = false
-  }
-}
-
-function cancelNewCategory() {
-  formData.value.categoryName = ''
-  showNewCategoryInput.value = false
 }
 
 function handleEnterKey(event: KeyboardEvent) {
@@ -414,18 +292,7 @@ async function autoGenerateDefinition() {
       // Auto-select suggested category
       if (response.suggestedCategory) {
         const suggested = response.suggestedCategory.trim()
-        const existingMatch = Object.entries(allCategories.value).find(
-          ([, cat]) => cat.name.toLowerCase() === suggested.toLowerCase()
-        )
-        
-        if (existingMatch) {
-          formData.value.categoryName = existingMatch[1].name
-        } else {
-          // Add temporary category to local dropdown (not in Firebase yet)
-          const tempId = `temp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-          tempCategories.value[tempId] = { name: suggested }
-          formData.value.categoryName = suggested
-        }
+        formData.value.categoryName = suggested
       }
     } catch (error) {
       console.warn('Failed to auto-generate definition:', error)
@@ -449,11 +316,6 @@ async function autoGenerateDefinition() {
 }
 
 function addOrUpdateWord() {
-  if (!formData.value.categoryName.trim()) {
-    showErrorToast('Please select or enter a category')
-    return
-  }
-  
   if (isEditing.value && props.currentWord) {
     // Update existing word
     const updatedWord: VocabularyWord = {
