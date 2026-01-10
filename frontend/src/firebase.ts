@@ -14,9 +14,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-console.log('[Firebase Config] VITE_API_URL:', import.meta.env.VITE_API_URL)
-console.log('[Firebase Config] VITE_FIREBASE_API_KEY:', import.meta.env.VITE_FIREBASE_API_KEY)
-
 const app = initializeApp(firebaseConfig)
 
 // Get a reference to the database service and export it for use in other modules
