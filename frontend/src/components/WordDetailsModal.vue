@@ -182,22 +182,3 @@ watch(() => props.word.description, (newDescription) => {
   }
 }, { immediate: true })
 </script>
-
-<style scoped>
-:deep(.description-content p) {
-  margin-bottom: 0.75rem;
-}
-:deep(.description-content p:last-child) {
-  margin-bottom: 0;
-}
-:deep(.description-content ul) {
-  margin-top: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-:deep(.description-content li) {
-  margin-bottom: 0.5rem;
-}
-:deep(.description-content li:last-child) {
-  margin-bottom: 0;
-}
-</style>

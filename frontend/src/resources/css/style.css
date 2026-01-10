@@ -237,3 +237,25 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.6);
 }
+
+/* Description Content Markdown Styling */
+.description-content p {
+  margin-bottom: 0.75rem;
+}
+
+.description-content p:last-child {
+  margin-bottom: 0;
+}
+
+.description-content ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.description-content li {
+  margin-bottom: 0.5rem;
+}
+
+.description-content li:last-child {
+  margin-bottom: 0;
+}
