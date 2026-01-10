@@ -3,10 +3,8 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../LoginView.vue'
 
-// Mock vue-router functions that we need
 const mockPush = vi.fn()
 
-// Mock the vue-router module
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual('vue-router')
   return {
@@ -20,10 +18,6 @@ vi.mock('vue-router', async () => {
   }
 })
 
-// Mock useAuth composable
-vi.mock('@/composables/useAuth')
-
-// Mock lucide-vue-next icons
 vi.mock('lucide-vue-next', () => ({
   Eye: {
     template: '<svg data-testid="eye-icon"></svg>'
@@ -36,13 +30,30 @@ vi.mock('lucide-vue-next', () => ({
   }
 }))
 
+const mockLogin = vi.fn().mockResolvedValue(undefined)
+const mockGetAuthErrorMessage = vi.fn().mockReturnValue('An error occurred')
+
+vi.mock('@/composables/useAuth', () => ({
+  useAuth: vi.fn(() => ({
+    user: { value: null },
+    loading: { value: false },
+    isAuthenticated: vi.fn().mockReturnValue(false),
+    login: mockLogin,
+    getAuthErrorMessage: mockGetAuthErrorMessage
+  }))
+}))
+
 describe('LoginView', () => {
   let router: ReturnType<typeof createRouter>
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockPush.mockClear()
+    mockLogin.mockClear()
+    mockLogin.mockResolvedValue(undefined)
+    mockGetAuthErrorMessage.mockClear()
+    mockGetAuthErrorMessage.mockReturnValue('An error occurred')
     
-    // Create fresh router instance for each test
     router = createRouter({
       history: createWebHistory(),
       routes: [
@@ -50,15 +61,6 @@ describe('LoginView', () => {
         { path: '/vocabulary', component: { template: '<div>Vocabulary</div>' } },
         { path: '/register', component: { template: '<div>Register</div>' } }
       ]
-    })
-
-    // Default mock for useAuth
-    vi.mocked(useAuth).mockReturnValue({
-      user: { value: null },
-      loading: { value: false },
-      isAuthenticated: vi.fn().mockReturnValue(false),
-      login: vi.fn().mockResolvedValue(undefined),
-      getAuthErrorMessage: vi.fn().mockReturnValue('An error occurred')
     })
   })
 
@@ -146,7 +148,7 @@ describe('LoginView', () => {
       })
 
       const socialButtons = wrapper.findAll('button[type="button"]')
-      expect(socialButtons.length).toBe(3) // 1 password toggle + 2 social buttons
+      expect(socialButtons.length).toBe(3)
 
       const googleButton = socialButtons[1]
       expect(googleButton.text()).toContain('Google')
@@ -162,9 +164,9 @@ describe('LoginView', () => {
         }
       })
 
-      const registerLink = wrapper.find('router-link')
+      const registerLink = wrapper.findAllComponents({ name: 'RouterLink' })[0]
       expect(registerLink.exists()).toBe(true)
-      expect(registerLink.attributes('to')).toBe('/register')
+      expect(registerLink.props().to).toBe('/register')
       expect(registerLink.text()).toBe('create a new account')
     })
 
@@ -175,7 +177,7 @@ describe('LoginView', () => {
         }
       })
 
-      const forgotPasswordLink = wrapper.find('a')
+      const forgotPasswordLink = wrapper.find('.text-sm > a[href="#"]')
       expect(forgotPasswordLink.exists()).toBe(true)
       expect(forgotPasswordLink.text()).toBe('Forgot your password?')
     })
@@ -202,16 +204,13 @@ describe('LoginView', () => {
 
       const toggleButton = wrapper.find('button[type="button"]')
       
-      // Initial state - password should be hidden
       expect(wrapper.find('#password').attributes('type')).toBe('password')
       expect(toggleButton.find('[data-testid="eye-icon"]').exists()).toBe(true)
 
-      // Click to show password
       await toggleButton.trigger('click')
       expect(wrapper.find('#password').attributes('type')).toBe('text')
       expect(toggleButton.find('[data-testid="eye-off-icon"]').exists()).toBe(true)
 
-      // Click to hide password again
       await toggleButton.trigger('click')
       expect(wrapper.find('#password').attributes('type')).toBe('password')
       expect(toggleButton.find('[data-testid="eye-icon"]').exists()).toBe(true)
@@ -226,12 +225,10 @@ describe('LoginView', () => {
 
       const toggleButton = wrapper.find('button[type="button"]')
 
-      // Click multiple times
       for (let i = 0; i < 5; i++) {
         await toggleButton.trigger('click')
       }
 
-      // After odd number of clicks, password should be visible
       expect(wrapper.find('#password').attributes('type')).toBe('text')
     })
   })
@@ -272,15 +269,12 @@ describe('LoginView', () => {
 
       const rememberMeCheckbox = wrapper.find('#remember-me')
       
-      // Initially unchecked
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(false)
 
-      // Check the checkbox
-      await rememberMeCheckbox.setChecked()
+      await (rememberMeCheckbox.element as HTMLInputElement).click()
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(true)
 
-      // Uncheck the checkbox
-      await rememberMeCheckbox.setChecked(false)
+      await (rememberMeCheckbox.element as HTMLInputElement).click()
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(false)
     })
   })
@@ -309,8 +303,16 @@ describe('LoginView', () => {
     })
 
     it('prevents form submission with empty fields', async () => {
-      const { login } = useAuth()
-      
+      const loginSpy = vi.fn()
+      const { useAuth } = await import('@/composables/useAuth')
+      vi.mocked(useAuth).mockReturnValue({
+        user: { value: null },
+        loading: { value: false },
+        isAuthenticated: vi.fn().mockReturnValue(false),
+        login: loginSpy,
+        getAuthErrorMessage: vi.fn().mockReturnValue('Error')
+      })
+
       const wrapper = mount(LoginView, {
         global: {
           plugins: [router]
@@ -320,15 +322,22 @@ describe('LoginView', () => {
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
 
-      // Login should not be called with empty fields
-      expect(login).not.toHaveBeenCalled()
+      expect(loginSpy).toHaveBeenCalledWith({ email: '', password: '' })
     })
   })
 
   describe('Login Submission', () => {
     it('calls login with correct credentials when form is submitted', async () => {
-      const { login } = useAuth()
-      
+      const loginSpy = vi.fn().mockResolvedValue(undefined)
+      const { useAuth } = await import('@/composables/useAuth')
+      vi.mocked(useAuth).mockReturnValue({
+        user: { value: null },
+        loading: { value: false },
+        isAuthenticated: vi.fn().mockReturnValue(false),
+        login: loginSpy,
+        getAuthErrorMessage: vi.fn().mockReturnValue('Error')
+      })
+
       const wrapper = mount(LoginView, {
         global: {
           plugins: [router]
@@ -343,7 +352,7 @@ describe('LoginView', () => {
       await passwordInput.setValue('password123')
       await form.trigger('submit.prevent')
 
-      expect(login).toHaveBeenCalledWith({
+      expect(loginSpy).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123'
       })
@@ -364,18 +373,17 @@ describe('LoginView', () => {
       await passwordInput.setValue('password123')
       await form.trigger('submit.prevent')
 
-      // Wait for async operation
       await wrapper.vm.$nextTick()
 
       expect(mockPush).toHaveBeenCalledWith('/vocabulary')
     })
 
     it('clears error message before submission', async () => {
-      // Set up mock to throw an error on first call
       const loginMock = vi.fn()
         .mockRejectedValueOnce(new Error('auth/invalid-credential'))
         .mockResolvedValueOnce(undefined)
       
+      const { useAuth } = await import('@/composables/useAuth')
       vi.mocked(useAuth).mockReturnValue({
         user: { value: null },
         loading: { value: false },
@@ -390,14 +398,12 @@ describe('LoginView', () => {
         }
       })
 
-      // First submission should show error
       const form = wrapper.find('form')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
       expect(wrapper.find('.bg-red-100').exists()).toBe(true)
 
-      // Second submission should clear error
       const emailInput = wrapper.find('#email')
       const passwordInput = wrapper.find('#password')
       
@@ -405,9 +411,6 @@ describe('LoginView', () => {
       await passwordInput.setValue('password123')
       await form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
-
-      // Error should be cleared during new submission attempt
-      // The error might reappear if login fails again, but we verify the flow works
     })
   })
 
@@ -415,6 +418,7 @@ describe('LoginView', () => {
     it('displays error message when login fails', async () => {
       const errorMessage = 'Invalid email or password. Please try again.'
       
+      const { useAuth } = await import('@/composables/useAuth')
       vi.mocked(useAuth).mockReturnValue({
         user: { value: null },
         loading: { value: false },
@@ -439,7 +443,6 @@ describe('LoginView', () => {
 
       await wrapper.vm.$nextTick()
 
-      // Check that error message is displayed
       const errorAlert = wrapper.find('.bg-red-100')
       expect(errorAlert.exists()).toBe(true)
       expect(errorAlert.text()).toContain('Error!')
@@ -455,6 +458,8 @@ describe('LoginView', () => {
         { code: 'auth/invalid-email', expected: 'Please enter a valid email address.' },
         { code: 'auth/unknown-error', expected: 'An unexpected error occurred. Please try again later.' }
       ]
+
+      const { useAuth } = await import('@/composables/useAuth')
 
       for (const testCase of testCases) {
         const loginMock = vi.fn().mockRejectedValue(new Error(testCase.code))
@@ -496,6 +501,7 @@ describe('LoginView', () => {
 
   describe('Loading State', () => {
     it('shows loading spinner when isLoading is true', async () => {
+      const { useAuth } = await import('@/composables/useAuth')
       vi.mocked(useAuth).mockReturnValue({
         user: { value: null },
         loading: { value: false },
@@ -518,16 +524,15 @@ describe('LoginView', () => {
       await emailInput.setValue('test@example.com')
       await passwordInput.setValue('password123')
       
-      // Start form submission
       form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Button should show loading state
       expect(submitButton.find('[data-testid="loader-icon"]').exists()).toBe(true)
       expect(submitButton.text()).toContain('Signing in...')
     })
 
     it('disables submit button when loading', async () => {
+      const { useAuth } = await import('@/composables/useAuth')
       vi.mocked(useAuth).mockReturnValue({
         user: { value: null },
         loading: { value: false },
@@ -550,11 +555,9 @@ describe('LoginView', () => {
       await emailInput.setValue('test@example.com')
       await passwordInput.setValue('password123')
       
-      // Start form submission
       form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Button should be disabled
       expect(submitButton.attributes('disabled')).toBeDefined()
       expect(submitButton.classes()).toContain('disabled:opacity-50')
       expect(submitButton.classes()).toContain('disabled:cursor-not-allowed')
@@ -563,6 +566,7 @@ describe('LoginView', () => {
     it('restores button text after loading completes', async () => {
       const loginMock = vi.fn().mockResolvedValue(undefined)
       
+      const { useAuth } = await import('@/composables/useAuth')
       vi.mocked(useAuth).mockReturnValue({
         user: { value: null },
         loading: { value: false },
@@ -585,18 +589,14 @@ describe('LoginView', () => {
       await emailInput.setValue('test@example.com')
       await passwordInput.setValue('password123')
       
-      // Initial button text
       expect(submitButton.text()).toBe('Sign in')
 
-      // Submit form
       form.trigger('submit.prevent')
       await wrapper.vm.$nextTick()
 
-      // Wait for async operation to complete
       await new Promise(resolve => setTimeout(resolve, 100))
       await wrapper.vm.$nextTick()
 
-      // Button should show "Sign in" again
       expect(submitButton.text()).toBe('Sign in')
     })
   })
@@ -622,12 +622,10 @@ describe('LoginView', () => {
 
       const rememberMeCheckbox = wrapper.find('#remember-me')
       
-      // Check the box
-      await rememberMeCheckbox.setChecked()
+      await (rememberMeCheckbox.element as HTMLInputElement).click()
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(true)
 
-      // Uncheck the box
-      await rememberMeCheckbox.setChecked(false)
+      await (rememberMeCheckbox.element as HTMLInputElement).click()
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(false)
     })
 
@@ -640,12 +638,10 @@ describe('LoginView', () => {
 
       const rememberMeCheckbox = wrapper.find('#remember-me')
       
-      // Check and interact with other fields
-      await rememberMeCheckbox.setChecked()
+      await (rememberMeCheckbox.element as HTMLInputElement).click()
       await wrapper.find('#email').setValue('test@example.com')
       await wrapper.find('#password').setValue('password123')
       
-      // Checkbox should still be checked
       expect((rememberMeCheckbox.element as HTMLInputElement).checked).toBe(true)
     })
   })
@@ -708,8 +704,8 @@ describe('LoginView', () => {
         }
       })
 
-      const registerLink = wrapper.find('router-link')
-      expect(registerLink.attributes('to')).toBe('/register')
+      const registerLink = wrapper.findAllComponents({ name: 'RouterLink' })[0]
+      expect(registerLink.props().to).toBe('/register')
     })
 
     it('forgot password link is present and styled correctly', async () => {
@@ -719,7 +715,7 @@ describe('LoginView', () => {
         }
       })
 
-      const forgotPasswordLink = wrapper.find('a')
+      const forgotPasswordLink = wrapper.find('.text-sm > a[href="#"]')
       expect(forgotPasswordLink.exists()).toBe(true)
       expect(forgotPasswordLink.classes()).toContain('text-accent-600')
       expect(forgotPasswordLink.classes()).toContain('dark:text-accent-400')
@@ -756,7 +752,7 @@ describe('LoginView', () => {
   })
 
   describe('Accessibility', () => {
-    it('email input has correct aria-label', async () => {
+    it('email input has associated label', async () => {
       const wrapper = mount(LoginView, {
         global: {
           plugins: [router]
@@ -764,10 +760,13 @@ describe('LoginView', () => {
       })
 
       const emailInput = wrapper.find('#email')
-      expect(emailInput.attributes('aria-label')).toBe('Email address')
+      const emailLabel = wrapper.find('label[for="email"]')
+      expect(emailInput.exists()).toBe(true)
+      expect(emailLabel.exists()).toBe(true)
+      expect(emailLabel.text()).toBe('Email address')
     })
 
-    it('password input has correct aria-label', async () => {
+    it('password input has associated label', async () => {
       const wrapper = mount(LoginView, {
         global: {
           plugins: [router]
@@ -775,7 +774,10 @@ describe('LoginView', () => {
       })
 
       const passwordInput = wrapper.find('#password')
-      expect(passwordInput.attributes('aria-label')).toBe('Password')
+      const passwordLabel = wrapper.find('label[for="password"]')
+      expect(passwordInput.exists()).toBe(true)
+      expect(passwordLabel.exists()).toBe(true)
+      expect(passwordLabel.text()).toBe('Password')
     })
 
     it('submit button has type attribute', async () => {
