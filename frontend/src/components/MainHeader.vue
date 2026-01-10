@@ -178,10 +178,9 @@ const closeMobileMenu = () => {
           <button
             @click="toggleMobileMenu"
             class="text-primary-700 dark:text-primary-100 hover:text-primary-900 dark:hover:text-primary-50 transition-colors cursor-pointer p-1"
-            :title="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+            title="Open menu"
           >
             <svg
-              v-if="!isMobileMenuOpen"
               class="w-6 h-6"
               fill="none"
               stroke="currentColor"
@@ -194,9 +193,24 @@ const closeMobileMenu = () => {
                 d="M4 6h16M4 12h16M4 18h16"
               ></path>
             </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile menu overlay -->
+      <div
+        v-if="isMobileMenuOpen"
+        class="fixed inset-0 bg-black/90 z-50 flex flex-col justify-center items-center min-h-screen"
+        @click="closeMobileMenu"
+      >
+        <!-- Close button area (top) -->
+        <div class="absolute top-4 right-4" @click.stop>
+          <button
+            @click="closeMobileMenu"
+            class="text-white hover:text-gray-300 transition-colors p-2"
+          >
             <svg
-              v-else
-              class="w-6 h-6"
+              class="w-8 h-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -210,40 +224,34 @@ const closeMobileMenu = () => {
             </svg>
           </button>
         </div>
-      </div>
 
-      <!-- Mobile menu -->
-      <div
-        v-if="isMobileMenuOpen"
-        class="md:hidden border-t border-primary-200 dark:border-primary-800 mt-2 pt-4 pb-3"
-      >
-        <!-- Mobile user actions -->
-        <div class="flex flex-col space-y-3">
+        <!-- Menu items -->
+        <div class="flex flex-col space-y-8 text-center" @click.stop>
           <template v-if="isLoggedIn">
             <router-link
               to="/vocabulary"
               @click="closeMobileMenu"
-              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-800 dark:hover:bg-primary-100"
+              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
             >
               My Vocabulary
             </router-link>
             <router-link
               to="/learning-topics"
               @click="closeMobileMenu"
-              class="bg-primary-800 dark:bg-primary-300 text-primary-50 dark:text-primary-950 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-700 dark:hover:bg-primary-400"
+              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
             >
               Learning by Topics
             </router-link>
             <router-link
               to="/profile"
               @click="closeMobileMenu"
-              class="bg-primary-700 dark:bg-primary-200 text-primary-50 dark:text-primary-900 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center hover:bg-primary-600 dark:hover:bg-primary-300"
+              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
             >
               Profile
             </router-link>
             <button
               @click="handleLogoutAndCloseMenu"
-              class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer w-full"
+              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors cursor-pointer"
             >
               Logout
             </button>
@@ -252,7 +260,7 @@ const closeMobileMenu = () => {
             <router-link
               to="/login"
               @click="closeMobileMenu"
-              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors text-center"
+              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
             >
               Sign In
             </router-link>
