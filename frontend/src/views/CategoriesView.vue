@@ -17,7 +17,7 @@
             <ArrowLeft class="w-5 h-5" />
           </button>
           <h1
-            class="text-lg font-semibold text-primary-900 dark:text-primary-50"
+            class="text-xl font-semibold text-primary-900 dark:text-primary-50"
           >
             Categories
           </h1>
@@ -26,14 +26,14 @@
 
       <!-- Search and count -->
       <div class="flex items-center gap-2 mb-4">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search categories..."
-          class="flex-1 px-3 py-1.5 text-sm bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
-          ref="searchInput"
-        />
-        <span class="text-xs text-primary-400 dark:text-primary-500">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search categories..."
+            class="flex-1 px-3 py-1.5 text-base bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
+            ref="searchInput"
+          />
+          <span class="text-sm text-primary-400 dark:text-primary-500">
           {{ filteredCategoriesCount }} / {{ Object.keys(categories).length }}
         </span>
       </div>
@@ -51,7 +51,7 @@
           v-else-if="Object.keys(filteredCategories).length === 0"
           class="text-center py-8"
         >
-          <p class="text-sm text-primary-500 dark:text-primary-400">
+          <p class="text-base text-primary-500 dark:text-primary-400">
             {{ searchQuery ? 'No matching categories' : 'No categories yet' }}
           </p>
         </div>
@@ -68,19 +68,19 @@
                 v-if="editingCategory === String(id)"
                 v-model="editingName"
                 type="text"
-                class="w-full px-2 py-1 text-sm bg-transparent border-b border-secondary-500 focus:outline-none text-primary-900 dark:text-primary-50"
+                class="w-full px-2 py-1 text-base bg-transparent border-b border-secondary-500 focus:outline-none text-primary-900 dark:text-primary-50"
                 @keyup.enter="handleSaveEdit(String(id))"
                 @keyup.escape="cancelEdit"
                 ref="editInput"
               />
               <span
                 v-else
-                class="text-sm text-primary-700 dark:text-primary-300 cursor-pointer hover:text-primary-900 dark:hover:text-primary-100"
+                class="text-base text-primary-700 dark:text-primary-300 cursor-pointer hover:text-primary-900 dark:hover:text-primary-100"
                 @click="startEdit(String(id), category.name)"
               >
                 {{ category.name }}
               </span>
-              <span class="ml-2 text-xs text-primary-400 dark:text-primary-500">
+              <span class="ml-2 text-sm text-primary-400 dark:text-primary-500">
                 {{ getWordCountForCategory(String(id)) }} words
               </span>
             </div>
@@ -129,15 +129,14 @@
               <!-- Delete button -->
               <button
                 @click="handleDeleteCategory(String(id), category.name)"
-                :disabled="isDeleting"
-                class="p-1.5 text-primary-400 hover:text-red-500 dark:hover:text-red-400 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="p-1.5 text-primary-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
                 title="Delete category and all related words"
               >
+                <Trash2 v-if="!isLoading" class="w-3.5 h-3.5" />
                 <span
-                  v-if="isDeleting"
+                  v-else
                   class="animate-spin rounded-full h-3.5 w-3.5 border-b border-primary-500"
                 ></span>
-                <Trash2 v-else class="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -187,7 +186,6 @@ const searchInput = ref<HTMLInputElement>()
 
 // Loading states for different operations
 const isUpdating = ref(false)
-const isDeleting = ref(false)
 
 const userId = ref('anonymous')
 
@@ -321,7 +319,7 @@ const handleDeleteCategory = async (
   })
 
   if (result.isConfirmed) {
-    isDeleting.value = true
+    isLoading.value = true
     try {
       // Delete via API (this will also delete all related vocabulary words)
       await categoryService.deleteCategory(categoryId, userId.value)
@@ -337,7 +335,7 @@ const handleDeleteCategory = async (
       console.error('Error deleting category:', error)
       showErrorToast('Failed to delete category. Please try again.')
     } finally {
-      isDeleting.value = false
+      isLoading.value = false
     }
   }
 }

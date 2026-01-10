@@ -517,10 +517,16 @@ const closeTopicWordsModal = () => {
   showTopicWordsModal.value = false
 }
 
-const handleTopicWordsCreated = (createdWords: VocabularyWord[]) => {
+const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[]; categoryId: string }) => {
   // Refresh the vocabulary data to show the new words
   setTimeout(() => loadWordsFromFirebase(), 500)
-  showSuccessToast(`${createdWords.length} words added successfully!`, 2000)
+
+  // Auto-select the category of the newly created words
+  if (data.categoryId) {
+    selectedCategory.value = data.categoryId
+  }
+
+  showSuccessToast(`${data.createdWords.length} words added successfully!`, 2000)
 }
 
 const openEditWordModal = (word: VocabularyWord, wordUid: string) => {

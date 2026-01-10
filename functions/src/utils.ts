@@ -36,10 +36,10 @@ export async function callGeminiAPI(prompt: string): Promise<string | null> {
     let model = genAI.getGenerativeModel({model: "gemma-3-27b-it"});
 
     const generationConfig = {
-      temperature: 1.2,
-      topK: 60,
-      topP: 0.98,
-      maxOutputTokens: 2048,
+      temperature: 0.7,
+      topK: 64,
+      topP: 0.95,
+      maxOutputTokens: 8192,
       candidateCount: 1,
     };
 

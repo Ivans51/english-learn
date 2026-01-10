@@ -162,7 +162,7 @@ async function createTopicWords() {
       userId: props.userId || 'anonymous',
     })
 
-    emit('words-created', result.createdWords)
+    emit('words-created', { createdWords: result.createdWords, categoryId: result.categoryId })
     closeModal()
   } catch (error) {
     console.error('Failed to create topic words:', error)

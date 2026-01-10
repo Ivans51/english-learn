@@ -620,7 +620,7 @@ export async function handleCreateTopicWords(
     // First, generate the topic words
     const topicWordsPrompt = generateTopicWordsPrompt(topic);
 
-    const geminiResponse = await callGeminiAPI(topicWordsPrompt);
+    const geminiResponse = await callMistralAPI(topicWordsPrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate topic words', corsHeaders);
@@ -628,22 +628,88 @@ export async function handleCreateTopicWords(
 
     // Parse the JSON response
     let topicWords: TopicWord[] = [];
+    let extractedJsonText = ''; // Store for debugging
     try {
-      const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
-      let jsonText;
+      let jsonText = '';
 
+      // Try multiple extraction strategies
+      const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
       if (jsonMatch) {
         jsonText = jsonMatch[1].trim();
       } else {
-        const directJsonMatch = geminiResponse.match(/\[[\s\S]*\]/);
-        if (directJsonMatch) {
-          jsonText = directJsonMatch[0];
-        } else {
+        const codeBlockMatch = geminiResponse.match(/```\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+          const potentialJson = codeBlockMatch[1].trim();
+          if (potentialJson.startsWith('[') || potentialJson.startsWith('{')) {
+            jsonText = potentialJson;
+          }
+        }
+
+        if (!jsonText) {
+          const directJsonMatch = geminiResponse.match(/\[[\s\S]*\]/);
+          if (directJsonMatch) {
+            jsonText = directJsonMatch[0];
+          }
+        }
+
+        if (!jsonText) {
+          const lastBraceIndex = geminiResponse.lastIndexOf(']');
+          const firstBraceIndex = geminiResponse.indexOf('[');
+          if (firstBraceIndex !== -1 && lastBraceIndex !== -1 && lastBraceIndex > firstBraceIndex) {
+            jsonText = geminiResponse.substring(firstBraceIndex, lastBraceIndex + 1);
+          }
+        }
+
+        if (!jsonText) {
           throw new Error('No JSON array found in response');
         }
       }
 
-      topicWords = JSON.parse(jsonText);
+      extractedJsonText = jsonText; // Save for debugging
+      console.log('=== EXTRACTED JSON TEXT START ===');
+      console.log(jsonText);
+      console.log('=== EXTRACTED JSON TEXT END ===');
+
+      // Clean up the JSON text before parsing
+      let cleanedJsonText = jsonText
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .replace(/\r\n/g, '\\n') // Normalize line endings
+        .trim();
+
+      // Try to parse the JSON
+      try {
+        topicWords = JSON.parse(cleanedJsonText);
+      } catch (jsonError) {
+        console.warn('Initial JSON.parse failed, trying cleanup strategies:', jsonError);
+
+        // Try removing trailing commas
+        try {
+          const withoutTrailingCommas = cleanedJsonText.replace(/,(\s*[}\]])/g, '$1');
+          topicWords = JSON.parse(withoutTrailingCommas);
+        } catch (e2) {
+          console.warn('Trailing comma cleanup failed:', e2);
+
+          // Try extracting individual objects and parsing them
+          const objectMatches = cleanedJsonText.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
+          if (objectMatches) {
+            console.log('Found', objectMatches.length, 'potential objects, trying to parse individually');
+            for (const objMatch of objectMatches) {
+              try {
+                const parsed = JSON.parse(objMatch);
+                if (parsed.term && parsed.description) {
+                  topicWords.push(parsed);
+                }
+              } catch (objError) {
+                // Skip this object
+              }
+            }
+          }
+
+          if (topicWords.length === 0) {
+            throw new Error('Could not parse any valid word objects from response');
+          }
+        }
+      }
 
       // Validate the response structure
       if (!Array.isArray(topicWords)) {
@@ -659,6 +725,8 @@ export async function handleCreateTopicWords(
 
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
+      console.warn('Raw Gemini response:', geminiResponse);
+      console.warn('Attempted to extract JSON with length:', extractedJsonText.length);
       return ErrorResponses.internalServerError('Failed to parse generated topic words as JSON', corsHeaders);
     }
 
