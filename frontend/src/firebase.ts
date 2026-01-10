@@ -14,7 +14,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-// Initialize Firebase
+console.log('[Firebase Config] VITE_FIREBASE_API_KEY:', import.meta.env.VITE_FIREBASE_API_KEY)
+console.log('[Firebase Config] VITE_FIREBASE_AUTH_DOMAIN:', import.meta.env.VITE_FIREBASE_AUTH_DOMAIN)
+console.log('[Firebase Config] VITE_FIREBASE_DATABASE_URL:', import.meta.env.VITE_FIREBASE_DATABASE_URL)
+console.log('[Firebase Config] VITE_FIREBASE_PROJECT_ID:', import.meta.env.VITE_FIREBASE_PROJECT_ID)
+console.log('[Firebase Config] VITE_FIREBASE_STORAGE_BUCKET:', import.meta.env.VITE_FIREBASE_STORAGE_BUCKET)
+console.log('[Firebase Config] VITE_FIREBASE_MESSAGING_SENDER_ID:', import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID)
+console.log('[Firebase Config] VITE_FIREBASE_APP_ID:', import.meta.env.VITE_FIREBASE_APP_ID)
+
 const app = initializeApp(firebaseConfig)
 
 // Get a reference to the database service and export it for use in other modules
