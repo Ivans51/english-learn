@@ -1,29 +1,44 @@
 import {GoogleGenerativeAI} from '@google/generative-ai';
+import {Env} from './types';
 
-// CORS headers for consistent use across the application
+let globalEnv: Env | null = null;
+
+export function setGlobalEnv(env: Env): void {
+  globalEnv = env;
+}
+
+function getApiKeys(): { gemini: string; mistral: string; openrouter: string } {
+  if (!globalEnv) {
+    throw new Error('Global env not initialized. Call setGlobalEnv() first.');
+  }
+  return {
+    gemini: globalEnv.GEMINI_API_KEY,
+    mistral: globalEnv.MISTRAL_API_KEY,
+    openrouter: globalEnv.OPENROUTER_API_KEY
+  };
+}
+
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function callGeminiAPI(prompt: string, apiKey: string): Promise<string | null> {
+export async function callGeminiAPI(prompt: string): Promise<string | null> {
   try {
+    const {gemini: apiKey} = getApiKeys();
     console.log('Calling Gemini API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
     console.log('=== PROMPT END ===');
 
     const genAI = new GoogleGenerativeAI(apiKey);
-
-    // Use a reliable Gemini model with fallback
     let model = genAI.getGenerativeModel({model: "gemma-3-27b-it"});
 
-    // Enhanced generation config for maximum creativity
     const generationConfig = {
-      temperature: 1.2, // Even higher temperature for more creativity
-      topK: 60,         // More diversity in word choice
-      topP: 0.98,       // Higher probability distribution
+      temperature: 1.2,
+      topK: 60,
+      topP: 0.98,
       maxOutputTokens: 2048,
       candidateCount: 1,
     };
@@ -46,8 +61,9 @@ export async function callGeminiAPI(prompt: string, apiKey: string): Promise<str
   }
 }
 
-export async function callOpenRouterAPI(prompt: string, apiKey: string): Promise<string | null> {
+export async function callOpenRouterAPI(prompt: string): Promise<string | null> {
   try {
+    const {openrouter: apiKey} = getApiKeys();
     console.log('Calling OpenRouter API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
@@ -66,7 +82,7 @@ export async function callOpenRouterAPI(prompt: string, apiKey: string): Promise
             "role": "user",
             "content": prompt
           }
-        ],
+        ]
       })
     });
 
@@ -88,8 +104,9 @@ export async function callOpenRouterAPI(prompt: string, apiKey: string): Promise
   }
 }
 
-export async function callMistralAPI(prompt: string, apiKey: string): Promise<string | null> {
+export async function callMistralAPI(prompt: string): Promise<string | null> {
   try {
+    const {mistral: apiKey} = getApiKeys();
     console.log('Calling Mistral API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
@@ -109,7 +126,7 @@ export async function callMistralAPI(prompt: string, apiKey: string): Promise<st
             "role": "user",
             "content": prompt
           }
-        ],
+        ]
       })
     });
 

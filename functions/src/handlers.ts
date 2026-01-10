@@ -56,7 +56,7 @@ export async function handleExplainWordRequest(
     }
 
     const explanationPrompt = generateExplanationPrompt(word);
-    const mistralResponse = await callMistralAPI(explanationPrompt, env.MISTRAL_API_KEY);
+    const mistralResponse = await callMistralAPI(explanationPrompt);
 
     if (!mistralResponse) {
       return ErrorResponses.internalServerError('Failed to generate explanation', corsHeaders);
@@ -65,7 +65,7 @@ export async function handleExplainWordRequest(
     let suggestedCategory: string | undefined;
     try {
       const categoryPrompt = generateCategorySuggestionPrompt(word);
-      const categoryResponse = await callMistralAPI(categoryPrompt, env.MISTRAL_API_KEY);
+      const categoryResponse = await callMistralAPI(categoryPrompt);
       
       if (categoryResponse) {
         suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
@@ -336,7 +336,7 @@ export async function handleGrammarCheck(
     }
 
     const grammarPrompt = generateGrammarCheckPrompt(input, topic);
-    const geminiResponse = await callOpenRouterAPI(grammarPrompt, env.OPENROUTER_API_KEY);
+    const geminiResponse = await callOpenRouterAPI(grammarPrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate grammar feedback', corsHeaders);
@@ -422,7 +422,7 @@ export async function handleGeneratePracticePhrase(
     }
 
     const practicePrompt = generatePracticePhrasePrompt(topic, difficulty);
-    const geminiResponse = await callOpenRouterAPI(practicePrompt, env.OPENROUTER_API_KEY);
+    const geminiResponse = await callOpenRouterAPI(practicePrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);
@@ -614,7 +614,7 @@ export async function handleCreateTopicWords(
     // First, generate the topic words
     const topicWordsPrompt = generateTopicWordsPrompt(topic);
 
-    const geminiResponse = await callGeminiAPI(topicWordsPrompt, env.GEMINI_API_KEY);
+    const geminiResponse = await callGeminiAPI(topicWordsPrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate topic words', corsHeaders);

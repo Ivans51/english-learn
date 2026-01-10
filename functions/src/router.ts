@@ -16,7 +16,7 @@ import {
   handleUpdateTopic,
   handleUpdateVocabularyWord
 } from './handlers';
-import {corsHeaders} from './utils';
+import {corsHeaders, setGlobalEnv} from './utils';
 
 export async function handleApiRequest(
   request: Request,
@@ -24,6 +24,8 @@ export async function handleApiRequest(
   env: Env,
   ctx: ExecutionContext
 ): Promise<Response> {
+
+  setGlobalEnv(env);
 
   // Explain word endpoint
   if (url.pathname === '/api/explain' && request.method === 'POST') {
