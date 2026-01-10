@@ -5,161 +5,96 @@
     <main-header />
 
     <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Header -->
       <div class="mb-6">
-        <div class="flex items-center mb-4">
+        <div class="flex items-center gap-3 mb-1">
           <button
             @click="handleBackNavigation"
-            class="mr-4 p-2 text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors"
+            class="p-1.5 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200 rounded transition-colors"
             title="Go back"
           >
-            <ArrowLeft class="w-6 h-6" />
+            <ArrowLeft class="w-5 h-5" />
           </button>
-          <div>
-            <h1
-              class="text-xl sm:text-2xl font-bold text-primary-900 dark:text-primary-50"
-            >
-              Manage Categories
-            </h1>
-            <p
-              class="text-sm sm:text-base text-primary-600 dark:text-primary-400"
-            >
-              Organize and manage your vocabulary categories
-            </p>
-          </div>
+          <h1
+            class="text-lg font-semibold text-primary-900 dark:text-primary-50"
+          >
+            Categories
+          </h1>
         </div>
       </div>
 
-      <!-- Add new category form -->
-      <div class="bg-white dark:bg-black rounded-lg p-6 mb-6 transition-colors">
-        <h2
-          class="text-lg font-medium text-primary-900 dark:text-primary-50 mb-4"
-        >
-          Add New Category
-        </h2>
-        <div class="flex gap-2">
-          <input
-            v-model="newCategoryName"
-            type="text"
-            placeholder="Enter category name..."
-            class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-700 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-            @keyup.enter="handleAddCategory"
-          />
-          <button
-            @click="handleAddCategory"
-            :disabled="!newCategoryName.trim() || isCreating"
-            class="px-6 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm font-medium hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            <span
-              v-if="isCreating"
-              class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
-            ></span>
-            <Plus v-else class="w-4 h-4" />
-            {{ isCreating ? 'Adding...' : 'Add Category' }}
-          </button>
-        </div>
+      <!-- Search and count -->
+      <div class="flex items-center gap-2 mb-4">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search categories..."
+          class="flex-1 px-3 py-1.5 text-sm bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
+          ref="searchInput"
+        />
+        <span class="text-xs text-primary-400 dark:text-primary-500">
+          {{ filteredCategoriesCount }} / {{ Object.keys(categories).length }}
+        </span>
       </div>
 
       <!-- Categories list -->
-      <div class="bg-white dark:bg-black rounded-lg p-6 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-medium text-primary-900 dark:text-primary-50">
-            Existing Categories ({{ Object.keys(categories).length }})
-          </h2>
-          <button
-            @click="loadCategories"
-            :disabled="isLoading"
-            class="px-3 py-1 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 disabled:opacity-50 transition-colors flex items-center gap-1"
-          >
-            <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
-            Refresh
-          </button>
-        </div>
-
+      <div>
         <!-- Loading indicator -->
         <div v-if="isLoading" class="flex items-center justify-center py-8">
           <div
-            class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-400"
+            class="animate-spin rounded-full h-6 w-6 border-b border-primary-500"
           ></div>
-          <span class="ml-2 text-sm text-primary-600 dark:text-primary-400">
-            Loading...
-          </span>
         </div>
 
         <div
-          v-else-if="Object.keys(categories).length === 0"
+          v-else-if="Object.keys(filteredCategories).length === 0"
           class="text-center py-8"
         >
-          <div
-            class="mx-auto h-16 w-16 text-primary-400 dark:text-primary-500 mb-4"
-          >
-            <svg
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              class="w-full h-full"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1"
-                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-              ></path>
-            </svg>
-          </div>
-          <h3
-            class="text-lg font-medium text-primary-900 dark:text-primary-50 mb-2"
-          >
-            No categories yet
-          </h3>
           <p class="text-sm text-primary-500 dark:text-primary-400">
-            Create your first category above to start organizing your
-            vocabulary!
+            {{ searchQuery ? 'No matching categories' : 'No categories yet' }}
           </p>
         </div>
 
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-1">
           <div
-            v-for="(category, id) in categories"
+            v-for="(category, id) in filteredCategories"
             :key="id"
-            class="flex items-center justify-between p-4 bg-primary-50 dark:bg-primary-900 rounded-lg border border-primary-200 dark:border-primary-700"
+            class="flex items-center justify-between py-2 px-1 border-b border-primary-100 dark:border-primary-800 last:border-0"
           >
             <!-- Category name (editable) -->
-            <div class="flex-1 min-w-0 mr-4">
+            <div class="flex-1 min-w-0 mr-3">
               <input
                 v-if="editingCategory === String(id)"
                 v-model="editingName"
                 type="text"
-                class="w-full px-3 py-2 text-sm bg-white dark:bg-primary-800 border border-primary-300 dark:border-primary-600 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-500 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500"
+                class="w-full px-2 py-1 text-sm bg-transparent border-b border-secondary-500 focus:outline-none text-primary-900 dark:text-primary-50"
                 @keyup.enter="handleSaveEdit(String(id))"
                 @keyup.escape="cancelEdit"
                 ref="editInput"
               />
               <span
                 v-else
-                class="text-sm text-primary-900 dark:text-primary-50 cursor-pointer hover:text-primary-700 dark:hover:text-primary-200 font-medium"
+                class="text-sm text-primary-700 dark:text-primary-300 cursor-pointer hover:text-primary-900 dark:hover:text-primary-100"
                 @click="startEdit(String(id), category.name)"
               >
                 {{ category.name }}
               </span>
-
-              <!-- Word count for this category -->
-              <span class="ml-2 text-xs text-primary-500 dark:text-primary-400">
-                ({{ getWordCountForCategory(String(id)) }} words)
+              <span class="ml-2 text-xs text-primary-400 dark:text-primary-500">
+                {{ getWordCountForCategory(String(id)) }} words
               </span>
             </div>
 
             <!-- Action buttons -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
               <!-- Edit button -->
               <button
                 v-if="editingCategory !== String(id)"
                 @click="startEdit(String(id), category.name)"
-                class="p-2 text-primary-600 dark:text-primary-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded transition-colors"
+                class="p-1.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 rounded transition-colors"
                 title="Edit category"
               >
-                <Edit3 class="w-4 h-4" />
+                <Edit3 class="w-3.5 h-3.5" />
               </button>
 
               <!-- Save button -->
@@ -171,38 +106,38 @@
                   editingName === category.name ||
                   isUpdating
                 "
-                class="p-2 text-primary-600 dark:text-primary-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="p-1.5 text-primary-400 hover:text-green-600 dark:hover:text-green-400 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Save changes"
               >
                 <span
                   v-if="isUpdating"
-                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 dark:border-green-400"
+                  class="animate-spin rounded-full h-3.5 w-3.5 border-b border-primary-500"
                 ></span>
-                <Check v-else class="w-4 h-4" />
+                <Check v-else class="w-3.5 h-3.5" />
               </button>
 
               <!-- Cancel button -->
               <button
                 v-if="editingCategory === String(id)"
                 @click="cancelEdit"
-                class="p-2 text-primary-600 dark:text-primary-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors"
+                class="p-1.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 rounded transition-colors"
                 title="Cancel editing"
               >
-                <X class="w-4 h-4" />
+                <X class="w-3.5 h-3.5" />
               </button>
 
               <!-- Delete button -->
               <button
                 @click="handleDeleteCategory(String(id), category.name)"
                 :disabled="isDeleting"
-                class="p-2 text-primary-600 dark:text-primary-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="p-1.5 text-primary-400 hover:text-red-500 dark:hover:text-red-400 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Delete category and all related words"
               >
                 <span
                   v-if="isDeleting"
-                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 dark:border-red-400"
+                  class="animate-spin rounded-full h-3.5 w-3.5 border-b border-primary-500"
                 ></span>
-                <Trash2 v-else class="w-4 h-4" />
+                <Trash2 v-else class="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -214,14 +149,12 @@
 
 <script setup lang="ts">
 // Watch for user changes
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ArrowLeft,
   Check,
   Edit3,
-  Plus,
-  RefreshCw,
   Trash2,
   X,
 } from 'lucide-vue-next'
@@ -246,13 +179,13 @@ const categories = ref<CategoryCollection>({})
 const vocabularyData = ref<VocabularyData | null>(null)
 const isLoading = ref(false)
 
-const newCategoryName = ref('')
+const searchQuery = ref('')
 const editingCategory = ref<string | null>(null)
 const editingName = ref('')
 const editInput = ref<HTMLInputElement>()
+const searchInput = ref<HTMLInputElement>()
 
 // Loading states for different operations
-const isCreating = ref(false)
 const isUpdating = ref(false)
 const isDeleting = ref(false)
 
@@ -297,32 +230,20 @@ const getWordCountForCategory = (categoryId: string): number => {
   ).length
 }
 
-const handleAddCategory = async () => {
-  if (newCategoryName.value.trim()) {
-    isCreating.value = true
-    try {
-      // Create the category via API
-      await categoryService.createCategory(
-        newCategoryName.value.trim(),
-        userId.value,
-      )
+const filteredCategories = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  if (!query) return categories.value
 
-      // Reload categories from backend to ensure consistency
-      await loadCategories()
-
-      showSuccessToast(
-        `Category "${newCategoryName.value.trim()}" added successfully!`,
-        2000,
-      )
-      newCategoryName.value = ''
-    } catch (error) {
-      console.error('Error adding category:', error)
-      showErrorToast('Failed to add category. Please try again.')
-    } finally {
-      isCreating.value = false
+  const filtered: CategoryCollection = {}
+  for (const [id, category] of Object.entries(categories.value)) {
+    if (category.name.toLowerCase().includes(query)) {
+      filtered[id] = category
     }
   }
-}
+  return filtered
+})
+
+const filteredCategoriesCount = computed(() => Object.keys(filteredCategories.value).length)
 
 const startEdit = (categoryId: string, currentName: string) => {
   editingCategory.value = categoryId
@@ -426,6 +347,10 @@ onMounted(async () => {
   if (!authLoading.value) {
     await loadCategories()
   }
+
+  nextTick(() => {
+    searchInput.value?.focus()
+  })
 })
 
 // Watch for auth loading to complete
