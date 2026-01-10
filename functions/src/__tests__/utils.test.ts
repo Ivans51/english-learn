@@ -21,14 +21,14 @@ describe('utils', () => {
       const prompt = generateExplanationPrompt('hello')
       expect(prompt).toContain('hello')
       expect(prompt).toContain('definition')
-      expect(prompt).toContain('examples')
+      expect(prompt).toContain('Examples')
     })
 
-    it('includes JSON format requirement', () => {
+    it('includes plain text format requirement', () => {
       const prompt = generateExplanationPrompt('test')
-      expect(prompt).toContain('JSON')
-      expect(prompt).toContain('"definition"')
-      expect(prompt).toContain('"examples"')
+      expect(prompt).toContain('plain text')
+      expect(prompt).toContain('bold headers')
+      expect(prompt).toContain('no JSON')
     })
 
     it('requests 2-4 meanings', () => {
@@ -72,8 +72,8 @@ describe('utils', () => {
     it('includes term structure requirements', () => {
       const prompt = generateTopicWordsPrompt('food')
       expect(prompt).toContain('"term"')
-      expect(prompt).toContain('"meanings"')
-      expect(prompt).toContain('"examples"')
+      expect(prompt).toContain('Meanings')
+      expect(prompt).toContain('Examples')
     })
 
     it('requests 20-30 words', () => {
