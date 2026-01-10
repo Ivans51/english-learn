@@ -90,13 +90,13 @@ class VocabularyWordsService {
     }
   }
 
-  async explainWord(word: string): Promise<{ description: string }> {
+  async explainWord(word: string, skipCategorySuggestion = false): Promise<{ description: string; suggestedCategory?: string }> {
     const response = await fetch(`${this.apiBaseUrl}/api/explain`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ word }),
+      body: JSON.stringify({ word, skipCategorySuggestion }),
     })
 
     if (!response.ok) {

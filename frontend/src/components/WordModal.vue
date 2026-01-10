@@ -123,6 +123,39 @@
                   </button>
                 </div>
 
+                <div class="mt-3">
+                  <span class="text-xs text-primary-300">Default category:</span>
+                  <div class="flex gap-4 mt-1">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        v-model="defaultCategory"
+                        value=""
+                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                      />
+                      <span class="text-sm text-primary-300">None</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        v-model="defaultCategory"
+                        value="default"
+                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                      />
+                      <span class="text-sm text-primary-300">Default</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        v-model="defaultCategory"
+                        value="learning"
+                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                      />
+                      <span class="text-sm text-primary-300">Learning</span>
+                    </label>
+                  </div>
+                </div>
+
                 <div v-if="formData.categoryName" class="mt-3">
                   <span class="text-xs text-primary-300">Category:</span>
                   <span class="ml-2 text-sm text-primary-50">{{ formData.categoryName }}</span>
@@ -192,6 +225,7 @@ const formData = ref({ ...initialFormData })
 const isGenerating = ref(false)
 const wordInputRef = ref<HTMLInputElement>()
 const renderedDescription = ref('')
+const defaultCategory = ref('')
 
 onMounted(() => {
   marked.setOptions({
@@ -279,6 +313,7 @@ function closeModal() {
 
 function resetForm() {
   Object.assign(formData.value, initialFormData)
+  defaultCategory.value = ''
 }
 
 function handleEnterKey(event: KeyboardEvent) {
@@ -292,13 +327,16 @@ function handleEnterKey(event: KeyboardEvent) {
     isGenerating.value = true
     try {
       const { vocabularyWordsService } = await import('@/services/vocabularyService')
-      const response: ExplainWordResponse = await vocabularyWordsService.explainWord(formData.value.term)
+      const skipCategorySuggestion = defaultCategory.value !== ''
+      const response: ExplainWordResponse = await vocabularyWordsService.explainWord(formData.value.term, skipCategorySuggestion)
 
       formData.value.descriptionText = response.description
 
-      if (response.suggestedCategory) {
+      if (response.suggestedCategory && !skipCategorySuggestion) {
         const suggested = response.suggestedCategory.trim()
         formData.value.categoryName = suggested
+      } else if (defaultCategory.value) {
+        formData.value.categoryName = defaultCategory.value
       }
     } catch (error) {
       console.warn('Failed to generate description:', error)

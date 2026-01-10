@@ -37,6 +37,7 @@ export interface CreateVocabularyWordRequest {
 
 export interface ExplainRequest {
   word: string;
+  skipCategorySuggestion?: boolean;
 }
 
 export interface ExplainResponse {

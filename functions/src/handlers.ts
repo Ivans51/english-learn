@@ -48,7 +48,7 @@ export async function handleExplainWordRequest(
 ): Promise<Response> {
   try {
     const body: ExplainRequest = await request.json();
-    const {word} = body;
+    const {word, skipCategorySuggestion} = body;
 
     const validationError = validateRequiredFields(body, ['word'], corsHeaders);
     if (validationError) {
@@ -63,16 +63,22 @@ export async function handleExplainWordRequest(
     }
 
     let suggestedCategory: string | undefined;
-    try {
-      const categoryPrompt = generateCategorySuggestionPrompt(word);
-      const categoryResponse = await callMistralAPI(categoryPrompt);
-      
-      if (categoryResponse) {
-        suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
-        suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
+    if (!skipCategorySuggestion) {
+      try {
+        const categoryPrompt = generateCategorySuggestionPrompt(word);
+        const categoryResponse = await callMistralAPI(categoryPrompt);
+        
+        if (categoryResponse) {
+          suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
+          suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
+          
+          if (suggestedCategory === 'default' || suggestedCategory === 'learning') {
+            suggestedCategory = undefined;
+          }
+        }
+      } catch (categoryError) {
+        console.warn('Failed to generate category suggestion:', categoryError);
       }
-    } catch (categoryError) {
-      console.warn('Failed to generate category suggestion:', categoryError);
     }
 
     return SuccessResponses.ok({
