@@ -98,28 +98,19 @@
                       <input
                         type="radio"
                         v-model="defaultCategory"
-                        value=""
-                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
-                      />
-                      <span class="text-sm text-primary-300">None</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        v-model="defaultCategory"
-                        value="default"
-                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
-                      />
-                      <span class="text-sm text-primary-300">Default</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        v-model="defaultCategory"
                         value="learning"
                         class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
                       <span class="text-sm text-primary-300">Learning</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        v-model="defaultCategory"
+                        value=""
+                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                      />
+                      <span class="text-sm text-primary-300">Generate New!</span>
                     </label>
                   </div>
                 </div>
@@ -193,7 +184,7 @@ const formData = ref({ ...initialFormData })
 const isGenerating = ref(false)
 const wordInputRef = ref<HTMLInputElement>()
 const renderedDescription = ref('')
-const defaultCategory = ref('')
+const defaultCategory = ref('learning')
 
 onMounted(() => {
   marked.setOptions({
@@ -281,7 +272,7 @@ function closeModal() {
 
 function resetForm() {
   Object.assign(formData.value, initialFormData)
-  defaultCategory.value = ''
+  defaultCategory.value = 'learning'
 }
 
 function handleEnterKey(event: KeyboardEvent) {
