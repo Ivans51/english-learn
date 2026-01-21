@@ -69,58 +69,26 @@
                   >
                     Word
                   </label>
-                  <input
-                    type="text"
-                    id="term"
-                    ref="wordInputRef"
-                    v-model="termLowerCase"
-                    placeholder="Enter the word"
-                    @keydown.enter="handleEnterKey"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                    required
-                  />
-                  <button
-                    type="button"
-                    @click="generateDescription"
-                    :disabled="isGenerating || !formData.term.trim()"
-                    class="mt-2 inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <svg
-                      v-if="isGenerating"
-                      class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
+                  <div class="relative">
+                    <input
+                      type="text"
+                      id="term"
+                      ref="wordInputRef"
+                      v-model="termLowerCase"
+                      placeholder="Enter the word"
+                      @keydown.enter="handleEnterKey"
+                      class="w-full px-3 py-2 pr-24 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                      required
+                    />
+                    <button
+                      type="button"
+                      @click="generateDescription"
+                      :disabled="isGenerating || !formData.term.trim()"
+                      class="absolute right-1 top-1 bottom-1 px-3 text-sm font-medium rounded bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <svg
-                      v-else
-                      class="w-4 h-4 mr-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z"
-                      ></path>
-                    </svg>
-                    {{ isGenerating ? 'Generating...' : 'Generate' }}
-                  </button>
+                      {{ isGenerating ? '...' : 'Generate' }}
+                    </button>
+                  </div>
                 </div>
 
                 <div class="mt-3">
@@ -131,7 +99,7 @@
                         type="radio"
                         v-model="defaultCategory"
                         value=""
-                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
                       <span class="text-sm text-primary-300">None</span>
                     </label>
@@ -140,7 +108,7 @@
                         type="radio"
                         v-model="defaultCategory"
                         value="default"
-                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
                       <span class="text-sm text-primary-300">Default</span>
                     </label>
@@ -149,7 +117,7 @@
                         type="radio"
                         v-model="defaultCategory"
                         value="learning"
-                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
                       <span class="text-sm text-primary-300">Learning</span>
                     </label>

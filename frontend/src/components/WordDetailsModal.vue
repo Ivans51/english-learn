@@ -39,7 +39,7 @@
             <div class="p-6 overflow-y-auto custom-scrollbar">
               <!-- Word Term -->
               <div class="mb-6 pr-8">
-                <h2 class="text-2xl font-bold text-primary-50">
+                <h2 class="text-3xl font-bold text-primary-50">
                   {{ word.term }}
                 </h2>
                 <span class="text-sm text-primary-400">
@@ -68,7 +68,7 @@
                   Description
                 </h4>
                 <div class="bg-primary-800/50 rounded-lg p-4 max-h-80 overflow-y-auto custom-scrollbar">
-                  <div class="text-primary-200 leading-relaxed prose prose-invert prose-sm max-w-none description-content" v-html="renderedDescription"></div>
+                  <div class="text-primary-200 leading-relaxed prose prose-invert prose-base max-w-none description-content" v-html="renderedDescription"></div>
                 </div>
               </div>
 

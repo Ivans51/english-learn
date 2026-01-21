@@ -271,7 +271,7 @@
             <div
               v-for="(word, uid) in filteredWords"
               :key="uid"
-              class="rounded-lg p-4 hover:shadow-lg transition-all border bg-white dark:bg-black relative"
+              class="rounded-lg p-4 hover:shadow-lg transition-all border bg-white dark:bg-black relative min-h-[100px] flex flex-col items-center justify-center cursor-pointer"
               @click="toggleWordDetails(uid)"
               :class="[
                 word.status === 'completed'
@@ -291,13 +291,11 @@
               </button>
 
               <!-- Word Header -->
-              <div class="flex items-start justify-center cursor-pointer pr-8">
-                <h3
-                  class="text-lg font-semibold text-primary-900 dark:text-primary-50 break-words leading-tight"
-                >
-                  {{ word.term }}
-                </h3>
-              </div>
+              <h3
+                class="text-lg font-semibold text-primary-900 dark:text-primary-50 break-words leading-tight line-clamp-2 text-center w-full px-2"
+              >
+                {{ word.term }}
+              </h3>
 
               <!-- Word is now centered, actions moved to details modal -->
             </div>
