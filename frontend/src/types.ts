@@ -42,12 +42,12 @@ export interface ExplainWordResponse {
 }
 
 export interface CreateTopicWordsRequest {
-  topic: string
-  categoryName: string
+  words: string
   userId?: string
 }
 
 export interface CreateTopicWordsResponse {
   createdWords: VocabularyWord[]
-  categoryId: string
+  totalWords: number
+  successfullyCreated: number
 }

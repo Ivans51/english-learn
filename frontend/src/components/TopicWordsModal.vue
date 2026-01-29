@@ -43,31 +43,29 @@
               </DialogTitle>
               <div class="mt-2">
                 <p class="text-sm text-primary-300">
-                  Enter a topic, and we'll automatically generate and create
-                  vocabulary words for you. The category will be set to your
-                  topic.
+                  Enter comma-separated words, and we'll automatically generate
+                  descriptions and suggest appropriate categories for each word.
                 </p>
               </div>
 
-              <!-- Single Step: Topic Input Only -->
+              <!-- Single Step: Words Input Only -->
               <div class="mt-6 space-y-4">
                 <div>
                   <label
-                    for="topic"
+                    for="words"
                     class="block text-sm font-medium text-primary-50 mb-1"
                   >
-                    Topic
+                    Words
                   </label>
-                  <input
-                    type="text"
-                    id="topic"
-                    ref="topicInputRef"
-                    v-model="topic"
-                    placeholder="e.g., fruits, vegetables, animals, emotions"
-                    @keydown.enter="createTopicWords"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  <textarea
+                    id="words"
+                    ref="wordsInputRef"
+                    v-model="words"
+                    placeholder="e.g., apples, grapes, oranges, bananas"
+                    rows="5"
+                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
                     required
-                  />
+                  ></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3">
@@ -81,7 +79,7 @@
                   <button
                     type="button"
                     @click="createTopicWords"
-                    :disabled="!topic.trim() || isCreating"
+                    :disabled="!words.trim() || isCreating"
                     class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-4 py-2 text-sm font-medium hover:bg-secondary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Loader2
@@ -125,9 +123,9 @@ const props = defineProps<{
   userId?: string
 }>()
 
-const topic = ref('')
+const words = ref('')
 const isCreating = ref(false)
-const topicInputRef = ref<HTMLInputElement>()
+const wordsInputRef = ref<HTMLTextAreaElement>()
 
 // Watch for modal open state to handle focus
 watch(
@@ -135,7 +133,7 @@ watch(
   async (isOpenVal) => {
     if (isOpenVal) {
       await nextTick()
-      topicInputRef.value?.focus()
+      wordsInputRef.value?.focus()
     } else {
       resetModal()
     }
@@ -147,22 +145,21 @@ function closeModal() {
 }
 
 function resetModal() {
-  topic.value = ''
+  words.value = ''
   isCreating.value = false
 }
 
 async function createTopicWords() {
-  if (!topic.value.trim()) return
+  if (!words.value.trim()) return
 
   isCreating.value = true
   try {
     const result = await vocabularyWordsService.createTopicWords({
-      topic: topic.value.trim(),
-      categoryName: topic.value.trim(), // Category is automatically set to the topic
+      words: words.value.trim(),
       userId: props.userId || 'anonymous',
     })
 
-    emit('words-created', { createdWords: result.createdWords, categoryId: result.categoryId })
+    emit('words-created', { createdWords: result.createdWords })
     closeModal()
   } catch (error) {
     console.error('Failed to create topic words:', error)

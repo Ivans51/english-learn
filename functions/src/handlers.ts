@@ -29,6 +29,7 @@ import {
   deleteTopic,
   deleteVocabularyWord,
   findOrCreateCategory,
+  findOrCreateVocabularyWord,
   getCategories,
   getTopics,
   getVocabularyWords,
@@ -113,17 +114,26 @@ export async function handleCreateVocabularyWord(
     // Find or create category
     const {categoryId} = await findOrCreateCategory(env, userId, categoryName);
 
-    const newVocabularyWord: VocabularyWord = {
-      term,
-      categoryId,
-      categoryName,
-      description,
-      status: 'pending'
-    };
+    // Find or create vocabulary word
+    const {word: vocabularyWord, isNewWord} = await findOrCreateVocabularyWord(
+      env, 
+      userId, 
+      term, 
+      categoryId, 
+      categoryName, 
+      description
+    );
 
-    await storeVocabularyWord(env, userId, newVocabularyWord);
-
-    return SuccessResponses.created(newVocabularyWord, corsHeaders);
+    // Return appropriate response based on whether word was new
+    if (isNewWord) {
+      return SuccessResponses.created(vocabularyWord, corsHeaders);
+    } else {
+      return SuccessResponses.ok({
+        ...vocabularyWord,
+        message: 'Vocabulary word already exists',
+        isNewWord: false
+      }, corsHeaders);
+    }
   } catch (error) {
     logError('handleCreateVocabularyWord', error);
     return ErrorResponses.internalServerError('Failed to create vocabulary word', corsHeaders);
@@ -606,150 +616,80 @@ export async function handleCreateTopicWords(
 ): Promise<Response> {
   try {
     const body: CreateTopicWordsRequest = await request.json();
-    const {topic, categoryName, userId = 'anonymous'} = body;
+    const {words, userId = 'anonymous'} = body;
 
     const validationError = validateRequiredFields(
       body,
-      ['topic', 'categoryName'],
+      ['words'],
       corsHeaders
     );
     if (validationError) {
       return validationError;
     }
 
-    // First, generate the topic words
-    const topicWordsPrompt = generateTopicWordsPrompt(topic);
-
-    const geminiResponse = await callMistralAPI(topicWordsPrompt);
-
-    if (!geminiResponse) {
-      return ErrorResponses.internalServerError('Failed to generate topic words', corsHeaders);
+    // Parse comma-separated words
+    const wordList = words.split(',').map(w => w.trim()).filter(w => w.length > 0);
+    
+    if (wordList.length === 0) {
+      return ErrorResponses.badRequest('No valid words found in input', corsHeaders);
     }
 
-    // Parse the JSON response
-    let topicWords: TopicWord[] = [];
-    let extractedJsonText = ''; // Store for debugging
-    try {
-      let jsonText = '';
-
-      // Try multiple extraction strategies
-      const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
-      if (jsonMatch) {
-        jsonText = jsonMatch[1].trim();
-      } else {
-        const codeBlockMatch = geminiResponse.match(/```\s*([\s\S]*?)\s*```/);
-        if (codeBlockMatch) {
-          const potentialJson = codeBlockMatch[1].trim();
-          if (potentialJson.startsWith('[') || potentialJson.startsWith('{')) {
-            jsonText = potentialJson;
-          }
-        }
-
-        if (!jsonText) {
-          const directJsonMatch = geminiResponse.match(/\[[\s\S]*\]/);
-          if (directJsonMatch) {
-            jsonText = directJsonMatch[0];
-          }
-        }
-
-        if (!jsonText) {
-          const lastBraceIndex = geminiResponse.lastIndexOf(']');
-          const firstBraceIndex = geminiResponse.indexOf('[');
-          if (firstBraceIndex !== -1 && lastBraceIndex !== -1 && lastBraceIndex > firstBraceIndex) {
-            jsonText = geminiResponse.substring(firstBraceIndex, lastBraceIndex + 1);
-          }
-        }
-
-        if (!jsonText) {
-          throw new Error('No JSON array found in response');
-        }
-      }
-
-      extractedJsonText = jsonText; // Save for debugging
-      console.log('=== EXTRACTED JSON TEXT START ===');
-      console.log(jsonText);
-      console.log('=== EXTRACTED JSON TEXT END ===');
-
-      // Clean up the JSON text before parsing
-      let cleanedJsonText = jsonText
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
-        .replace(/\r\n/g, '\\n') // Normalize line endings
-        .trim();
-
-      // Try to parse the JSON
-      try {
-        topicWords = JSON.parse(cleanedJsonText);
-      } catch (jsonError) {
-        console.warn('Initial JSON.parse failed, trying cleanup strategies:', jsonError);
-
-        // Try removing trailing commas
-        try {
-          const withoutTrailingCommas = cleanedJsonText.replace(/,(\s*[}\]])/g, '$1');
-          topicWords = JSON.parse(withoutTrailingCommas);
-        } catch (e2) {
-          console.warn('Trailing comma cleanup failed:', e2);
-
-          // Try extracting individual objects and parsing them
-          const objectMatches = cleanedJsonText.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
-          if (objectMatches) {
-            console.log('Found', objectMatches.length, 'potential objects, trying to parse individually');
-            for (const objMatch of objectMatches) {
-              try {
-                const parsed = JSON.parse(objMatch);
-                if (parsed.term && parsed.description) {
-                  topicWords.push(parsed);
-                }
-              } catch (objError) {
-                // Skip this object
-              }
-            }
-          }
-
-          if (topicWords.length === 0) {
-            throw new Error('Could not parse any valid word objects from response');
-          }
-        }
-      }
-
-      // Validate the response structure
-      if (!Array.isArray(topicWords)) {
-        throw new Error('Response is not an array');
-      }
-
-      // Validate each word object
-      for (const word of topicWords) {
-        if (!word.term || !word.description) {
-          throw new Error('Invalid word object structure');
-        }
-      }
-
-    } catch (parseError) {
-      console.warn('Failed to parse Gemini response as JSON:', parseError);
-      console.warn('Raw Gemini response:', geminiResponse);
-      console.warn('Attempted to extract JSON with length:', extractedJsonText.length);
-      return ErrorResponses.internalServerError('Failed to parse generated topic words as JSON', corsHeaders);
-    }
-
-    // Find or create the category
-    const {categoryId} = await findOrCreateCategory(env, userId, categoryName);
-
-    // Create all the vocabulary words
     const createdWords: VocabularyWord[] = [];
+    const existingWords: VocabularyWord[] = [];
 
-    for (const wordData of topicWords) {
+    // Process each word individually
+    for (const word of wordList) {
       try {
-        const newVocabularyWord: VocabularyWord = {
-          term: wordData.term.toLowerCase(),
-          categoryId,
-          categoryName,
-          description: wordData.description,
-          status: 'pending'
-        };
+        // Generate description for word
+        const explanationPrompt = generateExplanationPrompt(word);
+        const description = await callMistralAPI(explanationPrompt);
 
-        await storeVocabularyWord(env, userId, newVocabularyWord);
-        createdWords.push(newVocabularyWord);
+        if (!description) {
+          console.warn(`Failed to generate description for word "${word}", using fallback`);
+          // Continue with fallback description
+        }
+
+        // Generate category suggestion
+        let suggestedCategory: string;
+        try {
+          const categoryPrompt = generateCategorySuggestionPrompt(word);
+          const categoryResponse = await callMistralAPI(categoryPrompt);
+          
+          if (categoryResponse) {
+            suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
+            suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
+            
+            if (suggestedCategory === 'default' || suggestedCategory === 'learning' || !suggestedCategory) {
+              suggestedCategory = 'general';
+            }
+          } else {
+            suggestedCategory = 'general';
+          }
+        } catch (categoryError) {
+          console.warn(`Failed to generate category suggestion for word "${word}":`, categoryError);
+          suggestedCategory = 'general';
+        }
+        
+        // Find or create category
+        const {categoryId} = await findOrCreateCategory(env, userId, suggestedCategory);
+        
+        // Find or create vocabulary word
+        const {word: vocabularyWord, isNewWord} = await findOrCreateVocabularyWord(
+          env, 
+          userId, 
+          word, 
+          categoryId, 
+          suggestedCategory, 
+          description || `Definition for ${word}`
+        );
+        
+        if (isNewWord) {
+          createdWords.push(vocabularyWord);
+        } else {
+          existingWords.push(vocabularyWord);
+        }
       } catch (wordError) {
-        console.warn(`Failed to create word "${wordData.term}":`, wordError);
+        console.warn(`Failed to create word "${word}":`, wordError);
         // Continue with other words even if one fails
       }
     }
@@ -757,7 +697,10 @@ export async function handleCreateTopicWords(
     return SuccessResponses.ok(
       {
         createdWords,
-        categoryId
+        existingWords,
+        totalWords: wordList.length,
+        successfullyCreated: createdWords.length,
+        alreadyExisted: existingWords.length
       },
       corsHeaders
     );

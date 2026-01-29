@@ -81,8 +81,7 @@ export interface TopicWord {
 }
 
 export interface CreateTopicWordsRequest {
-  topic: string;
-  categoryName: string;
+  words: string;
   userId?: string;
 }
 

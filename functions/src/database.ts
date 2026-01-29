@@ -122,6 +122,52 @@ export async function findOrCreateCategory(
   }
 }
 
+export async function findOrCreateVocabularyWord(
+  env: Env,
+  userId: string = 'anonymous',
+  term: string,
+  categoryId: string,
+  categoryName: string,
+  description: string
+): Promise<{ wordUid: string; word: VocabularyWord; isNewWord: boolean }> {
+  try {
+    // First, get all existing vocabulary words
+    const vocabulary = await getVocabularyWords(env, userId);
+    
+    // Check if vocabulary word with the same term already exists (case-insensitive)
+    for (const [existingWordUid, existingWord] of Object.entries(vocabulary)) {
+      if (existingWord.term.toLowerCase() === term.toLowerCase()) {
+        return {
+          wordUid: existingWordUid,
+          word: existingWord,
+          isNewWord: false
+        };
+      }
+    }
+    
+    // If vocabulary word doesn't exist, create a new one
+    const wordUid = `word_uid_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newVocabularyWord: VocabularyWord = {
+      term: term.toLowerCase(),
+      categoryId,
+      categoryName,
+      description,
+      status: 'pending'
+    };
+    
+    await storeVocabularyWord(env, userId, newVocabularyWord);
+    
+    return {
+      wordUid,
+      word: newVocabularyWord,
+      isNewWord: true
+    };
+  } catch (error) {
+    console.error('Error finding or creating vocabulary word:', error);
+    throw error;
+  }
+}
+
 export async function deleteVocabularyWord(
   env: Env,
   userId: string = 'anonymous',

@@ -92,7 +92,9 @@
                 </div>
 
                 <div class="mt-3">
-                  <span class="text-xs text-primary-300">Default category:</span>
+                  <span class="text-xs text-primary-300">
+                    Default category:
+                  </span>
                   <div class="flex gap-4 mt-1">
                     <label class="flex items-center gap-2 cursor-pointer">
                       <input
@@ -110,22 +112,34 @@
                         value=""
                         class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
-                      <span class="text-sm text-primary-300">Generate New!</span>
+                      <span class="text-sm text-primary-300">
+                        Generate New!
+                      </span>
                     </label>
                   </div>
                 </div>
 
                 <div v-if="formData.categoryName" class="mt-3">
                   <span class="text-xs text-primary-300">Category:</span>
-                  <span class="ml-2 text-sm text-primary-50">{{ formData.categoryName }}</span>
+                  <span class="ml-2 text-sm text-primary-50">
+                    {{ formData.categoryName }}
+                  </span>
                 </div>
 
-                <div v-if="formData.descriptionText" class="mt-3 space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                <div
+                  v-if="formData.descriptionText"
+                  class="mt-3 space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"
+                >
                   <div v-if="formData.descriptionText">
-                    <label class="block text-xs font-medium text-primary-300 mb-1">
+                    <label
+                      class="block text-xs font-medium text-primary-300 mb-1"
+                    >
                       Description
                     </label>
-                    <div class="text-sm text-primary-50 bg-primary-800/50 p-2 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content" v-html="renderedDescription"></div>
+                    <div
+                      class="text-sm text-primary-50 bg-primary-800/50 p-2 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
+                      v-html="renderedDescription"
+                    ></div>
                   </div>
                 </div>
 
@@ -139,7 +153,8 @@
                   </button>
                   <button
                     type="submit"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-sm font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
+                    :disabled="!isFormValid"
+                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-sm font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {{ isEditing ? 'Save Changes' : 'Add Word' }}
                   </button>
@@ -202,28 +217,37 @@ const renderMarkdown = async (markdownText: string): Promise<string> => {
   }
 }
 
-watch(() => formData.value.descriptionText, (newDescription) => {
-  if (newDescription) {
-    renderMarkdown(newDescription).then(html => {
-      renderedDescription.value = html
-    })
-  } else {
-    renderedDescription.value = ''
-  }
-}, { immediate: true })
+watch(
+  () => formData.value.descriptionText,
+  (newDescription) => {
+    if (newDescription) {
+      renderMarkdown(newDescription).then((html) => {
+        renderedDescription.value = html
+      })
+    } else {
+      renderedDescription.value = ''
+    }
+  },
+  { immediate: true },
+)
 
 const isEditing = computed(() => !!props.currentWord)
+
+// Computed property to check if form is valid for submission
+const isFormValid = computed(() => {
+  return formData.value.term.trim() && formData.value.descriptionText.trim()
+})
 
 // Computed property for term with automatic lowercase conversion
 const termLowerCase = computed({
   get: () => formData.value.term,
   set: (value: string) => {
     formData.value.term = value.toLowerCase()
-  }
+  },
 })
 
 // Watch for currentWord changes to handle form population/reset
-  watch(
+watch(
   () => props.currentWord,
   (currentWordVal) => {
     if (currentWordVal) {
@@ -231,7 +255,7 @@ const termLowerCase = computed({
       formData.value.descriptionText = currentWordVal.description
       formData.value.categoryName = currentWordVal.categoryName
     }
-  }
+  },
 )
 
 // Watch for modal open state to handle focus and form reset
@@ -250,7 +274,7 @@ watch(
       wordInputRef.value?.focus()
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 // Watch for modal open state to handle focus and UI state
@@ -263,7 +287,7 @@ watch(
       await nextTick()
       wordInputRef.value?.focus()
     }
-  }
+  },
 )
 
 function closeModal() {
@@ -281,13 +305,18 @@ function handleEnterKey(event: KeyboardEvent) {
   generateDescription() // Call the generate description function
 }
 
-  async function generateDescription() {
+async function generateDescription() {
   if (formData.value.term.trim()) {
     isGenerating.value = true
     try {
-      const { vocabularyWordsService } = await import('@/services/vocabularyService')
+      const { vocabularyWordsService } =
+        await import('@/services/vocabularyService')
       const skipCategorySuggestion = defaultCategory.value !== ''
-      const response: ExplainWordResponse = await vocabularyWordsService.explainWord(formData.value.term, skipCategorySuggestion)
+      const response: ExplainWordResponse =
+        await vocabularyWordsService.explainWord(
+          formData.value.term,
+          skipCategorySuggestion,
+        )
 
       formData.value.descriptionText = response.description
 
@@ -305,7 +334,7 @@ function handleEnterKey(event: KeyboardEvent) {
   }
 }
 
-  function addOrUpdateWord() {
+function addOrUpdateWord() {
   if (isEditing.value && props.currentWord) {
     const updatedWord: VocabularyWord = {
       ...props.currentWord,

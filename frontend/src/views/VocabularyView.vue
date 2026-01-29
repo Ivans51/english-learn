@@ -57,7 +57,7 @@
                 Search Words
               </label>
               <input
-                type="text"
+                type="search"
                 v-model="searchQuery"
                 placeholder="Search vocabulary..."
                 class="w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
@@ -134,7 +134,7 @@
                 Search Words
               </label>
               <input
-                type="text"
+                type="search"
                 v-model="searchQuery"
                 placeholder="Search vocabulary..."
                 class="w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
@@ -339,10 +339,9 @@
       @close="closeWordModal"
       @add-word="addNewWord"
       @update-word="updateWord"
-      @add-category="addNewCategory"
     />
 
-    <!-- Topic Words Modal -->
+    <!-- Create by Topic Words Modal -->
     <TopicWordsModal
       :is-open="showTopicWordsModal"
       :user-id="userId"
@@ -468,8 +467,6 @@ const pendingWordsCount = computed(() => {
   ).length
 })
 
-
-
 const deleteWord = async (wordUid: string) => {
   const result = await fireSwal({
     title: 'Are you sure?',
@@ -515,13 +512,16 @@ const closeTopicWordsModal = () => {
   showTopicWordsModal.value = false
 }
 
-const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[]; categoryId: string }) => {
+const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {
   // Refresh the vocabulary data to show the new words
   setTimeout(() => loadWordsFromFirebase(), 500)
 
-  // Auto-select the category of the newly created words
-  if (data.categoryId) {
-    selectedCategory.value = data.categoryId
+  // Auto-select the first category of the newly created words
+  if (data.createdWords.length > 0) {
+    const firstCategory = data.createdWords[0]?.categoryId
+    if (firstCategory) {
+      selectedCategory.value = firstCategory
+    }
   }
 
   showSuccessToast(`${data.createdWords.length} words added successfully!`, 2000)
@@ -596,27 +596,6 @@ const updateWord = async (updatedWord: VocabularyWord) => {
   }
 }
 
-const addNewCategory = (categoryName: string) => {
-  // Generate a unique ID for the new category
-  const newCategoryId = `cat_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
-
-  // Add the new category to the categories object
-  categories.value[newCategoryId] = {
-    name: categoryName.trim(),
-  }
-
-  // Also update the vocabularyData if it exists
-  if (vocabularyData.value) {
-    vocabularyData.value.categories[newCategoryId] = {
-      name: categoryName.trim(),
-    }
-  }
-
-  showSuccessToast(
-    `Category "${categoryName.trim()}" added successfully!`,
-    2000,
-  )
-}
 
 const toggleWordStatus = async (
   wordUid: string,
