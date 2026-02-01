@@ -74,17 +74,17 @@ const closeMobileMenu = () => {
             >
               Learning by Topics
             </router-link>
-            <router-link
-              to="/profile"
-              class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              Profile
-            </router-link>
           </template>
         </div>
 
         <!-- Desktop actions -->
         <div class="hidden md:flex items-center space-x-4">
+          <router-link
+            to="/profile"
+            class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            Profile
+          </router-link>
           <button
             @click="toggleTheme"
             class="text-primary-500 hover:text-primary-700 dark:text-primary-50 dark:hover:text-primary-100 transition-colors cursor-pointer"
@@ -226,7 +226,7 @@ const closeMobileMenu = () => {
         </div>
 
         <!-- Menu items -->
-        <div class="flex flex-col space-y-8 text-center" @click.stop>
+        <div class="flex flex-col space-y-8 text-center mobile-menu" @click.stop>
           <template v-if="isLoggedIn">
             <router-link
               to="/vocabulary"
@@ -270,3 +270,65 @@ const closeMobileMenu = () => {
     </div>
   </header>
 </template>
+
+<style scoped>
+.router-link-active {
+  color: var(--color-primary-900);
+  position: relative;
+}
+
+.router-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background-color: var(--color-primary-900);
+  border-radius: 1px;
+}
+
+.dark .router-link-active {
+  color: var(--color-primary-100);
+}
+
+.dark .router-link-active::after {
+  background-color: var(--color-primary-100);
+}
+
+.router-link-exact-active {
+  color: var(--color-primary-900);
+  position: relative;
+}
+
+.router-link-exact-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background-color: var(--color-primary-900);
+  border-radius: 1px;
+}
+
+.dark .router-link-exact-active {
+  color: var(--color-primary-100);
+}
+
+.dark .router-link-exact-active::after {
+  background-color: var(--color-primary-100);
+}
+
+.mobile-menu .router-link-active {
+  color: var(--color-primary-300);
+  font-weight: 600;
+}
+
+.mobile-menu .router-link-exact-active {
+  color: var(--color-primary-300);
+  font-weight: 600;
+}
+</style>

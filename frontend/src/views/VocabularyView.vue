@@ -30,50 +30,76 @@
               <X v-else class="w-5 h-5" />
             </button>
           </div>
-          <p
-            class="text-sm sm:text-base text-primary-600 dark:text-primary-400"
-          >
-            Your personal collection of English words
-          </p>
         </div>
 
         <!-- Search & Filter -->
-        <div class="hidden sm:block bg-white dark:bg-black rounded-lg p-4 transition-colors">
+        <div
+          class="hidden sm:block bg-white dark:bg-black rounded-lg p-4 transition-colors"
+        >
           <h3
-            class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center"
+            class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center justify-between"
           >
-            <Search
-              class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400"
-            />
-            Search & Filter
+            <div class="flex items-center">
+              <Search
+                class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400"
+              />
+              Search & Filter
+            </div>
+            <div class="flex gap-3">
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value=""
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">All</span>
+              </label>
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value="pending"
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Pending</span>
+              </label>
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value="completed"
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Completed</span>
+              </label>
+            </div>
           </h3>
 
           <!-- Horizontal layout for all screen sizes -->
-          <div class="flex flex-col sm:flex-row gap-4">
-            <div class="flex-1">
-              <label
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Search Words
-              </label>
-              <input
-                type="search"
-                v-model="searchQuery"
-                placeholder="Search vocabulary..."
-                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              />
-            </div>
-
+          <div class="flex flex-col gap-4">
             <div class="flex-1 hidden sm:block">
               <label
                 class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
               >
-                Category
+                Search & Category
               </label>
               <div class="flex gap-2">
+                <input
+                  type="search"
+                  v-model="searchQuery"
+                  placeholder="Search..."
+                  class="w-3/4 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                />
                 <select
                   v-model="selectedCategory"
-                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="w-1/4 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
                   <option value="">select category</option>
                   <option
@@ -92,22 +118,6 @@
                   <Settings class="w-4 h-4" />
                 </button>
               </div>
-            </div>
-
-            <div class="flex-1">
-              <label
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Status
-              </label>
-              <select
-                v-model="selectedStatus"
-                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              >
-                <option value="">All Words</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-              </select>
             </div>
           </div>
         </div>
@@ -118,39 +128,68 @@
           class="sm:hidden bg-white dark:bg-black rounded-lg p-4 transition-colors"
         >
           <h3
-            class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex items-center"
+            class="font-medium text-primary-900 dark:text-primary-50 mb-4 flex flex-col gap-3"
           >
-            <Search
-              class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400"
-            />
-            Search & Filter
+            <div class="flex items-center">
+              <Search
+                class="w-4 h-4 mr-2 text-primary-600 dark:text-primary-400"
+              />
+              Search & Filter
+            </div>
+            <div class="flex gap-3">
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value=""
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">All</span>
+              </label>
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value="pending"
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Pending</span>
+              </label>
+              <label
+                class="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  v-model="selectedStatus"
+                  value="completed"
+                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
+                />
+                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Completed</span>
+              </label>
+            </div>
           </h3>
 
           <div class="flex flex-col gap-4">
-            <div>
+            <div class="w-full">
               <label
                 class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
               >
-                Search Words
-              </label>
-              <input
-                type="search"
-                v-model="searchQuery"
-                placeholder="Search vocabulary..."
-                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Category
+                Search & Category
               </label>
               <div class="flex gap-2">
+                <input
+                  type="search"
+                  v-model="searchQuery"
+                  placeholder="Search..."
+                  class="w-3/4 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                />
                 <select
                   v-model="selectedCategory"
-                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="w-1/4 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
                   <option value="">select category</option>
                   <option
@@ -170,25 +209,8 @@
                 </button>
               </div>
             </div>
-
-            <div>
-              <label
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Status
-              </label>
-              <select
-                v-model="selectedStatus"
-                class="w-full px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              >
-                <option value="">All Words</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
           </div>
         </div>
-
       </div>
 
       <!-- Main Content Area -->
@@ -198,7 +220,9 @@
             <div
               class="text-lg sm:text-lg font-medium text-primary-900 dark:text-primary-50"
             >
-              <div class="text-xl sm:text-lg font-bold">{{ Object.keys(filteredWords).length }} words</div>
+              <div class="text-xl sm:text-lg font-bold">
+                {{ Object.keys(filteredWords).length }} words
+              </div>
               <div class="text-sm text-primary-600 dark:text-primary-400 mt-1">
                 {{ completedWordsCount }} completed,
                 {{ pendingWordsCount }} pending
@@ -285,9 +309,7 @@
                 class="absolute top-2 right-2 h-6 w-6 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
                 title="Delete word"
               >
-                <X
-                  class="w-3 h-3"
-                />
+                <X class="w-3 h-3" />
               </button>
 
               <!-- Word Header -->
@@ -324,7 +346,8 @@
             <p
               class="text-sm sm:text-base text-primary-500 dark:text-primary-400 mb-6 max-w-sm mx-auto"
             >
-              Start building your personal vocabulary collection by adding new words.
+              Start building your personal vocabulary collection by adding new
+              words.
             </p>
           </div>
         </div>
@@ -336,9 +359,10 @@
       :is-open="showAddWordModal"
       :current-word="wordToEdit"
       :categories="categories"
+      :user-id="userId"
+      :word-uid="(wordToEdit as EditableVocabularyWord)?._uid"
       @close="closeWordModal"
-      @add-word="addNewWord"
-      @update-word="updateWord"
+      @word-saved="handleWordOperation"
     />
 
     <!-- Create by Topic Words Modal -->
@@ -524,7 +548,10 @@ const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {
     }
   }
 
-  showSuccessToast(`${data.createdWords.length} words added successfully!`, 2000)
+  showSuccessToast(
+    `${data.createdWords.length} words added successfully!`,
+    2000,
+  )
 }
 
 const openEditWordModal = (word: VocabularyWord, wordUid: string) => {
@@ -541,61 +568,15 @@ const navigateToCategories = () => {
   router.push('/categories')
 }
 
-const addNewWord = async (word: VocabularyWord) => {
-  try {
-    const createdWord = await vocabularyWordsService.createWord(
-      {
-        term: word.term,
-        description: word.description,
-        categoryName: word.categoryName,
-        userId: userId.value,
-      },
-      userId.value,
-    )
-    closeWordModal()
-    setTimeout(() => loadWordsFromFirebase(), 500)
+const handleWordOperation = (word: VocabularyWord) => {
+  closeWordModal()
+  setTimeout(() => loadWordsFromFirebase(), 500)
 
-    // Auto-select the category of the newly created word
-    if (createdWord.categoryId) {
-      selectedCategory.value = createdWord.categoryId
-    }
-  } catch (error) {
-    console.error('Error creating vocabulary word:', error)
-    showErrorToast('Failed to create word. Please try again.')
+  // Auto-select the category of the newly created word
+  if (word.categoryId) {
+    selectedCategory.value = word.categoryId
   }
 }
-
-const updateWord = async (updatedWord: VocabularyWord) => {
-  try {
-    // Get the stored UID from the word object
-    const wordUid = (wordToEdit.value as EditableVocabularyWord)?._uid
-
-    if (!wordUid) {
-      throw new Error('Word UID not found for update')
-    }
-
-    const updated = await vocabularyWordsService.updateWord(
-      wordUid,
-      {
-        term: updatedWord.term,
-        description: updatedWord.description,
-        categoryName: updatedWord.categoryName,
-      },
-      userId.value,
-    )
-
-    // Update local data
-    if (vocabularyData.value) {
-      vocabularyData.value.vocabulary[wordUid] = updated
-    }
-
-    closeWordModal()
-  } catch (error) {
-    console.error('Error updating vocabulary word:', error)
-    showErrorToast('Failed to update word. Please try again.')
-  }
-}
-
 
 const toggleWordStatus = async (
   wordUid: string,

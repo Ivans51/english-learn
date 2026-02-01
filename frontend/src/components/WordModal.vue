@@ -143,6 +143,10 @@
                   </div>
                 </div>
 
+                <div v-if="errorMessage" class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md">
+                  <p class="text-sm text-red-200">{{ errorMessage }}</p>
+                </div>
+
                 <div class="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
@@ -153,10 +157,10 @@
                   </button>
                   <button
                     type="submit"
-                    :disabled="!isFormValid"
+                    :disabled="!isFormValid || isSubmitting"
                     class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-sm font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {{ isEditing ? 'Save Changes' : 'Add Word' }}
+                    {{ isSubmitting ? 'Saving...' : (isEditing ? 'Save Changes' : 'Add Word') }}
                   </button>
                 </div>
               </form>
@@ -178,10 +182,13 @@ import {
   TransitionRoot,
 } from '@headlessui/vue'
 import { marked } from 'marked'
+import { useToast } from '@/composables/useToast'
 
 import type { VocabularyWord, ExplainWordResponse } from '@/types'
 
-const emit = defineEmits(['close', 'add-word', 'update-word'])
+const { error: showErrorToast } = useToast()
+
+const emit = defineEmits(['close', 'word-saved', 'error'])
 
 const initialFormData = {
   term: '',
@@ -193,13 +200,17 @@ const props = defineProps<{
   isOpen: boolean
   currentWord: VocabularyWord | null
   categories?: Record<string, { name: string }>
+  userId: string
+  wordUid?: string
 }>()
 
 const formData = ref({ ...initialFormData })
 const isGenerating = ref(false)
+const isSubmitting = ref(false)
 const wordInputRef = ref<HTMLInputElement>()
 const renderedDescription = ref('')
 const defaultCategory = ref('learning')
+const errorMessage = ref('')
 
 onMounted(() => {
   marked.setOptions({
@@ -334,27 +345,54 @@ async function generateDescription() {
   }
 }
 
-function addOrUpdateWord() {
-  if (isEditing.value && props.currentWord) {
-    const updatedWord: VocabularyWord = {
-      ...props.currentWord,
-      term: formData.value.term,
-      description: formData.value.descriptionText,
-      categoryName: formData.value.categoryName,
-    }
-    emit('update-word', updatedWord)
-    closeModal()
-  } else {
-    const wordToAdd: VocabularyWord = {
-      term: formData.value.term,
-      categoryId: '',
-      categoryName: formData.value.categoryName,
-      description: formData.value.descriptionText,
-    }
-    emit('add-word', wordToAdd)
+async function addOrUpdateWord() {
+  if (!props.userId) {
+    emit('error', 'User ID is required')
+    return
+  }
 
-    resetForm()
-    closeModal()
+  isSubmitting.value = true
+  errorMessage.value = ''
+
+  try {
+    const { vocabularyWordsService } = await import('@/services/vocabularyService')
+
+    if (isEditing.value && props.currentWord && props.wordUid) {
+      const updatedWord = await vocabularyWordsService.updateWord(
+        props.wordUid,
+        {
+          term: formData.value.term,
+          description: formData.value.descriptionText,
+          categoryName: formData.value.categoryName,
+        },
+        props.userId,
+      )
+      emit('word-saved', updatedWord)
+      closeModal()
+    } else {
+      const createdWord = await vocabularyWordsService.createWord(
+        {
+          term: formData.value.term,
+          description: formData.value.descriptionText,
+          categoryName: formData.value.categoryName,
+          userId: props.userId,
+        },
+        props.userId,
+      )
+      emit('word-saved', createdWord)
+      resetForm()
+      closeModal()
+    }
+  } catch (error) {
+    console.error('Error saving vocabulary word:', error)
+    const errorMsg = isEditing.value 
+      ? 'Failed to update word. Please try again.'
+      : 'Failed to create word. Please try again.'
+    errorMessage.value = errorMsg
+    showErrorToast(errorMsg)
+    emit('error', errorMsg)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>

@@ -227,20 +227,7 @@ const updateUserPassword = async () => {
         <div
           class="border-t border-primary-200 dark:border-primary-800 pt-8 mt-8"
         >
-          <h2
-            class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4"
-          >
-            Account Information
-          </h2>
           <div class="space-y-2 text-sm text-primary-700 dark:text-primary-300">
-            <p>
-              <strong>User ID:</strong>
-              {{ user?.uid }}
-            </p>
-            <p>
-              <strong>Email Verified:</strong>
-              {{ user?.emailVerified ? 'Yes' : 'No' }}
-            </p>
             <p>
               <strong>Account Created:</strong>
               {{ user?.metadata.creationTime }}
