@@ -148,13 +148,10 @@ describe('LoginView', () => {
       })
 
       const socialButtons = wrapper.findAll('button[type="button"]')
-      expect(socialButtons.length).toBe(3)
+      expect(socialButtons.length).toBe(2)
 
-      const googleButton = socialButtons[1]
-      expect(googleButton.text()).toContain('Google')
-
-      const facebookButton = socialButtons[2]
-      expect(facebookButton.text()).toContain('Facebook')
+      const createAccountButton = socialButtons[1]
+      expect(createAccountButton.text()).toContain('Create an account')
     })
 
     it('renders register link', async () => {
@@ -647,7 +644,7 @@ describe('LoginView', () => {
   })
 
   describe('Social Login Buttons', () => {
-    it('renders Google login button', async () => {
+    it('renders create account button', async () => {
       const wrapper = mount(LoginView, {
         global: {
           plugins: [router]
@@ -655,44 +652,10 @@ describe('LoginView', () => {
       })
 
       const socialButtons = wrapper.findAll('button[type="button"]')
-      const googleButton = socialButtons[1]
+      const createAccountButton = socialButtons[1]
 
-      expect(googleButton.exists()).toBe(true)
-      expect(googleButton.text()).toContain('Google')
-      expect(googleButton.find('svg').exists()).toBe(true)
-    })
-
-    it('renders Facebook login button', async () => {
-      const wrapper = mount(LoginView, {
-        global: {
-          plugins: [router]
-        }
-      })
-
-      const socialButtons = wrapper.findAll('button[type="button"]')
-      const facebookButton = socialButtons[2]
-
-      expect(facebookButton.exists()).toBe(true)
-      expect(facebookButton.text()).toContain('Facebook')
-      expect(facebookButton.find('svg').exists()).toBe(true)
-    })
-
-    it('social login buttons have correct styling classes', async () => {
-      const wrapper = mount(LoginView, {
-        global: {
-          plugins: [router]
-        }
-      })
-
-      const socialButtons = wrapper.findAll('button[type="button"]')
-      const googleButton = socialButtons[1]
-
-      expect(googleButton.classes()).toContain('inline-flex')
-      expect(googleButton.classes()).toContain('justify-center')
-      expect(googleButton.classes()).toContain('py-2')
-      expect(googleButton.classes()).toContain('px-4')
-      expect(googleButton.classes()).toContain('border')
-      expect(googleButton.classes()).toContain('rounded-md')
+      expect(createAccountButton.exists()).toBe(true)
+      expect(createAccountButton.text()).toContain('Create an account')
     })
   })
 
