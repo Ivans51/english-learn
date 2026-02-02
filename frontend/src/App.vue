@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useToast } from '@/composables/useToast'
 import ToastNotification from '@/components/ToastNotification.vue'
+import PwaReloadPrompt from '@/components/PwaReloadPrompt.vue'
 
 const { toasts } = useToast()
 </script>
@@ -9,6 +10,7 @@ const { toasts } = useToast()
   <div id="app">
     <router-view />
     <ToastNotification v-model="toasts" />
+    <PwaReloadPrompt />
   </div>
 </template>
 
