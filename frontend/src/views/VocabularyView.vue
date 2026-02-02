@@ -228,24 +228,24 @@
                 {{ pendingWordsCount }} pending
               </div>
             </div>
-            <div class="flex gap-2 sm:w-auto sm:min-w-[400px] items-center">
+            <div class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center">
               <button
                 @click="openTopicWordsModal"
-                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
+                class="flex-1 sm:flex-none bg-secondary-600 dark:bg-secondary-700 text-white py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add Group Words</span>
               </button>
               <button
                 @click="openAddWordModal"
-                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
+                class="flex-1 sm:flex-none bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Plus class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add New Word</span>
               </button>
               <button
                 @click="viewMode = 'grid'"
-                class="p-2.5 rounded-md transition-colors"
+                class="p-2.5 rounded-md transition-colors flex-shrink-0"
                 :class="viewMode === 'grid' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
                 title="Grid view"
               >
@@ -258,7 +258,7 @@
               </button>
               <button
                 @click="viewMode = 'list'"
-                class="p-2.5 rounded-md transition-colors"
+                class="p-2.5 rounded-md transition-colors flex-shrink-0"
                 :class="viewMode === 'list' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
                 title="List view"
               >
