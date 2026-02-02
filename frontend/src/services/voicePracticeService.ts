@@ -59,6 +59,31 @@ class VoicePracticeService {
     }
   }
 
+  async speakText(text: string, lang: string = 'en'): Promise<void> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/text-to-speech`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, lang }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech')
+      }
+
+      const arrayBuffer = await response.arrayBuffer()
+      const audioBlob = new Blob([arrayBuffer], { type: 'audio/mpeg' })
+      const audioUrl = URL.createObjectURL(audioBlob)
+      const audioEl = new Audio(audioUrl)
+      await audioEl.play()
+    } catch (error) {
+      console.error('Error playing text:', error)
+      throw error
+    }
+  }
+
   private blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       if (blob.size === 0) {

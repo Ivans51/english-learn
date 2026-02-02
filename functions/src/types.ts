@@ -144,3 +144,9 @@ export interface TranslateRequest {
   targetLanguage: string;
   userId?: string;
 }
+
+export interface TextToSpeechRequest {
+  text: string;
+  lang?: string;
+  userId?: string;
+}

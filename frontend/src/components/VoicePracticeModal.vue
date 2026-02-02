@@ -25,7 +25,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full sm:w-[80%] max-w-3xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-4 sm:p-6 text-left align-middle shadow-xl transition-all"
+              class="w-full sm:w-[80%] max-w-3xl h-[90vh] max-h-[90vh] flex flex-col transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-4 sm:p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
@@ -62,7 +62,7 @@
                 </p>
               </div>
 
-              <div class="mt-4">
+              <div class="mt-4 flex-1 overflow-y-auto min-h-0">
                 <label class="block text-xs font-medium text-primary-50 mb-2">
                   Practice Phrases
                 </label>
@@ -89,21 +89,31 @@
                     ]"
                   >
                     <div class="flex items-start justify-between">
-                      <p class="text-primary-50 font-medium flex-1">
+                      <p class="text-primary-50 font-medium flex-1 pr-2">
                         "{{ sense.phrase }}"
                       </p>
-                      <span
-                        class="text-xs px-2 py-0.5 rounded ml-2"
-                        :class="[
-                          sense.senseType === 'literal' ? 'bg-blue-900/50 text-blue-300' :
-                          sense.senseType === 'idiomatic' ? 'bg-purple-900/50 text-purple-300' :
-                          sense.senseType === 'slang' ? 'bg-red-900/50 text-red-300' :
-                          sense.senseType === 'colloquial' ? 'bg-yellow-900/50 text-yellow-300' :
-                          'bg-gray-700 text-gray-300'
-                        ]"
-                      >
-                        {{ sense.senseType || 'literal' }}
-                      </span>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span
+                          class="text-xs px-2 py-0.5 rounded"
+                          :class="[
+                            sense.senseType === 'literal' ? 'bg-blue-900/50 text-blue-300' :
+                            sense.senseType === 'idiomatic' ? 'bg-purple-900/50 text-purple-300' :
+                            sense.senseType === 'slang' ? 'bg-red-900/50 text-red-300' :
+                            sense.senseType === 'colloquial' ? 'bg-yellow-900/50 text-yellow-300' :
+                            'bg-gray-700 text-gray-300'
+                          ]"
+                        >
+                          {{ sense.senseType || 'literal' }}
+                        </span>
+                        <button
+                          @click.stop="speakText(sense.phrase)"
+                          :disabled="isPlaying"
+                          class="px-2 rounded-md hover:bg-primary-700 transition-colors text-primary-400 hover:text-primary-200 disabled:opacity-50 cursor-pointer"
+                          title="Listen to pronunciation"
+                        >
+                          <Volume2 class="w-6 h-6" :class="{ 'animate-pulse': isPlaying }" />
+                        </button>
+                      </div>
                     </div>
                     <p
                       v-if="sense.translation"
@@ -243,7 +253,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue'
-import { Mic, RefreshCw, Square, X } from 'lucide-vue-next'
+import { Mic, RefreshCw, Square, X, Volume2 } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
 import { useToast } from '@/composables/useToast'
 import type { VoicePracticePhrase, VoicePracticePhraseSense, VoicePracticeResult } from '@/types'
@@ -263,6 +273,7 @@ const selectedSense = ref<VoicePracticePhraseSense | null>(null)
 const isGenerating = ref(false)
 const isRecording = ref(false)
 const isEvaluating = ref(false)
+const isPlaying = ref(false)
 const result = ref<VoicePracticeResult | null>(null)
 
 let mediaRecorder: MediaRecorder | null = null
@@ -301,6 +312,19 @@ const selectSense = (sense: VoicePracticePhraseSense) => {
   selectedSense.value = sense
   currentPhrase.value = sense.phrase
   result.value = null
+}
+
+const speakText = async (text: string) => {
+  if (isPlaying.value) return
+
+  isPlaying.value = true
+  try {
+    await voicePracticeService.speakText(text, 'en')
+  } catch {
+    showErrorToast('Failed to play audio')
+  } finally {
+    isPlaying.value = false
+  }
 }
 
 const toggleRecording = async () => {

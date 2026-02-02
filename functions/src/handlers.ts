@@ -13,9 +13,9 @@ import {
   UpdateTopicRequest,
   VocabularyWord,
   VoicePracticeRequest,
-  VoicePracticeResponse,
   VoicePracticePhraseRequest,
   VoicePracticePhraseResponse,
+  TextToSpeechRequest,
 } from './types';
 import {
   addHTMLMarkup,
@@ -909,6 +909,7 @@ export async function handleGenerateVoicePracticePhrase(
         if (parsedResponse.senses.length === 0) {
           throw new Error('No senses provided');
         }
+        parsedResponse.senses = parsedResponse.senses.slice(0, 5);
       } else if ('phrase' in parsedResponse) {
         const oldResponse = parsedResponse as { phrase?: string; translation?: string; grammarFocus?: string };
         parsedResponse = {
@@ -1021,3 +1022,41 @@ export async function handleTranslateRequest(
     return ErrorResponses.invalidRequestBody(corsHeaders);
   }
 }
+
+export async function handleTextToSpeech(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: TextToSpeechRequest = await request.json();
+    const { text, lang = 'en' } = body;
+
+    const validationError = validateRequiredFields(body, ['text'], corsHeaders);
+    if (validationError) {
+      return validationError;
+    }
+
+    const result = await env.AI.run('@cf/myshell-ai/melotts', {
+      prompt: text,
+      lang,
+    }) as { audio: string };
+
+    const binaryString = atob(result.audio);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    return new Response(bytes, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'audio/mpeg',
+      },
+    });
+  } catch (error) {
+    logError('handleTextToSpeech', error);
+    return ErrorResponses.internalServerError('Failed to generate speech', corsHeaders);
+  }
+}
+

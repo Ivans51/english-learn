@@ -13,6 +13,7 @@ import {
   handleGetTopics,
   handleGetVocabularyWords,
   handleGrammarCheck,
+  handleTextToSpeech,
   handleTranslateRequest,
   handleUpdateCategory,
   handleUpdateTopic,
@@ -102,6 +103,11 @@ export async function handleApiRequest(
   // Translate endpoint
   if (url.pathname === '/api/translate' && request.method === 'POST') {
     return handleTranslateRequest(request, env, corsHeaders);
+  }
+
+  // Text-to-speech endpoint
+  if (url.pathname === '/api/text-to-speech' && request.method === 'POST') {
+    return handleTextToSpeech(request, env, corsHeaders);
   }
 
   // 404 for unknown API routes
