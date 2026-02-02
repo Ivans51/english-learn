@@ -54,7 +54,7 @@ const closeMobileMenu = () => {
         <div class="flex items-center space-x-6 lg:space-x-8">
           <router-link to="/" class="flex items-center">
             <img
-              src="@/resources/images/favicon.png"
+              src="@/resources/images/logo.png"
               alt="EnglishLearn Logo"
               class="h-8"
             />

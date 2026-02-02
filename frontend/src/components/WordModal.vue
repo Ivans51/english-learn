@@ -55,20 +55,9 @@
                   </svg>
                 </button>
               </DialogTitle>
-              <div class="mt-2">
-                <p class="text-base text-primary-300">
-                  Add a new word to your personal vocabulary collection.
-                </p>
-              </div>
 
               <form @submit.prevent="addOrUpdateWord" class="mt-4 space-y-3">
                 <div>
-                  <label
-                    for="term"
-                    class="block text-base font-medium text-primary-50 mb-1"
-                  >
-                    Word
-                  </label>
                   <div class="relative">
                   <input
                     type="text"
@@ -148,13 +137,6 @@
                 </div>
 
                 <div class="mt-4 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    @click="closeModal"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 px-4 py-2.5 text-base font-medium text-primary-50 hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
-                  >
-                    Cancel
-                  </button>
                   <button
                     type="submit"
                     :disabled="!isFormValid || isSubmitting"
@@ -385,7 +367,7 @@ async function addOrUpdateWord() {
     }
   } catch (error) {
     console.error('Error saving vocabulary word:', error)
-    const errorMsg = isEditing.value 
+    const errorMsg = isEditing.value
       ? 'Failed to update word. Please try again.'
       : 'Failed to create word. Please try again.'
     errorMessage.value = errorMsg

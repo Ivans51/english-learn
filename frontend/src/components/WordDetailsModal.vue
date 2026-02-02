@@ -42,7 +42,7 @@
                 <h2 class="text-xl font-bold text-primary-50">
                   {{ word.term }}
                 </h2>
-                <span class="text-xs text-primary-400">
+                <span class="text-base text-primary-400">
                   category: {{ word.categoryName }}
                 </span>
               </div>
@@ -52,23 +52,11 @@
               <!-- Description -->
               <div class="mb-4">
                 <h4 class="text-base font-medium text-primary-50 mb-2 flex items-center">
-                  <svg
-                    class="w-4 h-4 mr-2 text-primary-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    ></path>
-                  </svg>
+                  <BookOpen class="w-4 h-4 mr-2 text-primary-400" />
                   Description
                 </h4>
                 <div class="bg-primary-800/50 rounded-lg p-3 max-h-64 overflow-y-auto custom-scrollbar">
-                  <div class="text-primary-200 leading-relaxed prose prose-invert prose-sm max-w-none description-content" v-html="renderedDescription"></div>
+                  <div class="text-primary-200 leading-relaxed prose prose-invert max-w-none description-content" v-html="renderedDescription"></div>
                 </div>
               </div>
 
@@ -77,7 +65,7 @@
                 <div class="flex items-center gap-2">
                   <button
                     @click="toggleWordStatus"
-                    class="text-xs px-2.5 py-1 rounded cursor-pointer transition-colors hover:opacity-80"
+                    class="text-base px-2.5 py-1 rounded cursor-pointer transition-colors hover:opacity-80"
                     :class="[
                       localWordStatus === 'completed'
                         ? 'bg-green-900/60 text-green-200'
@@ -87,7 +75,7 @@
                   >
                     {{ localWordStatus === 'completed' ? 'completed' : 'pending' }}
                   </button>
-                  <span class="text-[10px] text-primary-500">click to toggle</span>
+                  <span class="text-xs text-primary-500">click to toggle</span>
                 </div>
 
                 <!-- Action Buttons -->
@@ -125,7 +113,7 @@
 
 <script setup lang="ts">
 import type { VocabularyWord } from '@/types'
-import { MessageCircle, Mic, Trash2, X } from 'lucide-vue-next'
+import { BookOpen, MessageCircle, Mic, Trash2, X } from 'lucide-vue-next'
 import { ref, watch, onMounted } from 'vue'
 import { marked } from 'marked'
 

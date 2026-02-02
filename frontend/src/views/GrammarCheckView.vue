@@ -420,7 +420,6 @@ const generatePracticePhrase = async () => {
     isLoading.value = false
     await nextTick()
     scrollToBottom()
-    focusInput()
   }
 }
 

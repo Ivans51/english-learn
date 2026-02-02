@@ -27,11 +27,11 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
-                class="text-lg font-semibold leading-6 text-primary-50 flex justify-between items-center"
+                class="text-xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
               >
                 Add Group Words
                 <button
@@ -42,7 +42,7 @@
                 </button>
               </DialogTitle>
               <div class="mt-2">
-                <p class="text-xs text-primary-300">
+                <p class="text-base text-primary-300">
                   Enter comma-separated words, and we'll automatically generate
                   descriptions and suggest appropriate categories for each word.
                 </p>
@@ -53,42 +53,37 @@
                 <div>
                   <label
                     for="words"
-                    class="block text-xs font-medium text-primary-50 mb-1"
+                    class="block text-base font-medium text-primary-50 mb-1"
                   >
-                    Words
+                    <textarea
+                      id="words"
+                      ref="wordsInputRef"
+                      v-model="words"
+                      placeholder="e.g., apples, grapes, oranges, bananas"
+                      rows="4"
+                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
+                      required
+                      @keydown.ctrl.enter.prevent="createTopicWords"
+                      @keydown.enter.ctrl.prevent="createTopicWords"
+                    ></textarea>
                   </label>
-                  <textarea
-                    id="words"
-                    ref="wordsInputRef"
-                    v-model="words"
-                    placeholder="e.g., apples, grapes, oranges, bananas"
-                    rows="4"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-xs bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
-                    required
-                    @keydown.ctrl.enter.prevent="createTopicWords"
-                    @keydown.enter.ctrl.prevent="createTopicWords"
-                  ></textarea>
                 </div>
 
                 <div class="flex justify-end gap-2">
                   <button
                     type="button"
-                    @click="closeModal"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 px-4 py-2 text-xs font-medium text-primary-50 hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
                     @click="createTopicWords"
                     :disabled="!words.trim() || isCreating"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-4 py-2 text-xs font-medium hover:bg-secondary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-4 py-2 text-base font-medium hover:bg-secondary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Loader2
                       v-if="isCreating"
                       class="animate-spin -ml-1 mr-1.5 h-3.5 w-3.5 text-white"
                     />
-                    <Sparkles v-else class="-ml-1 mr-1.5 h-3.5 w-3.5 text-white" />
+                    <Sparkles
+                      v-else
+                      class="-ml-1 mr-1.5 h-4.5 w-4.5 text-white"
+                    />
                     {{
                       isCreating
                         ? 'Creating Words...'
