@@ -4,7 +4,7 @@ Guidelines for AI agents working on the English Learn project.
 
 ## Project Overview
 
-Full-stack monorepo: Vue.js 3 frontend (TypeScript, Tailwind CSS) + Cloudflare Workers backend. Features AI-powered English learning with vocabulary management and Firebase Realtime Database.
+Full-stack monorepo: Vue.js 3 frontend (TypeScript, Tailwind CSS v4) + Cloudflare Workers backend. Features AI-powered English learning with vocabulary management, PWA support, and Firebase Realtime Database.
 
 ## Commands
 
@@ -25,6 +25,11 @@ pnpm run lint                   # ESLint + auto-fix
 pnpm test                       # Vitest watch mode
 pnpm run test:run               # Single test run
 pnpm run test:coverage          # With coverage report
+```
+
+**Run single test file:**
+```bash
+cd frontend && pnpm vitest run src/services/categoryService.test.ts
 ```
 
 ### Backend (`functions/`)
@@ -97,6 +102,13 @@ class VocabService {
 export const vocabService = new VocabService();
 ```
 
+### PWA Configuration
+- Icons located in `frontend/public/`: `pwa-192x192.png`, `pwa-512x512.png`, `apple-touch-icon.png`
+- Icons generated from `frontend/src/resources/images/logo.png`
+- Theme color: `#1F2937` (configured in `vite.config.ts` and `index.html`)
+- Offline mode disabled (no `workbox.globPatterns`)
+- Service worker configured with `registerType: 'autoUpdate'`
+
 ### Cloudflare Workers
 - Define Env type in `functions/src/types.ts`
 - Use CORS helpers from `utils.ts`
@@ -104,10 +116,10 @@ export const vocabService = new VocabService();
 - Return JSON responses
 
 ### Styling
-- Tailwind CSS exclusively
-- Dark mode: `dark:bg-primary-800`, `dark:text-primary-100`
-- Color palette: `primary-*`, `secondary-*`
+- Tailwind CSS v4 exclusively
+- Dark mode: `dark:bg-gray-800`, `dark:text-gray-100`
 - Responsive: `sm:`, `md:`, `lg:` prefixes
+- Use standard Tailwind colors (gray-500, indigo-600, etc.)
 
 ### Firebase
 - Client SDK for auth, Realtime Database for storage
@@ -124,8 +136,10 @@ frontend/src/
 ├── views/          # Page components
 ├── router/         # Vue Router
 ├── types.ts        # TypeScript interfaces
+├── types/          # TypeScript declaration files (.d.ts)
 ├── utils/          # Utilities
-└── firebase.ts     # Firebase config
+├── firebase.ts     # Firebase config
+└── resources/      # Static resources (images, etc.)
 ```
 
 ### Git Commits
