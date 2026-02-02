@@ -397,6 +397,85 @@ english-learn/
 - Safari (latest)
 - Edge (latest)
 
+## PWA Configuration
+
+The app is configured as a Progressive Web App (PWA) with installable support.
+
+### PWA Icons
+
+The PWA uses three icon files located in `frontend/public/`:
+
+| Icon File | Size | Purpose |
+|-----------|------|---------|
+| `pwa-192x192.png` | 192x192 | Standard PWA icon |
+| `pwa-512x512.png` | 512x512 | Maskable icon (adaptive shapes) |
+| `apple-touch-icon.png` | 180x180 | iOS home screen icon |
+
+#### Updating Icons
+
+Icons are generated from `frontend/src/resources/images/logo.png`. To update:
+
+```bash
+# 1. Replace logo.png with your new logo
+cp new-logo.png frontend/src/resources/images/logo.png
+
+# 2. Regenerate PWA icons
+python3 << 'EOF'
+from PIL import Image
+
+logo_path = 'frontend/src/resources/images/logo.png'
+output_dir = 'frontend/public'
+
+def create_icon(size, filename, maskable=False):
+    logo = Image.open(logo_path)
+    if maskable:
+        canvas = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        logo.thumbnail((size * 0.8, size * 0.8), Image.Resampling.LANCZOS)
+        canvas.paste(logo, ((size - logo.width) // 2, (size - logo.height) // 2), logo)
+    else:
+        logo.thumbnail((size, size), Image.Resampling.LANCZOS)
+        canvas = Image.new('RGBA', (size, size), (255, 255, 255, 255))
+        canvas.paste(logo, ((size - logo.width) // 2, (size - logo.height) // 2), logo)
+    canvas.save(f'{output_dir}/{filename}', 'PNG')
+
+create_icon(192, 'pwa-192x192.png')
+create_icon(180, 'apple-touch-icon.png')
+create_icon(512, 'pwa-512x512.png', maskable=True)
+EOF
+
+# 3. Rebuild frontend
+cd frontend && pnpm run build-only
+```
+
+#### Icon Requirements
+
+- Format: PNG with transparency (RGBA)
+- Recommended size: At least 512x512 pixels for best quality
+- Logo should be centered and have some padding for maskable icon
+- The 512x512 icon uses `purpose: 'any maskable'` for adaptive shapes
+
+### Theme Color
+
+The PWA status bar color is defined in two places:
+- `frontend/vite.config.ts`: `theme_color: '#1F2937'`
+- `frontend/index.html`: `<meta name="theme-color" content="#1F2937">`
+
+Change both values to update the installed app's header color.
+
+### Service Worker
+
+The app uses `vite-plugin-pwa` with:
+- `registerType: 'autoUpdate'` - Automatic service worker updates
+- Offline mode **disabled** - App requires internet connection
+- Minimal precaching for update notifications only
+
+To enable full offline support, add to `vite.config.ts`:
+```typescript
+workbox: {
+  globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+}
+```
+
 ## Contributing
 
 1. Fork the repository
