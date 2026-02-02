@@ -1,39 +1,44 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { getAuth, onAuthStateChanged, signOut, type User } from 'firebase/auth'
-import { useTheme } from '@/composables/useTheme'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
-
 const { isDark, toggleTheme } = useTheme()
+const { isAuthenticated, loading } = useAuth()
 
-const isLoggedIn = ref(false)
-const user = ref<User | null>(null)
 const isMobileMenuOpen = ref(false)
 
 onMounted(() => {
-  const auth = getAuth()
-  onAuthStateChanged(auth, (firebaseUser) => {
-    isLoggedIn.value = !!firebaseUser
-    user.value = firebaseUser
-  })
+  watch(
+    () => loading.value,
+    (isLoading) => {
+      if (!isLoading && !isAuthenticated()) {
+        const protectedRoutes = ['/vocabulary', '/profile']
+        if (protectedRoutes.includes(router.currentRoute.value.path)) {
+          router.push('/login')
+        }
+      }
+    },
+    { immediate: true }
+  )
 })
 
-const handleLogout = () => {
-  const auth = getAuth()
-  signOut(auth).then(() => {
-    router.push('/')
-  })
+const handleLogout = async () => {
+  const { auth } = await import('@/firebase')
+  const { signOut } = await import('firebase/auth')
+  await signOut(auth)
+  router.push('/')
 }
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
-const handleLogoutAndCloseMenu = () => {
+const handleLogoutAndCloseMenu = async () => {
   isMobileMenuOpen.value = false
-  handleLogout()
+  await handleLogout()
 }
 
 const closeMobileMenu = () => {
@@ -61,7 +66,7 @@ const closeMobileMenu = () => {
           </router-link>
 
           <!-- Navigation links -->
-          <template v-if="isLoggedIn">
+          <template v-if="isAuthenticated()">
             <router-link
               to="/vocabulary"
               class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -73,12 +78,16 @@ const closeMobileMenu = () => {
 
         <!-- Desktop actions -->
         <div class="hidden md:flex items-center space-x-4">
-          <router-link
-            to="/profile"
-            class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-          >
-            Profile
-          </router-link>
+          <template v-if="!loading">
+            <template v-if="isAuthenticated()">
+              <router-link
+                to="/profile"
+                class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Profile
+              </router-link>
+            </template>
+          </template>
           <button
             @click="toggleTheme"
             class="text-primary-500 hover:text-primary-700 dark:text-primary-50 dark:hover:text-primary-100 transition-colors cursor-pointer"
@@ -114,7 +123,7 @@ const closeMobileMenu = () => {
             </svg>
           </button>
 
-          <template v-if="isLoggedIn">
+          <template v-if="isAuthenticated()">
             <button
               @click="handleLogout"
               class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer"
@@ -221,7 +230,7 @@ const closeMobileMenu = () => {
 
         <!-- Menu items -->
         <div class="flex flex-col space-y-8 text-center mobile-menu" @click.stop>
-          <template v-if="isLoggedIn">
+          <template v-if="isAuthenticated()">
             <router-link
               to="/vocabulary"
               @click="closeMobileMenu"

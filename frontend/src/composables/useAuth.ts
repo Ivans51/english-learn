@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import {
+  createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -39,6 +40,10 @@ export function useAuth() {
     await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
   }
 
+  const register = async (email: string, password: string): Promise<void> => {
+    await createUserWithEmailAndPassword(auth, email, password)
+  }
+
   const getAuthErrorMessage = (error: unknown): string => {
     if (error instanceof Error && 'code' in error) {
       const authError = error as { code: string }
@@ -67,6 +72,7 @@ export function useAuth() {
     loading,
     isAuthenticated,
     login,
+    register,
     getAuthErrorMessage,
   }
 }
