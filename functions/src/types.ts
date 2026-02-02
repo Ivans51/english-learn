@@ -107,16 +107,36 @@ export interface VoicePracticeResponse {
   isCorrect: boolean;
 }
 
-export interface VoicePracticePhraseRequest {
+export interface VoicePracticePhraseSense {
+  phrase: string;
+  translation?: string;
+  grammarFocus?: string;
+  senseType?: 'literal' | 'idiomatic' | 'slang' | 'colloquial' | 'formal';
+}
+
+export interface VoicePracticePhraseResponse {
   word: string;
+  senses: VoicePracticePhraseSense[];
+}
+
+export interface VoicePracticeRequest {
+  audio: string;
+  targetPhrase: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   userId?: string;
 }
 
-export interface VoicePracticePhraseResponse {
-  phrase: string;
-  translation?: string;
-  grammarFocus?: string;
+export interface VoicePracticeResponse {
+  transcription: string;
+  score: number;
+  feedback: string;
+  isCorrect: boolean;
+}
+
+export interface VoicePracticePhraseRequest {
+  word: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  userId?: string;
 }
 
 export interface TranslateRequest {

@@ -901,8 +901,27 @@ export async function handleGenerateVoicePracticePhrase(
 
       parsedResponse = JSON.parse(jsonText);
 
-      if (typeof parsedResponse !== 'object' || parsedResponse === null || !('phrase' in parsedResponse)) {
+      if (typeof parsedResponse !== 'object' || parsedResponse === null) {
         throw new Error('Invalid response structure');
+      }
+
+      if ('senses' in parsedResponse && Array.isArray(parsedResponse.senses)) {
+        if (parsedResponse.senses.length === 0) {
+          throw new Error('No senses provided');
+        }
+      } else if ('phrase' in parsedResponse) {
+        const oldResponse = parsedResponse as { phrase?: string; translation?: string; grammarFocus?: string };
+        parsedResponse = {
+          word: word,
+          senses: [{
+            phrase: oldResponse.phrase || '',
+            translation: oldResponse.translation || '',
+            grammarFocus: oldResponse.grammarFocus || 'General practice',
+            senseType: 'literal'
+          }]
+        };
+      } else {
+        throw new Error('Invalid response structure: missing senses or phrase');
       }
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
@@ -916,9 +935,13 @@ export async function handleGenerateVoicePracticePhrase(
       const extractedPhrase = phraseMatch ? phraseMatch[1] : cleanedResponse;
 
       parsedResponse = {
-        phrase: extractedPhrase,
-        translation: '',
-        grammarFocus: 'General practice'
+        word: word,
+        senses: [{
+          phrase: extractedPhrase,
+          translation: '',
+          grammarFocus: 'General practice',
+          senseType: 'literal'
+        }]
       };
     }
 

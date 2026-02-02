@@ -59,8 +59,14 @@ export interface VoicePracticeResult {
   isCorrect: boolean
 }
 
-export interface VoicePracticePhrase {
+export interface VoicePracticePhraseSense {
   phrase: string
   translation?: string
   grammarFocus?: string
+  senseType?: 'literal' | 'idiomatic' | 'slang' | 'colloquial' | 'formal'
+}
+
+export interface VoicePracticePhrase {
+  word: string
+  senses: VoicePracticePhraseSense[]
 }

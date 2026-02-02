@@ -85,31 +85,66 @@
 
               <div class="mt-4">
                 <label class="block text-sm font-medium text-primary-50 mb-2">
-                  Practice Phrase
+                  Practice Phrases
                 </label>
                 <div
                   v-if="isGenerating"
                   class="bg-primary-800 rounded-lg p-4 text-center"
                 >
                   <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-500 mx-auto"></div>
-                  <p class="text-sm text-primary-400 mt-2">Generating phrase...</p>
+                  <p class="text-sm text-primary-400 mt-2">Generating phrases...</p>
                 </div>
                 <div
-                  v-else-if="currentPhrase"
-                  class="bg-primary-800 rounded-lg p-4"
+                  v-else-if="currentPhraseData?.senses && currentPhraseData.senses.length > 0"
+                  class="space-y-2"
                 >
-                  <p class="text-primary-50 text-center font-medium">
-                    "{{ currentPhrase }}"
-                  </p>
-                  <p
-                    v-if="currentPhraseData?.translation"
-                    class="text-primary-400 text-center text-sm mt-2"
+                  <div
+                    v-for="(sense, index) in currentPhraseData.senses"
+                    :key="index"
+                    @click="selectSense(sense)"
+                    class="bg-primary-800 rounded-lg p-3 cursor-pointer transition-all border-2"
+                    :class="[
+                      selectedSense?.phrase === sense.phrase
+                        ? 'border-secondary-500 bg-primary-750'
+                        : 'border-transparent hover:bg-primary-750'
+                    ]"
                   >
-                    {{ currentPhraseData.translation }}
+                    <div class="flex items-start justify-between">
+                      <p class="text-primary-50 font-medium flex-1">
+                        "{{ sense.phrase }}"
+                      </p>
+                      <span
+                        class="text-xs px-2 py-0.5 rounded ml-2"
+                        :class="[
+                          sense.senseType === 'literal' ? 'bg-blue-900/50 text-blue-300' :
+                          sense.senseType === 'idiomatic' ? 'bg-purple-900/50 text-purple-300' :
+                          sense.senseType === 'slang' ? 'bg-red-900/50 text-red-300' :
+                          sense.senseType === 'colloquial' ? 'bg-yellow-900/50 text-yellow-300' :
+                          'bg-gray-700 text-gray-300'
+                        ]"
+                      >
+                        {{ sense.senseType || 'literal' }}
+                      </span>
+                    </div>
+                    <p
+                      v-if="sense.translation"
+                      class="text-primary-400 text-sm mt-1"
+                    >
+                      {{ sense.translation }}
+                    </p>
+                    <p
+                      v-if="sense.grammarFocus"
+                      class="text-primary-500 text-xs mt-1"
+                    >
+                      {{ sense.grammarFocus }}
+                    </p>
+                  </div>
+                  <p v-if="!selectedSense" class="text-primary-400 text-sm text-center py-2">
+                    Click on a phrase to select it for practice
                   </p>
                 </div>
                 <p v-else class="text-primary-400 text-sm text-center py-4">
-                  Click "Generate" to create a practice phrase
+                  Click "Generate" to create practice phrases
                 </p>
               </div>
 
@@ -232,7 +267,7 @@ import {
 import { Mic, RefreshCw, Square, X } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
 import { useToast } from '@/composables/useToast'
-import type { VoicePracticePhrase, VoicePracticeResult } from '@/types'
+import type { VoicePracticePhrase, VoicePracticePhraseSense, VoicePracticeResult } from '@/types'
 
 const props = defineProps<{
   isOpen: boolean
@@ -246,6 +281,7 @@ const { error: showErrorToast } = useToast()
 const difficulty = ref<'easy' | 'medium' | 'hard'>('medium')
 const currentPhrase = ref('')
 const currentPhraseData = ref<VoicePracticePhrase | null>(null)
+const selectedSense = ref<VoicePracticePhraseSense | null>(null)
 const isGenerating = ref(false)
 const isRecording = ref(false)
 const isEvaluating = ref(false)
@@ -264,19 +300,30 @@ const generatePhrase = async () => {
 
   isGenerating.value = true
   result.value = null
+  selectedSense.value = null
+  currentPhrase.value = ''
 
   try {
     const data = await voicePracticeService.generatePhrase(
       props.targetWord,
       difficulty.value,
     )
-    currentPhrase.value = data.phrase
     currentPhraseData.value = data
+    if (data.senses && data.senses.length > 0) {
+      selectedSense.value = data.senses[0]
+      currentPhrase.value = data.senses[0].phrase
+    }
   } catch {
     showErrorToast('Failed to generate phrase. Please try again.')
   } finally {
     isGenerating.value = false
   }
+}
+
+const selectSense = (sense: VoicePracticePhraseSense) => {
+  selectedSense.value = sense
+  currentPhrase.value = sense.phrase
+  result.value = null
 }
 
 const toggleRecording = async () => {
@@ -348,7 +395,7 @@ watch(
 )
 
 watch(difficulty, () => {
-  if (props.isOpen && currentPhrase.value) {
+  if (props.isOpen && currentPhraseData.value?.senses?.length) {
     generatePhrase()
   }
 })

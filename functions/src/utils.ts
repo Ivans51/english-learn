@@ -121,6 +121,8 @@ export async function callMistralAPI(prompt: string): Promise<string | null> {
       },
       body: JSON.stringify({
         "model": "codestral-latest",
+        "temperature": 0.8,
+        "top_p": 0.95,
         "messages": [
           {
             "role": "user",
@@ -312,50 +314,73 @@ Respond with ONLY the category name, no explanation, no markdown, no quotes.`;
 }
 
 export function generateVoicePracticePhrasePrompt(word: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
-  const timestamp = Date.now();
-  const randomVariation = timestamp % 10000;
+  const requestId = crypto.randomUUID();
 
-  const sentenceStarters = {
-    easy: ["I like", "I have", "I want", "The", "My"],
-    medium: ["Yesterday I", "I always", "When I", "If I", "I think that"],
-    hard: ["If I had", "I wish I", "The moment I", "Not only did I", "I should have"]
-  };
+  return `Generate diverse English examples for the word "${word}" showing different meanings, contexts, and usage types.
 
-  const contexts = {
-    easy: ["at home", "at school", "every day", "with my friend", "in the morning"],
-    medium: ["when I was younger", "last weekend", "during my vacation", "at the restaurant", "at work"],
-    hard: ["had I known", "I realized too late", "I finally understood", "I couldn't believe", "it struck me"]
-  };
-
-  const starters = sentenceStarters[difficulty];
-  const contextsList = contexts[difficulty];
-  const randomStarter = starters[Math.floor(Math.random() * starters.length)];
-  const randomContext = contextsList[Math.floor(Math.random() * contextsList.length)];
-
-  return `Generate a simple English practice sentence using the word "${word}" at ${difficulty} difficulty.
+CRITICAL INSTRUCTION: You MUST generate DIVERSE examples showing literal, idiomatic, colloquial, and different contextual uses. Avoid repeating the same type of sentence.
 
 ABSOLUTE REQUIREMENTS:
-1. Create a sentence that includes the word "${word}"
-2. Make it simple and natural for English learners
-3. Keep the sentence length appropriate for ${difficulty} level
+1. Generate 3-5 DIFFERENT senses/examples of "${word}"
+2. Include at least one LITERAL use (basic meaning)
+3. Include IDIOMATIC or COLLOQUIAL uses when applicable (metaphors, expressions, slang)
+4. Vary sentence structures: statements, questions, exclamations, passive, etc.
+5. Vary tenses: present, past, future, present perfect
+6. Each example must be genuinely different in meaning or context
 
-Current request ID: ${randomVariation}
+Sense types to include:
+- "literal": Basic, dictionary definition usage
+- "idiomatic": Expressions, metaphors, figurative language
+- "slang": Informal/colloquial usage
+- "colloquial": Common everyday speech patterns
+- "formal": Professional or academic contexts
 
 JSON response format:
 {
-  "phrase": "Your practice sentence here using ${word}",
-  "translation": "Simple translation in Spanish (or empty if English only)",
-  "grammarFocus": "Main grammar point or vocabulary focus"
+  "word": "${word}",
+  "senses": [
+    {
+      "phrase": "I ate a banana for breakfast.",
+      "translation": "Comí una banana para el desayuno.",
+      "grammarFocus": "Simple past tense",
+      "senseType": "literal"
+    },
+    {
+      "phrase": "That guy is such a banana!",
+      "translation": "¡Ese tipo es un banana!",
+      "grammarFocus": "Colloquial expression, metaphor",
+      "senseType": "idiomatic"
+    }
+  ]
 }
 
-Example for word "apple" (easy):
+Examples:
+For word "break" (medium):
 {
-  "phrase": "I eat an apple every morning.",
-  "translation": "Como una manzana todas las mañanas.",
-  "grammarFocus": "Present simple tense, countable nouns"
+  "word": "break",
+  "senses": [
+    {
+      "phrase": "I need to take a break from work.",
+      "translation": "Necesito tomar un descanso del trabajo.",
+      "grammarFocus": "Infinitive verb after modal",
+      "senseType": "literal"
+    },
+    {
+      "phrase": "Break a leg!",
+      "translation": "¡Mucha suerte! (Literally: ¡Rómpete una pierna!)",
+      "grammarFocus": "Idiomatic expression, imperative",
+      "senseType": "idiomatic"
+    },
+    {
+      "phrase": "The news broke late last night.",
+      "translation": "La noticia se publicó/entró anoche.",
+      "grammarFocus": "Past tense of intransitive verb",
+      "senseType": "literal"
+    }
+  ]
 }
 
-Make the sentence engaging and relevant for practice!`;
+Generate diverse, interesting examples now! Request ID: ${requestId}`;
 }
 
 export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
