@@ -176,6 +176,31 @@ class TopicService {
       throw error
     }
   }
+
+  async translateText(text: string, targetLanguage: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/translate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          targetLanguage,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      return result.translation || ''
+    } catch (error) {
+      console.error('Error translating text:', error)
+      throw error
+    }
+  }
 }
 
 export const topicService = new TopicService()

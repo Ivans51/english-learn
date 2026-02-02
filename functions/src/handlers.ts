@@ -9,6 +9,7 @@ import {
   GrammarCheckRequest,
   PracticePhraseRequest,
   Topic,
+  TranslateRequest,
   UpdateTopicRequest,
   VocabularyWord,
   VoicePracticeRequest,
@@ -924,6 +925,76 @@ export async function handleGenerateVoicePracticePhrase(
     return SuccessResponses.ok(parsedResponse, corsHeaders);
   } catch (error) {
     logError('handleGenerateVoicePracticePhrase', error);
+    return ErrorResponses.invalidRequestBody(corsHeaders);
+  }
+}
+
+export async function handleTranslateRequest(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: TranslateRequest = await request.json();
+    const { text, targetLanguage, userId = 'anonymous' } = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['text', 'targetLanguage'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const languageNames: Record<string, string> = {
+      es: 'Spanish',
+      fr: 'French',
+      de: 'German',
+      it: 'Italian',
+      pt: 'Portuguese',
+      ru: 'Russian',
+      zh: 'Chinese',
+      ja: 'Japanese',
+      ko: 'Korean',
+    };
+
+    const languageName = languageNames[targetLanguage.toLowerCase()] || targetLanguage;
+    const translationPrompt = `Translate the following text to ${languageName}:\n\n"${text}"\n\nRespond with a JSON object:\n{\n  "translation": "translated text here"\n}`;
+
+    const mistralResponse = await callMistralAPI(translationPrompt);
+
+    if (!mistralResponse) {
+      return ErrorResponses.internalServerError('Failed to translate text', corsHeaders);
+    }
+
+    let translation: string;
+    try {
+      const jsonMatch = mistralResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+      let jsonText: string;
+
+      if (jsonMatch) {
+        jsonText = jsonMatch[1].trim();
+      } else {
+        const directJsonMatch = mistralResponse.match(/\{[\s\S]*\}/);
+        if (directJsonMatch) {
+          jsonText = directJsonMatch[0];
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      }
+
+      const parsed = JSON.parse(jsonText);
+      translation = parsed.translation || text;
+    } catch (parseError) {
+      console.warn('Failed to parse translation response as JSON:', parseError);
+      const match = mistralResponse.match(/["']?translation["']?\s*:\s*["']([^"']+)["']/i);
+      translation = match ? match[1] : text;
+    }
+
+    return SuccessResponses.ok({ translation }, corsHeaders);
+  } catch (error) {
+    logError('handleTranslateRequest', error);
     return ErrorResponses.invalidRequestBody(corsHeaders);
   }
 }

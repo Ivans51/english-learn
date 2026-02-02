@@ -13,6 +13,7 @@ import {
   handleGetTopics,
   handleGetVocabularyWords,
   handleGrammarCheck,
+  handleTranslateRequest,
   handleUpdateCategory,
   handleUpdateTopic,
   handleUpdateVocabularyWord,
@@ -96,6 +97,11 @@ export async function handleApiRequest(
   // Generate voice practice phrase endpoint
   if (url.pathname === '/api/voice-practice-phrase' && request.method === 'POST') {
     return handleGenerateVoicePracticePhrase(request, env, corsHeaders);
+  }
+
+  // Translate endpoint
+  if (url.pathname === '/api/translate' && request.method === 'POST') {
+    return handleTranslateRequest(request, env, corsHeaders);
   }
 
   // 404 for unknown API routes

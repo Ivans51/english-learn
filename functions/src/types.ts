@@ -118,3 +118,9 @@ export interface VoicePracticePhraseResponse {
   translation?: string;
   grammarFocus?: string;
 }
+
+export interface TranslateRequest {
+  text: string;
+  targetLanguage: string;
+  userId?: string;
+}

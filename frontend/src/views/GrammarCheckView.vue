@@ -109,8 +109,25 @@
                   }"
                   v-html="message.content"
                 ></div>
-                <div class="text-xs opacity-70 mt-1">
-                  {{ message.timestamp.toLocaleTimeString() }}
+                <div
+                  v-if="message.showTranslation && message.translation"
+                  class="mt-2 p-2 rounded bg-primary-800/50 border border-primary-700 text-blue-300 text-sm"
+                >
+                  <span class="font-medium text-xs text-blue-400 block mb-1">ES:</span>
+                  {{ message.translation }}
+                </div>
+                <div class="text-xs opacity-70 mt-1 flex items-center">
+                  <span>{{ message.timestamp.toLocaleTimeString() }}</span>
+                  <button
+                    v-if="message.type === 'assistant' && !message.isLoading"
+                    @click="translateMessage(message)"
+                    :disabled="message.isTranslating"
+                    class="ml-2 text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                  >
+                    <span v-if="message.isTranslating">...</span>
+                    <span v-else-if="message.showTranslation && message.translation">Hide ES</span>
+                    <span v-else>Translate to ES</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -178,6 +195,9 @@ interface ChatMessage {
   timestamp: Date
   isLoading?: boolean
   isCorrect?: boolean
+  translation?: string
+  showTranslation?: boolean
+  isTranslating?: boolean
 }
 
 interface GrammarCheckResult {
@@ -187,7 +207,7 @@ interface GrammarCheckResult {
 }
 
 const router = useRouter()
-const { success: showSuccessToast, error: showErrorToast } = useToast()
+const { error: showErrorToast } = useToast()
 
 const currentMessage = ref('')
 const chatMessages = ref<ChatMessage[]>([])
@@ -415,6 +435,31 @@ const scrollToBottom = async () => {
         chatContainer.scrollTop = chatContainer.scrollHeight
       }
     }, 50)
+  }
+}
+
+const translateMessage = async (message: ChatMessage) => {
+  if (message.isTranslating) return
+
+  if (message.translation) {
+    message.showTranslation = !message.showTranslation
+    return
+  }
+
+  message.isTranslating = true
+
+  try {
+    const translation = await topicService.translateText(
+      message.content.replace(/<[^>]*>/g, ''),
+      'es',
+    )
+    message.translation = translation
+    message.showTranslation = true
+  } catch (error) {
+    console.error('Error translating message:', error)
+    showErrorToast('Failed to translate. Please try again.')
+  } finally {
+    message.isTranslating = false
   }
 }
 
