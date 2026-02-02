@@ -51,3 +51,16 @@ export interface CreateTopicWordsResponse {
   totalWords: number
   successfullyCreated: number
 }
+
+export interface VoicePracticeResult {
+  transcription: string
+  score: number
+  feedback: string
+  isCorrect: boolean
+}
+
+export interface VoicePracticePhrase {
+  phrase: string
+  translation?: string
+  grammarFocus?: string
+}

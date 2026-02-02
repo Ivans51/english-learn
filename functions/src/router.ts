@@ -9,12 +9,14 @@ import {
   handleDeleteVocabularyWord,
   handleExplainWordRequest,
   handleGeneratePracticePhrase,
+  handleGenerateVoicePracticePhrase,
   handleGetTopics,
   handleGetVocabularyWords,
   handleGrammarCheck,
   handleUpdateCategory,
   handleUpdateTopic,
-  handleUpdateVocabularyWord
+  handleUpdateVocabularyWord,
+  handleVoicePractice,
 } from './handlers';
 import {corsHeaders, setGlobalEnv} from './utils';
 
@@ -84,6 +86,16 @@ export async function handleApiRequest(
   // Create topic words endpoint
   if (url.pathname === '/api/create-topic-words' && request.method === 'POST') {
     return handleCreateTopicWords(request, env, corsHeaders);
+  }
+
+  // Voice practice endpoint
+  if (url.pathname === '/api/voice-practice' && request.method === 'POST') {
+    return handleVoicePractice(request, env, corsHeaders);
+  }
+
+  // Generate voice practice phrase endpoint
+  if (url.pathname === '/api/voice-practice-phrase' && request.method === 'POST') {
+    return handleGenerateVoicePracticePhrase(request, env, corsHeaders);
   }
 
   // 404 for unknown API routes

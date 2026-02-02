@@ -7,6 +7,9 @@ compatibility_date = "2023-10-30"
 # account_id = "" # Removed as it's an empty string and not needed for `wrangler dev`
 workers_dev = true
 
+[ai]
+binding = "AI"
+
 [env.development.vars] # Define development-specific variables here
 # Development environment variables - set these using wrangler secrets for security:
 # wrangler secret put FIREBASE_PROJECT_ID --env development

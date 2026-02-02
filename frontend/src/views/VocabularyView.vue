@@ -386,6 +386,13 @@
                     {{ word.status }}
                   </span>
                   <button
+                    @click.stop="openVoicePracticeModal(word.term)"
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    title="Practice pronunciation"
+                  >
+                    <Mic class="w-4 h-4" />
+                  </button>
+                  <button
                     @click="openGrammarCheck(uid, word.term)"
                     class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
                     title="Practice grammar"
@@ -467,18 +474,26 @@
       @edit-word="openEditWordModal"
       @delete-word="deleteWord"
     />
+
+    <!-- Voice Practice Modal -->
+    <VoicePracticeModal
+      :is-open="showVoicePracticeModal"
+      :target-word="selectedWordForVoicePractice"
+      @close="showVoicePracticeModal = false"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Layers, List, MessageCircle, Plus, Search, Settings, X } from 'lucide-vue-next'
+import { BookOpen, Layers, List, MessageCircle, Mic, Plus, Search, Settings, X } from 'lucide-vue-next'
 import { marked } from 'marked'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
 import TopicWordsModal from '@/components/TopicWordsModal.vue'
 import WordDetailsModal from '@/components/WordDetailsModal.vue'
+import VoicePracticeModal from '@/components/VoicePracticeModal.vue'
 import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
@@ -517,6 +532,8 @@ const selectedWordForDetails = ref<{
 } | null>(null)
 const showTopicWordsModal = ref(false)
 const showSearchFilter = ref(false)
+const showVoicePracticeModal = ref(false)
+const selectedWordForVoicePractice = ref('')
 const viewMode = ref<'grid' | 'list'>(
   (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
 )
@@ -632,6 +649,11 @@ const openTopicWordsModal = () => {
 
 const closeTopicWordsModal = () => {
   showTopicWordsModal.value = false
+}
+
+const openVoicePracticeModal = (word: string) => {
+  selectedWordForVoicePractice.value = word
+  showVoicePracticeModal.value = true
 }
 
 const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {

@@ -1,3 +1,5 @@
+import { Ai } from '@cloudflare/workers-types';
+
 export interface Env {
   // Define your environment bindings here
   GEMINI_API_KEY: string;
@@ -6,6 +8,7 @@ export interface Env {
   FIREBASE_PROJECT_ID: string;
   FIREBASE_DATABASE_URL: string;
   FIREBASE_SERVICE_ACCOUNT_KEY: string;
+  AI: Ai;
 }
 
 export interface Category {
@@ -88,4 +91,30 @@ export interface CreateTopicWordsRequest {
 export interface CreateCategoryRequest {
   name: string;
   userId?: string;
+}
+
+export interface VoicePracticeRequest {
+  audio: string;
+  targetPhrase: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  userId?: string;
+}
+
+export interface VoicePracticeResponse {
+  transcription: string;
+  score: number;
+  feedback: string;
+  isCorrect: boolean;
+}
+
+export interface VoicePracticePhraseRequest {
+  word: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  userId?: string;
+}
+
+export interface VoicePracticePhraseResponse {
+  phrase: string;
+  translation?: string;
+  grammarFocus?: string;
 }

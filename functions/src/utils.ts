@@ -311,6 +311,53 @@ export function generateCategorySuggestionPrompt(term: string): string {
 Respond with ONLY the category name, no explanation, no markdown, no quotes.`;
 }
 
+export function generateVoicePracticePhrasePrompt(word: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
+  const timestamp = Date.now();
+  const randomVariation = timestamp % 10000;
+
+  const sentenceStarters = {
+    easy: ["I like", "I have", "I want", "The", "My"],
+    medium: ["Yesterday I", "I always", "When I", "If I", "I think that"],
+    hard: ["If I had", "I wish I", "The moment I", "Not only did I", "I should have"]
+  };
+
+  const contexts = {
+    easy: ["at home", "at school", "every day", "with my friend", "in the morning"],
+    medium: ["when I was younger", "last weekend", "during my vacation", "at the restaurant", "at work"],
+    hard: ["had I known", "I realized too late", "I finally understood", "I couldn't believe", "it struck me"]
+  };
+
+  const starters = sentenceStarters[difficulty];
+  const contextsList = contexts[difficulty];
+  const randomStarter = starters[Math.floor(Math.random() * starters.length)];
+  const randomContext = contextsList[Math.floor(Math.random() * contextsList.length)];
+
+  return `Generate a simple English practice sentence using the word "${word}" at ${difficulty} difficulty.
+
+ABSOLUTE REQUIREMENTS:
+1. Create a sentence that includes the word "${word}"
+2. Make it simple and natural for English learners
+3. Keep the sentence length appropriate for ${difficulty} level
+
+Current request ID: ${randomVariation}
+
+JSON response format:
+{
+  "phrase": "Your practice sentence here using ${word}",
+  "translation": "Simple translation in Spanish (or empty if English only)",
+  "grammarFocus": "Main grammar point or vocabulary focus"
+}
+
+Example for word "apple" (easy):
+{
+  "phrase": "I eat an apple every morning.",
+  "translation": "Como una manzana todas las mañanas.",
+  "grammarFocus": "Present simple tense, countable nouns"
+}
+
+Make the sentence engaging and relevant for practice!`;
+}
+
 export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
   // Add Markdown formatting to highlight important parts
   let markedUpText = geminiResponse;

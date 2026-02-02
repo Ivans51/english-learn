@@ -10,7 +10,11 @@ import {
   PracticePhraseRequest,
   Topic,
   UpdateTopicRequest,
-  VocabularyWord
+  VocabularyWord,
+  VoicePracticeRequest,
+  VoicePracticeResponse,
+  VoicePracticePhraseRequest,
+  VoicePracticePhraseResponse,
 } from './types';
 import {
   addHTMLMarkup,
@@ -19,6 +23,7 @@ import {
   generateExplanationPrompt,
   generateGrammarCheckPrompt,
   generatePracticePhrasePrompt,
+  generateVoicePracticePhrasePrompt,
 } from './utils';
 import {
   deleteCategory,
@@ -702,5 +707,223 @@ export async function handleCreateTopicWords(
   } catch (error) {
     logError('handleCreateTopicWords', error);
     return ErrorResponses.internalServerError('Failed to create topic words', corsHeaders);
+  }
+}
+
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length;
+  const n = str2.length;
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      }
+    }
+  }
+
+  return dp[m][n];
+}
+
+function calculateWordSimilarity(transcribed: string, target: string): number {
+  const transWords = transcribed.toLowerCase().trim().split(/\s+/);
+  const targetWords = target.toLowerCase().trim().split(/\s+/);
+
+  if (transWords.length === 0 && targetWords.length === 0) return 100;
+  if (transWords.length === 0 || targetWords.length === 0) return 0;
+
+  let totalSimilarity = 0;
+  let matchedTargetWords = 0;
+
+  for (const tWord of targetWords) {
+    let bestSimilarity = 0;
+    for (const sWord of transWords) {
+      const maxLen = Math.max(tWord.length, sWord.length);
+      if (maxLen === 0) {
+        bestSimilarity = Math.max(bestSimilarity, 100);
+        continue;
+      }
+      const distance = levenshteinDistance(tWord, sWord);
+      const similarity = ((maxLen - distance) / maxLen) * 100;
+      bestSimilarity = Math.max(bestSimilarity, similarity);
+    }
+    totalSimilarity += bestSimilarity;
+    matchedTargetWords++;
+  }
+
+  return totalSimilarity / matchedTargetWords;
+}
+
+function base64ToNumberArray(base64: string): number[] {
+  const binaryString = atob(base64);
+  const numbers: number[] = [];
+  for (let i = 0; i < binaryString.length; i++) {
+    numbers.push(binaryString.charCodeAt(i));
+  }
+  return numbers;
+}
+
+export async function handleVoicePractice(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: VoicePracticeRequest = await request.json();
+    const { audio, targetPhrase, userId = 'anonymous' } = body;
+
+    if (!audio || audio.length === 0) {
+      return ErrorResponses.badRequest('Audio data is empty', corsHeaders);
+    }
+
+    const validationError = validateRequiredFields(
+      body,
+      ['audio', 'targetPhrase'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    let transcription: string;
+    try {
+      const audioArray = base64ToNumberArray(audio);
+      const whisperResult = await env.AI.run('@cf/openai/whisper', {
+        audio: audioArray,
+      } as any) as { text?: string };
+      transcription = whisperResult?.text || '';
+    } catch (whisperError) {
+      console.error('Whisper transcription error:', whisperError);
+      return ErrorResponses.internalServerError('Failed to transcribe audio', corsHeaders);
+    }
+
+    const normalizedTranscription = transcription.toLowerCase().trim();
+    const normalizedTarget = targetPhrase.toLowerCase().trim();
+    const score = calculateWordSimilarity(normalizedTranscription, normalizedTarget);
+    const isCorrect = score >= 80;
+
+    let feedback: string;
+    if (isCorrect) {
+      feedback = 'Great pronunciation! Keep up the excellent work.';
+    } else {
+      const feedbackPrompt = `You are an English pronunciation coach. The user was asked to say: "${targetPhrase}" but they said: "${transcription}". The similarity score is ${score.toFixed(1)}%.
+
+Provide specific, actionable feedback to help them improve. Focus on:
+1. What sounds or words were mispronounced
+2. Specific tips to improve (e.g., "emphasize the 'l' sound", "say this syllable more slowly")
+3. Keep feedback concise and encouraging
+
+Respond with a JSON object:
+{
+  "feedback": "Your specific feedback here"
+}`;
+
+      const geminiFeedback = await callMistralAPI(feedbackPrompt);
+      if (geminiFeedback) {
+        try {
+          const jsonMatch = geminiFeedback.match(/```json\s*([\s\S]*?)\s*```/i);
+          let jsonText = '';
+          if (jsonMatch) {
+            jsonText = jsonMatch[1].trim();
+          } else {
+            const directJsonMatch = geminiFeedback.match(/\{[\s\S]*\}/);
+            jsonText = directJsonMatch ? directJsonMatch[0] : '';
+          }
+          const parsed = JSON.parse(jsonText);
+          feedback = parsed.feedback || 'Try again with more emphasis on the target words.';
+        } catch {
+          feedback = 'Try again with more emphasis on the target words.';
+        }
+      } else {
+        feedback = 'Try again with more emphasis on the target words.';
+      }
+    }
+
+    return SuccessResponses.ok({
+      transcription,
+      score: Math.round(score),
+      feedback,
+      isCorrect,
+    }, corsHeaders);
+  } catch (error) {
+    logError('handleVoicePractice', error);
+    return ErrorResponses.invalidRequestBody(corsHeaders);
+  }
+}
+
+export async function handleGenerateVoicePracticePhrase(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: VoicePracticePhraseRequest = await request.json();
+    const { word, difficulty = 'medium', userId = 'anonymous' } = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['word'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const prompt = generateVoicePracticePhrasePrompt(word, difficulty);
+    const geminiResponse = await callMistralAPI(prompt);
+
+    if (!geminiResponse) {
+      return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);
+    }
+
+    let parsedResponse: VoicePracticePhraseResponse;
+    try {
+      const jsonMatch = geminiResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+      let jsonText: string;
+
+      if (jsonMatch) {
+        jsonText = jsonMatch[1].trim();
+      } else {
+        const directJsonMatch = geminiResponse.match(/\{[\s\S]*\}/);
+        if (directJsonMatch) {
+          jsonText = directJsonMatch[0];
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      }
+
+      parsedResponse = JSON.parse(jsonText);
+
+      if (typeof parsedResponse !== 'object' || parsedResponse === null || !('phrase' in parsedResponse)) {
+        throw new Error('Invalid response structure');
+      }
+    } catch (parseError) {
+      console.warn('Failed to parse Gemini response as JSON:', parseError);
+
+      const cleanedResponse = geminiResponse
+        .replace(/```json\s*/gi, '')
+        .replace(/```\s*$/gi, '')
+        .trim();
+
+      const phraseMatch = cleanedResponse.match(/["']?phrase["']?\s*:\s*["']([^"']+)["']/i);
+      const extractedPhrase = phraseMatch ? phraseMatch[1] : cleanedResponse;
+
+      parsedResponse = {
+        phrase: extractedPhrase,
+        translation: '',
+        grammarFocus: 'General practice'
+      };
+    }
+
+    return SuccessResponses.ok(parsedResponse, corsHeaders);
+  } catch (error) {
+    logError('handleGenerateVoicePracticePhrase', error);
+    return ErrorResponses.invalidRequestBody(corsHeaders);
   }
 }
