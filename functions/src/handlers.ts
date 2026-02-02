@@ -9,20 +9,16 @@ import {
   GrammarCheckRequest,
   PracticePhraseRequest,
   Topic,
-  TopicWord,
   UpdateTopicRequest,
   VocabularyWord
 } from './types';
 import {
   addHTMLMarkup,
-  callGeminiAPI,
   callMistralAPI,
-  callOpenRouterAPI,
   generateCategorySuggestionPrompt,
   generateExplanationPrompt,
   generateGrammarCheckPrompt,
   generatePracticePhrasePrompt,
-  generateTopicWordsPrompt
 } from './utils';
 import {
   deleteCategory,
@@ -35,7 +31,6 @@ import {
   getVocabularyWords,
   storeCategory,
   storeTopic,
-  storeVocabularyWord,
   updateCategory,
   updateTopic,
   updateVocabularyWord
@@ -352,7 +347,7 @@ export async function handleGrammarCheck(
     }
 
     const grammarPrompt = generateGrammarCheckPrompt(input, topic);
-    const geminiResponse = await callOpenRouterAPI(grammarPrompt);
+    const geminiResponse = await callMistralAPI(grammarPrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate grammar feedback', corsHeaders);
@@ -438,7 +433,7 @@ export async function handleGeneratePracticePhrase(
     }
 
     const practicePrompt = generatePracticePhrasePrompt(topic, difficulty);
-    const geminiResponse = await callOpenRouterAPI(practicePrompt);
+    const geminiResponse = await callMistralAPI(practicePrompt);
 
     if (!geminiResponse) {
       return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);

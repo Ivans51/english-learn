@@ -68,12 +68,6 @@ const closeMobileMenu = () => {
             >
               My Vocabulary
             </router-link>
-            <router-link
-              to="/learning-topics"
-              class="hidden md:inline-block text-primary-700 dark:text-primary-50 hover:text-primary-900 dark:hover:text-primary-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              Learning by Topics
-            </router-link>
           </template>
         </div>
 
@@ -234,13 +228,6 @@ const closeMobileMenu = () => {
               class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
             >
               My Vocabulary
-            </router-link>
-            <router-link
-              to="/learning-topics"
-              @click="closeMobileMenu"
-              class="text-white text-2xl font-medium hover:text-gray-300 transition-colors"
-            >
-              Learning by Topics
             </router-link>
             <router-link
               to="/profile"

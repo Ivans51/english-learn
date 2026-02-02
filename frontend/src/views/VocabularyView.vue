@@ -385,6 +385,13 @@
                   >
                     {{ word.status }}
                   </span>
+                  <button
+                    @click="openGrammarCheck(uid, word.term)"
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    title="Practice grammar"
+                  >
+                    <MessageCircle class="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
@@ -466,7 +473,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Layers, List, Plus, Search, Settings, X } from 'lucide-vue-next'
+import { BookOpen, Layers, List, MessageCircle, Plus, Search, Settings, X } from 'lucide-vue-next'
 import { marked } from 'marked'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
@@ -510,8 +517,20 @@ const selectedWordForDetails = ref<{
 } | null>(null)
 const showTopicWordsModal = ref(false)
 const showSearchFilter = ref(false)
-const viewMode = ref<'grid' | 'list'>('grid')
+const viewMode = ref<'grid' | 'list'>(
+  (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
+)
+
+watch(viewMode, (newMode) => {
+  localStorage.setItem('vocabularyViewMode', newMode)
+})
+
 const renderedDescriptions = ref<Record<string, string>>({})
+
+const openGrammarCheck = (uid: string, term: string) => {
+  sessionStorage.setItem('grammarCheckFrom', '/vocabulary')
+  router.push(`/grammar-check/${uid}/${encodeURIComponent(term)}`)
+}
 
 // Watch for changes in the firebaseUser
 watch(

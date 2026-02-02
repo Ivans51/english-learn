@@ -53,7 +53,7 @@
               class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-900 transition-colors cursor-pointer"
             >
               <Plus class="h-4 w-4 mr-2" />
-              Generate Practice Phrase
+              Generate Phrase
               <kbd class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono">Ctrl+K</kbd>
             </button>
           </div>
@@ -70,7 +70,7 @@
       <div class="mt-6">
         <div
           id="chat-container"
-          class="h-[calc(100vh-400px)] min-h-[300px] max-h-[600px] overflow-y-auto border border-primary-700 rounded-lg p-4 bg-black dark:bg-primary-900"
+          class="h-[calc(100vh-400px)] min-h-[300px] max-h-[600px] overflow-y-auto rounded-lg p-4 bg-black"
         >
           <div
             v-if="chatMessages.length === 0"
@@ -102,8 +102,8 @@
                 <div
                   v-else
                   class="markdown-content"
-                  :class="{ 
-                    'correct-feedback': message.isCorrect, 
+                  :class="{
+                    'correct-feedback': message.isCorrect,
                     'incorrect-feedback': message.isCorrect === false,
                     'practice-feedback': message.isCorrect === undefined && message.type === 'assistant'
                   }"
@@ -132,6 +132,9 @@
               class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black dark:bg-primary-900 text-primary-50 dark:text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
               :disabled="isLoading"
             />
+            <div class="text-xs text-gray-500 mt-1 ml-1">
+              Press <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd> to focus
+            </div>
           </div>
           <div>
             <button
@@ -190,9 +193,10 @@ const currentMessage = ref('')
 const chatMessages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
+const from = ref(sessionStorage.getItem('grammarCheckFrom') || '/learning-topics')
 
 const goBack = () => {
-  router.push('/learning-topics')
+  router.push(from.value)
 }
 
 const focusInput = async () => {
@@ -360,8 +364,6 @@ const generatePracticePhrase = async () => {
       'anonymous',
     )
 
-    console.log('Generated practice phrase result:', result)
-
     chatMessages.value = chatMessages.value.filter((msg) => !msg.isLoading)
 
     const phraseContent = `## Practice Phrase\n\n**Topic:** ${props.topicTitle}\n\n"${result.phrase}"\n\n${result.grammarFocus ? `**Grammar Focus:** ${result.grammarFocus}\n\n` : ''}${result.translation ? `**Translation:** ${result.translation}\n\n` : ''}`
@@ -374,8 +376,6 @@ const generatePracticePhrase = async () => {
       timestamp: new Date(),
     }
     chatMessages.value.push(assistantMessage)
-
-    showSuccessToast('New practice phrase generated!')
 
     await nextTick()
     scrollToBottom()
@@ -442,6 +442,10 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     event.preventDefault()
     generatePracticePhrase()
   }
+  if (event.ctrlKey && event.key === 'f') {
+    event.preventDefault()
+    focusInput()
+  }
 }
 
 onMounted(() => {
@@ -453,3 +457,23 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleGlobalKeydown)
 })
 </script>
+
+<style scoped>
+#chat-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chat-container::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 4px;
+}
+
+#chat-container::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+#chat-container::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+</style>
