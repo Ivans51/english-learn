@@ -27,11 +27,6 @@
               Learning by Topics
             </h1>
           </div>
-          <p
-            class="text-sm sm:text-base text-primary-600 dark:text-primary-400"
-          >
-            Organize your English learning by topics and categories
-          </p>
         </div>
       </div>
 

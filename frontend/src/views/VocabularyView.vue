@@ -622,6 +622,14 @@ const loadWordsFromFirebase = async () => {
     const firebaseData = await vocabularyWordsService.getWords(userId.value)
     vocabularyData.value = firebaseData
     categories.value = firebaseData.categories
+
+    // Auto-select "Learning" category if it exists
+    const learningCategoryId = Object.keys(categories.value).find((id) =>
+      categories.value[id]?.name.toLowerCase() === 'learning',
+    )
+    if (learningCategoryId) {
+      selectedCategory.value = learningCategoryId
+    }
   } catch (error) {
     console.error('Error loading words from Firebase:', error)
     vocabularyData.value = { vocabulary: {}, categories: {} }

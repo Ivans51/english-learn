@@ -32,3 +32,4 @@ dist-ssr
 .DS_Store
 *.tsbuildinfo
 coverage
+dev-dist
