@@ -1,204 +1,142 @@
 # AGENTS.md
 
-This file provides guidelines for AI coding agents working on the English Learn project.
+Guidelines for AI agents working on the English Learn project.
 
 ## Project Overview
 
-English Learn is a full-stack monorepo with Vue.js 3 frontend (TypeScript, Tailwind CSS) and Cloudflare Workers backend. The application provides AI-powered English learning with Google Gemini integration, vocabulary management, and Firebase Realtime Database.
+Full-stack monorepo: Vue.js 3 frontend (TypeScript, Tailwind CSS) + Cloudflare Workers backend. Features AI-powered English learning with vocabulary management and Firebase Realtime Database.
 
-## Build, Lint, and Test Commands
+## Commands
 
-### Root Commands (Monorepo)
-
+### Root (monorepo)
 ```bash
-pnpm run dev                    # Start both frontend and backend dev servers
-pnpm run dev:frontend           # Start only Vue.js frontend (port 5173)
-pnpm run dev:functions          # Start only Cloudflare Workers (port 8787)
-pnpm run build                  # Build both projects for production
-pnpm run install:all            # Install all dependencies
+pnpm run dev                    # Both frontend + backend
+pnpm run dev:frontend           # Vue.js only (port 5173)
+pnpm run dev:functions          # Workers only (port 8787)
+pnpm run build                  # Build for production
 ```
 
-### Frontend Commands (in `frontend/` directory)
-
+### Frontend (`frontend/`)
 ```bash
-pnpm run dev                    # Vite development server
-pnpm run build                  # Production build with type-checking
-pnpm run preview                # Preview production build
-pnpm run type-check             # Run vue-tsc type-checking only
-pnpm run lint                   # Run ESLint and auto-fix issues
+pnpm run dev                    # Vite dev server
+pnpm run build                  # Production build + type-check
+pnpm run type-check             # vue-tsc only
+pnpm run lint                   # ESLint + auto-fix
+pnpm test                       # Vitest watch mode
+pnpm run test:run               # Single test run
+pnpm run test:coverage          # With coverage report
 ```
 
-### Backend Commands (in `functions/` directory)
-
+### Backend (`functions/`)
 ```bash
-pnpm run dev                    # Start Wrangler dev server
-pnpm run deploy                 # Deploy to Cloudflare Workers
+pnpm run dev                    # Wrangler dev server
+pnpm run deploy                 # Deploy to Cloudflare
+pnpm test                       # Vitest
+pnpm run test:run               # Single run
 ```
 
-## Code Style Guidelines
+## Code Style
 
-### General Principles
+### TypeScript
+- `strict: true` in tsconfig
+- Define interfaces for all data structures (`frontend/src/types.ts`)
+- Proper typing for refs: `const foo = ref<Type>(initialValue)`
+- Avoid `any` - use `unknown` with type guards
+- Prefer `interface` over `type` for objects
 
-- Write clean, self-documenting code with minimal comments
-- Prefer explicit over implicit
-- Keep functions small and focused on single responsibility
-- Use descriptive variable and function names
-- Handle errors gracefully with user-friendly messages
-
-### TypeScript Usage
-
-- Enable `strict: true` in tsconfig
-- Define interfaces for all data structures (see `frontend/src/types.ts`)
-- Use explicit return types for functions where beneficial
-- Prefer `interface` over `type` for object shapes
-- Use proper typing for Vue refs: `const foo = ref<Type>(initialValue)`
-- Avoid `any` - use `unknown` with proper type guards if needed
-
-### Vue.js Components
-
-- Use `<script setup lang="ts">` for all components
-- Define Props and Emits with TypeScript:
+### Vue Components
+- Use `<script setup lang="ts">`
+- Define Props/Emits with TypeScript:
   ```typescript
-  interface Props {
-    visible: boolean;
-    selectedWord: string;
-  }
+  interface Props { visible: boolean; }
   defineProps<Props>();
-  defineEmits<{ explain: [word: string]; close: [] }>();
+  defineEmits<{ close: [] }>();
   ```
-- Use Composition API with `ref`, `computed`, `watch`, lifecycle hooks
+- Composition API: `ref`, `computed`, `watch`, lifecycle hooks
 
-### Imports and Module Organization
-
-- Use absolute imports with `@/` alias for internal modules
-- Sort imports alphabetically within groups
-- Separate third-party imports from local imports
-- Singleton pattern for services (`export const categoryService = new CategoryService()`)
+### Imports
+- Use `@/` alias for internal modules
+- Sort alphabetically within groups
+- Separate third-party from local imports
+- Singleton pattern for services: `export const service = new Service()`
 
 Example:
-
 ```typescript
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { ArrowLeft, Plus } from "lucide-vue-next";
-import MainHeader from "@/components/MainHeader.vue";
+import { Mic } from "lucide-vue-next";
+import VoiceModal from "@/components/VoiceModal.vue";
 import { useAuth } from "@/composables/useAuth";
-import { categoryService } from "@/services/categoryService";
+import { voiceService } from "@/services/voiceService";
 ```
 
-### Naming Conventions
-
-- **Files**: PascalCase for components (`.vue`), camelCase for utilities (`.ts`)
-- **Variables/functions**: camelCase
-- **Constants**: SCREAMING_SNAKE_CASE for values
-- **Interfaces**: PascalCase (`interface VocabularyWord`)
-- **Components**: PascalCase in templates (`<MainHeader />`)
-- **CSS classes**: kebab-case with Tailwind utility classes
+### Naming
+- Files: PascalCase (`.vue`), camelCase (`.ts`)
+- Vars/functions: camelCase
+- Constants: SCREAMING_SNAKE_CASE
+- Interfaces: PascalCase
+- CSS classes: kebab-case (Tailwind)
 
 ### Error Handling
+- Wrap async in try/catch
+- Log with `console.error()` for debugging
+- Show user-friendly messages via `useToast`
+- Always provide loading states
 
-- Wrap async operations in try/catch blocks
-- Log errors with `console.error()` for debugging
-- Show user-friendly error messages via toast notifications
-- Use the `useToast` composable for feedback
-- Always provide loading states for async operations
-
-### API Services Pattern
-
+### API Services
 ```typescript
-class CategoryService {
-  private readonly apiBaseUrl: string;
+class VocabService {
+  private apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:8787";
 
-  constructor() {
-    this.apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:8787";
-  }
-
-  async createCategory(
-    name: string,
-    userId?: string,
-  ): Promise<{ id: string; name: string }> {
-    const url = `${this.apiBaseUrl}/api/categories`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create category: ${response.statusText}`);
-    }
-
-    return await response.json();
+  async fetchWords(userId: string): Promise<Word[]> {
+    const res = await fetch(`${this.apiBaseUrl}/api/words?userId=${userId}`);
+    if (!res.ok) throw new Error(`Failed: ${res.statusText}`);
+    return res.json();
   }
 }
-
-export const categoryService = new CategoryService();
+export const vocabService = new VocabService();
 ```
 
-### Cloudflare Workers Pattern
+### Cloudflare Workers
+- Define Env type in `functions/src/types.ts`
+- Use CORS helpers from `utils.ts`
+- Handle OPTIONS preflight
+- Return JSON responses
 
-- Define Env type in `functions/src/types.ts` with required bindings
-- Use CORS headers helper from `utils.ts` for all responses
-- Handle OPTIONS preflight requests for CORS
-- Return JSON responses with proper error handling
+### Styling
+- Tailwind CSS exclusively
+- Dark mode: `dark:bg-primary-800`, `dark:text-primary-100`
+- Color palette: `primary-*`, `secondary-*`
+- Responsive: `sm:`, `md:`, `lg:` prefixes
 
-### CSS and Styling
+### Firebase
+- Client SDK for auth, Realtime Database for storage
+- `useAuth` composable for authentication
+- Default userId: `'anonymous'` when not authenticated
+- Scope all operations by `userId`
 
-- Use Tailwind CSS utility classes exclusively
-- Follow dark mode pattern: `dark:bg-primary-800`, `dark:text-primary-100`
-- Use `primary-*` and `secondary-*` color palette
-- Responsive classes: `sm:`, `md:`, `lg:` prefixes for breakpoints
-- Use `transition-colors` for hover effects
-
-### Firebase Integration
-
-- Use Firebase client SDK for frontend authentication
-- Firebase Realtime Database for data storage
-- Auth pattern via `useAuth` composable
-- User ID defaults to 'anonymous' when not authenticated
-- All database operations scoped by `userId`
-
-### API Endpoints Pattern
-
-- `POST /api/resource` - Create
-- `GET /api/resource` - List
-- `PUT /api/resource/:id` - Update
-- `DELETE /api/resource/:id` - Delete
-- Query params: `?userId=xxx` for user scoping
-
-### File Structure to Follow
-
+### File Structure
 ```
 frontend/src/
 ├── components/     # Reusable Vue components
-├── composables/    # Vue composables (useAuth, useTheme, useToast)
+├── composables/    # Vue composables
 ├── services/       # API service classes
 ├── views/          # Page components
-├── router/         # Vue Router configuration
+├── router/         # Vue Router
 ├── types.ts        # TypeScript interfaces
-├── utils/          # Utility functions
-└── firebase.ts     # Firebase configuration
+├── utils/          # Utilities
+└── firebase.ts     # Firebase config
 ```
 
-### Linting and Formatting
-
-- Run `pnpm run lint` before committing to auto-fix issues
-- ESLint uses Vue 3 + TypeScript recommended rules
-- Prettier handles code formatting (integrated with ESLint)
-
-### Git Commit Messages
-
+### Git Commits
 Follow Conventional Commits:
+- `feat(view): add pronunciation practice modal`
+- `fix(service): resolve audio upload timeout`
+- `docs: update setup instructions`
 
-- `feat(view): add new category management view`
-- `fix(service): resolve category deletion cascade issue`
-- `docs: update README with new setup instructions`
-
-### Development Workflow
-
-1. Create feature branch: `feature/short-description`
-2. Make changes following these guidelines
-3. Run `pnpm run lint` to fix formatting issues
-4. Run `pnpm run type-check` to verify TypeScript
-5. Test in browser at `http://localhost:5173`
-6. Commit changes with descriptive message
+### Workflow
+1. Create branch: `feature/short-description`
+2. Make changes following guidelines
+3. Run `pnpm run lint` then `pnpm run type-check`
+4. Test at http://localhost:5173
+5. Commit with descriptive message
