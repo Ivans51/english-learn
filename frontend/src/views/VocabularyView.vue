@@ -90,18 +90,18 @@
               >
                 Search & Category
               </label>
-              <div class="flex gap-2">
+              <div class="flex gap-3">
                 <input
                   type="search"
                   v-model="searchQuery"
                   placeholder="Search..."
-                  class="w-3/4 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
                 <select
                   v-model="selectedCategory"
-                  class="w-1/4 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="w-40 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
-                  <option value="">select category</option>
+                  <option value="">Category</option>
                   <option
                     v-for="(category, id) in categories"
                     :key="id"
@@ -112,7 +112,7 @@
                 </select>
                 <button
                   @click="navigateToCategories"
-                  class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
+                  class="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center cursor-pointer"
                   title="Manage Categories"
                 >
                   <Settings class="w-4 h-4" />
@@ -180,33 +180,28 @@
               >
                 Search & Category
               </label>
-              <div class="flex gap-2">
+              <div class="flex flex-col gap-3 w-full">
                 <input
                   type="search"
                   v-model="searchQuery"
                   placeholder="Search..."
-                  class="w-3/4 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="w-full px-3 py-2.5 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
-                <select
-                  v-model="selectedCategory"
-                  class="w-1/4 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                >
-                  <option value="">select category</option>
-                  <option
-                    v-for="(category, id) in categories"
-                    :key="id"
-                    :value="id"
+                <div class="flex gap-2">
+                  <select
+                    v-model="selectedCategory"
+                    class="flex-1 px-3 py-2.5 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                   >
-                    {{ category.name }}
-                  </option>
-                </select>
-                <button
-                  @click="navigateToCategories"
-                  class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
-                  title="Manage Categories"
-                >
-                  <Settings class="w-4 h-4" />
-                </button>
+                    <option value="">Category</option>
+                    <option
+                      v-for="(category, id) in categories"
+                      :key="id"
+                      :value="id"
+                    >
+                      {{ category.name }}
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -258,35 +253,11 @@
               </button>
               <button
                 @click="viewMode = 'list'"
-                class="p-2.5 rounded-md transition-colors flex-shrink-0"
+                class="p-2.5 rounded-md transition-colors flex-shrink-0 cursor-pointer"
                 :class="viewMode === 'list' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
                 title="List view"
               >
                 <List class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <div class="mt-4 sm:hidden">
-            <div class="flex gap-2 w-full">
-              <select
-                v-model="selectedCategory"
-                class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-xs bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              >
-                <option value="">select category</option>
-                <option
-                  v-for="(category, id) in categories"
-                  :key="id"
-                  :value="id"
-                >
-                  {{ category.name }}
-                </option>
-              </select>
-              <button
-                @click="navigateToCategories"
-                class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-xs hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
-                title="Manage Categories"
-              >
-                <Settings class="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -370,16 +341,18 @@
                   </h3>
                 </div>
                 <div class="ml-4 flex items-center gap-2">
-                  <span
-                    class="px-2 py-1 text-[10px] rounded-full"
+                  <button
+                    @click.stop="toggleWordStatus(uid, word.status)"
+                    class="px-2.5 py-1 text-xs rounded cursor-pointer transition-colors hover:opacity-80"
                     :class="[
                       word.status === 'completed'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                        ? 'bg-green-900/60 text-green-200'
+                        : 'bg-yellow-900/40 text-yellow-200'
                     ]"
+                    title="Click to change status"
                   >
                     {{ word.status }}
-                  </span>
+                  </button>
                   <button
                     @click.stop="openVoicePracticeModal(word.term)"
                     class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
@@ -719,8 +692,6 @@ const toggleWordStatus = async (
     if (vocabularyData.value) {
       vocabularyData.value.vocabulary[wordUid] = updated
     }
-
-    showSuccessToast(`Word marked as ${newStatus}`, 2000)
   } catch (error) {
     console.error('Error updating word status:', error)
     showErrorToast('Failed to update word status. Please try again.')
