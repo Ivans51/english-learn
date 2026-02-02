@@ -228,20 +228,41 @@
                 {{ pendingWordsCount }} pending
               </div>
             </div>
-            <div class="flex gap-2 sm:w-80">
+            <div class="flex gap-2 sm:w-auto sm:min-w-[400px] items-center">
               <button
                 @click="openTopicWordsModal"
-                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer"
+                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add Group Words</span>
               </button>
               <button
                 @click="openAddWordModal"
-                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
+                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Plus class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add New Word</span>
+              </button>
+              <button
+                @click="viewMode = 'grid'"
+                class="p-2 rounded-md transition-colors"
+                :class="viewMode === 'grid' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
+                title="Grid view"
+              >
+                <div class="grid grid-cols-2 gap-0.5 w-5 h-5">
+                  <div class="bg-current rounded-sm"></div>
+                  <div class="bg-current rounded-sm"></div>
+                  <div class="bg-current rounded-sm"></div>
+                  <div class="bg-current rounded-sm"></div>
+                </div>
+              </button>
+              <button
+                @click="viewMode = 'list'"
+                class="p-2 rounded-md transition-colors"
+                :class="viewMode === 'list' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
+                title="List view"
+              >
+                <List class="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -290,6 +311,7 @@
         <div v-else>
           <!-- Grid Layout -->
           <div
+            v-if="viewMode === 'grid'"
             class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
           >
             <div
@@ -320,6 +342,60 @@
               </h3>
 
               <!-- Word is now centered, actions moved to details modal -->
+            </div>
+          </div>
+
+          <!-- List Layout -->
+          <div
+            v-else
+            class="vocabulary-list-view flex flex-col gap-3"
+          >
+            <div
+              v-for="(word, uid) in filteredWords"
+              :key="uid"
+              class="rounded-lg p-4 hover:shadow-md transition-all border bg-white dark:bg-black relative cursor-pointer"
+              @click="toggleWordDetails(uid)"
+              :class="[
+                word.status === 'completed'
+                  ? 'opacity-75 bg-green-50 dark:bg-green-950'
+                  : '',
+              ]"
+            >
+              <div class="flex items-center justify-between pr-8">
+                <div class="flex-1">
+                  <h3
+                    class="text-lg font-semibold text-primary-900 dark:text-primary-50 break-words"
+                  >
+                    {{ word.term }}
+                  </h3>
+                  <p
+                    v-if="word.description"
+                    class="text-sm text-primary-600 dark:text-primary-400 mt-1 line-clamp-2 markdown-content"
+                    v-html="renderedDescriptions[uid] || ''"
+                  ></p>
+                </div>
+                <div class="ml-4 flex items-center gap-2">
+                  <span
+                    class="px-2 py-1 text-xs rounded-full"
+                    :class="[
+                      word.status === 'completed'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                    ]"
+                  >
+                    {{ word.status }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Delete Button -->
+              <button
+                @click.stop="deleteWord(uid)"
+                class="absolute top-2 right-2 h-6 w-6 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
+                title="Delete word"
+              >
+                <X class="w-3 h-3" />
+              </button>
             </div>
           </div>
 
@@ -390,7 +466,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Layers, Plus, Search, Settings, X } from 'lucide-vue-next'
+import { BookOpen, Layers, List, Plus, Search, Settings, X } from 'lucide-vue-next'
+import { marked } from 'marked'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
 import TopicWordsModal from '@/components/TopicWordsModal.vue'
@@ -433,6 +510,8 @@ const selectedWordForDetails = ref<{
 } | null>(null)
 const showTopicWordsModal = ref(false)
 const showSearchFilter = ref(false)
+const viewMode = ref<'grid' | 'list'>('grid')
+const renderedDescriptions = ref<Record<string, string>>({})
 
 // Watch for changes in the firebaseUser
 watch(
@@ -603,6 +682,15 @@ const toggleWordStatus = async (
   }
 }
 
+const renderMarkdown = async (markdownText: string): Promise<string> => {
+  try {
+    return await marked(markdownText)
+  } catch (error) {
+    console.error('Error rendering markdown:', error)
+    return markdownText
+  }
+}
+
 const toggleWordDetails = (wordUid: string) => {
   const word = vocabularyData.value?.vocabulary[wordUid]
   if (word) {
@@ -622,6 +710,15 @@ const loadWordsFromFirebase = async () => {
     const firebaseData = await vocabularyWordsService.getWords(userId.value)
     vocabularyData.value = firebaseData
     categories.value = firebaseData.categories
+
+    // Render markdown for all descriptions
+    const rendered: Record<string, string> = {}
+    for (const [uid, word] of Object.entries(firebaseData.vocabulary)) {
+      if (word.description) {
+        rendered[uid] = await renderMarkdown(word.description)
+      }
+    }
+    renderedDescriptions.value = rendered
 
     // Auto-select "Learning" category if it exists
     const learningCategoryId = Object.keys(categories.value).find((id) =>
