@@ -368,11 +368,6 @@
                   >
                     {{ word.term }}
                   </h3>
-                  <p
-                    v-if="word.description"
-                    class="text-sm text-primary-600 dark:text-primary-400 mt-1 line-clamp-2 markdown-content"
-                    v-html="renderedDescriptions[uid] || ''"
-                  ></p>
                 </div>
                 <div class="ml-4 flex items-center gap-2">
                   <span
@@ -471,7 +466,8 @@
       :word-uid="selectedWordForDetails.uid"
       @close="closeWordDetailsModal"
       @toggle-status="toggleWordStatus"
-      @edit-word="openEditWordModal"
+      @grammar-check="openGrammarCheck"
+      @voice-practice="handleWordDetailsVoicePractice"
       @delete-word="deleteWord"
     />
 
@@ -537,9 +533,16 @@ const selectedWordForVoicePractice = ref('')
 const viewMode = ref<'grid' | 'list'>(
   (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
 )
+const initialLoadComplete = ref(false)
 
 watch(viewMode, (newMode) => {
   localStorage.setItem('vocabularyViewMode', newMode)
+})
+
+watch(selectedCategory, (newCategory) => {
+  if (initialLoadComplete.value) {
+    localStorage.setItem('vocabularySelectedCategory', newCategory)
+  }
 })
 
 const renderedDescriptions = ref<Record<string, string>>({})
@@ -653,7 +656,13 @@ const closeTopicWordsModal = () => {
 
 const openVoicePracticeModal = (word: string) => {
   selectedWordForVoicePractice.value = word
+  showWordDetailsModal.value = false
   showVoicePracticeModal.value = true
+}
+
+const handleWordDetailsVoicePractice = (term: string) => {
+  closeWordDetailsModal()
+  setTimeout(() => openVoicePracticeModal(term), 150)
 }
 
 const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {
@@ -672,11 +681,6 @@ const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {
     `${data.createdWords.length} words added successfully!`,
     2000,
   )
-}
-
-const openEditWordModal = (word: VocabularyWord, wordUid: string) => {
-  wordToEdit.value = { ...word, _uid: wordUid } // Set the word to be edited with UID
-  showAddWordModal.value = true
 }
 
 const closeWordModal = () => {
@@ -761,12 +765,20 @@ const loadWordsFromFirebase = async () => {
     }
     renderedDescriptions.value = rendered
 
-    // Auto-select "Learning" category if it exists
-    const learningCategoryId = Object.keys(categories.value).find((id) =>
-      categories.value[id]?.name.toLowerCase() === 'learning',
-    )
-    if (learningCategoryId) {
-      selectedCategory.value = learningCategoryId
+    // Restore saved category or auto-select "Learning" on initial load
+    if (!initialLoadComplete.value) {
+      const savedCategory = localStorage.getItem('vocabularySelectedCategory')
+      if (savedCategory && categories.value[savedCategory]) {
+        selectedCategory.value = savedCategory
+      } else {
+        const learningCategoryId = Object.keys(categories.value).find((id) =>
+          categories.value[id]?.name.toLowerCase() === 'learning',
+        )
+        if (learningCategoryId) {
+          selectedCategory.value = learningCategoryId
+        }
+      }
+      initialLoadComplete.value = true
     }
   } catch (error) {
     console.error('Error loading words from Firebase:', error)

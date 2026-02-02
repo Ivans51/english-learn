@@ -93,6 +93,20 @@
                 <!-- Action Buttons -->
                 <div class="flex items-center space-x-2">
                   <button
+                    @click="handleVoicePractice"
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    title="Practice pronunciation"
+                  >
+                    <Mic class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="handleGrammarCheck"
+                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    title="Practice grammar"
+                  >
+                    <MessageCircle class="w-4 h-4" />
+                  </button>
+                  <button
                     @click="handleDelete"
                     class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Delete word"
@@ -111,7 +125,7 @@
 
 <script setup lang="ts">
 import type { VocabularyWord } from '@/types'
-import { Trash2, X } from 'lucide-vue-next'
+import { MessageCircle, Mic, Trash2, X } from 'lucide-vue-next'
 import { ref, watch, onMounted } from 'vue'
 import { marked } from 'marked'
 
@@ -124,6 +138,8 @@ interface Props {
 interface Emits {
   (e: 'close'): void
   (e: 'toggle-status', wordUid: string, currentStatus?: 'pending' | 'completed'): void
+  (e: 'grammar-check', wordUid: string, term: string): void
+  (e: 'voice-practice', term: string): void
   (e: 'delete-word', wordUid: string): void
 }
 
@@ -151,6 +167,14 @@ const toggleWordStatus = () => {
 const handleDelete = () => {
   emit('delete-word', props.wordUid)
   closeModal()
+}
+
+const handleVoicePractice = () => {
+  emit('voice-practice', props.word.term)
+}
+
+const handleGrammarCheck = () => {
+  emit('grammar-check', props.wordUid, props.word.term)
 }
 
 // Markdown rendering
