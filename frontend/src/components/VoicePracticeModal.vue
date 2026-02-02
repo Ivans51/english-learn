@@ -25,11 +25,11 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-[80%] max-w-3xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
+              class="w-full sm:w-[80%] max-w-3xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-4 sm:p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
-                class="text-xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
+                class="text-lg font-semibold leading-6 text-primary-50 flex justify-between items-center"
               >
                 <div class="flex items-center">
                   <Mic class="w-5 h-5 mr-2 text-secondary-500" />
@@ -39,14 +39,14 @@
                   <button
                     @click="generatePhrase"
                     :disabled="isGenerating"
-                    class="py-1.5 px-3 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center cursor-pointer"
+                    class="py-2 px-3 rounded-md text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center cursor-pointer"
                   >
                     <RefreshCw class="w-4 h-4 mr-1.5" />
                     Regenerate
                   </button>
                   <button
                     @click="closeModal"
-                    class="text-primary-400 hover:text-primary-200 focus:outline-none p-1.5 rounded-md hover:bg-primary-800 transition-colors cursor-pointer"
+                    class="text-primary-400 hover:text-primary-200 focus:outline-none p-2 rounded-md hover:bg-primary-800 transition-colors cursor-pointer"
                   >
                     <X class="w-5 h-5" />
                   </button>
@@ -54,24 +54,24 @@
               </DialogTitle>
 
               <div class="mt-4">
-                <p class="text-sm text-primary-300">
+                <p class="text-xs text-primary-300">
                   Practice pronunciation for:
                 </p>
-                <p class="text-lg font-bold text-secondary-400 mt-1">
+                <p class="text-base font-bold text-secondary-400 mt-1">
                   {{ targetWord }}
                 </p>
               </div>
 
               <div class="mt-4">
-                <label class="block text-sm font-medium text-primary-50 mb-2">
+                <label class="block text-xs font-medium text-primary-50 mb-2">
                   Practice Phrases
                 </label>
                 <div
                   v-if="isGenerating"
                   class="bg-primary-800 rounded-lg p-4 text-center"
                 >
-                  <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-500 mx-auto"></div>
-                  <p class="text-sm text-primary-400 mt-2">Generating phrases...</p>
+                  <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-500 mx-auto"></div>
+                  <p class="text-xs text-primary-400 mt-2">Generating phrases...</p>
                 </div>
                 <div
                   v-else-if="currentPhraseData?.senses && currentPhraseData.senses.length > 0"
@@ -118,20 +118,20 @@
                       {{ sense.grammarFocus }}
                     </p>
                   </div>
-                  <p v-if="!selectedSense" class="text-primary-400 text-sm text-center py-2">
+                  <p v-if="!selectedSense" class="text-primary-400 text-xs text-center py-2">
                     Click on a phrase to select it for practice
                   </p>
                 </div>
-                <p v-else class="text-primary-400 text-sm text-center py-4">
+                <p v-else class="text-primary-400 text-xs text-center py-4">
                   Click "Generate" to create practice phrases
                 </p>
               </div>
 
-              <div class="mt-6">
+              <div class="mt-5">
                 <button
                   @click="toggleRecording"
                   :disabled="!currentPhrase || isEvaluating"
-                  class="w-full py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center"
+                  class="w-full py-2.5 px-4 rounded-lg font-medium transition-all flex items-center justify-center"
                   :class="[
                     isRecording
                       ? 'bg-red-600 text-white animate-pulse'
@@ -152,7 +152,7 @@
 
               <div
                 v-if="isRecording"
-                class="mt-4 flex items-center justify-center"
+                class="mt-3 flex items-center justify-center"
               >
                 <div class="flex space-x-1">
                   <div
@@ -160,30 +160,30 @@
                     :key="i"
                     class="w-2 bg-red-500 rounded-full animate-pulse"
                     :style="{
-                      height: `${10 + Math.random() * 20}px`,
+                      height: `${8 + Math.random() * 16}px`,
                       animationDelay: `${i * 0.1}s`
                     }"
                   ></div>
                 </div>
-                <span class="ml-3 text-sm text-red-400">Recording...</span>
+                <span class="ml-3 text-xs text-red-400">Recording...</span>
               </div>
 
               <div
                 v-if="isEvaluating"
-                class="mt-4 bg-primary-800 rounded-lg p-4 text-center"
+                class="mt-3 bg-primary-800 rounded-lg p-4 text-center"
               >
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500 mx-auto"></div>
-                <p class="text-sm text-primary-400 mt-2">Analyzing your pronunciation...</p>
+                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-secondary-500 mx-auto"></div>
+                <p class="text-xs text-primary-400 mt-2">Analyzing your pronunciation...</p>
               </div>
 
               <div
                 v-if="result"
-                class="mt-4 bg-primary-800 rounded-lg p-4"
+                class="mt-3 bg-primary-800 rounded-lg p-4"
               >
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-sm font-medium text-primary-50">Pronunciation Score</span>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-primary-50">Pronunciation Score</span>
                   <span
-                    class="text-2xl font-bold"
+                    class="text-xl font-bold"
                     :class="[
                       result.score >= 80 ? 'text-green-500' :
                       result.score >= 60 ? 'text-yellow-500' : 'text-red-500'
@@ -193,24 +193,24 @@
                   </span>
                 </div>
 
-                <div class="mb-3">
-                  <p class="text-xs text-primary-400 mb-1">You said:</p>
-                  <p class="text-primary-200 text-sm">"{{ result.transcription }}"</p>
+                <div class="mb-2">
+                  <p class="text-[10px] text-primary-400 mb-1">You said:</p>
+                  <p class="text-primary-200 text-xs">"{{ result.transcription }}"</p>
                 </div>
 
                 <div
-                  class="p-3 rounded-lg"
+                  class="p-2.5 rounded-lg"
                   :class="[
                     result.isCorrect
                       ? 'bg-green-900/30 border border-green-700'
                       : 'bg-yellow-900/30 border border-yellow-700'
                   ]"
                 >
-                  <p class="text-xs text-primary-400 mb-1">
+                  <p class="text-[10px] text-primary-400 mb-1">
                     {{ result.isCorrect ? '✓ Great job!' : '💡 Feedback' }}
                   </p>
                   <p
-                    class="text-sm"
+                    class="text-xs"
                     :class="result.isCorrect ? 'text-green-200' : 'text-yellow-200'"
                   >
                     {{ result.feedback }}
@@ -218,10 +218,10 @@
                 </div>
               </div>
 
-              <div class="mt-6 flex justify-end">
+              <div class="mt-5 flex justify-end">
                 <button
                   @click="closeModal"
-                  class="px-4 py-2 bg-primary-700 text-primary-50 rounded-md text-sm font-medium hover:bg-primary-600 transition-colors cursor-pointer"
+                  class="px-4 py-2 bg-primary-700 text-primary-50 rounded-md text-xs font-medium hover:bg-primary-600 transition-colors cursor-pointer"
                 >
                   Close
                 </button>

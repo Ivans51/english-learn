@@ -31,17 +31,17 @@
             >
               <DialogTitle
                 as="h3"
-                class="text-2xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
+                class="text-lg font-semibold leading-6 text-primary-50 flex justify-between items-center"
               >
                 {{
                   isEditing ? 'Edit Vocabulary Word' : 'Add New Vocabulary Word'
                 }}
                 <button
                   @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none"
+                  class="text-primary-400 hover:text-primary-200 focus:outline-none p-1.5 rounded-md hover:bg-primary-800"
                 >
                   <svg
-                    class="h-6 w-6"
+                    class="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -56,109 +56,109 @@
                 </button>
               </DialogTitle>
               <div class="mt-2">
-                <p class="text-sm text-primary-300">
+                <p class="text-xs text-primary-300">
                   Add a new word to your personal vocabulary collection.
                 </p>
               </div>
 
-              <form @submit.prevent="addOrUpdateWord" class="mt-6 space-y-4">
+              <form @submit.prevent="addOrUpdateWord" class="mt-4 space-y-3">
                 <div>
                   <label
                     for="term"
-                    class="block text-sm font-medium text-primary-50 mb-1"
+                    class="block text-xs font-medium text-primary-50 mb-1"
                   >
                     Word
                   </label>
                   <div class="relative">
-                    <input
-                      type="text"
-                      id="term"
-                      ref="wordInputRef"
-                      v-model="termLowerCase"
-                      placeholder="Enter the word"
-                      @keydown.enter="handleEnterKey"
-                      class="w-full px-3 py-2 pr-24 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                      required
-                    />
-                    <button
-                      type="button"
-                      @click="generateDescription"
-                      :disabled="isGenerating || !formData.term.trim()"
-                      class="absolute right-1 top-1 bottom-1 px-3 text-sm font-medium rounded bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {{ isGenerating ? '...' : 'Generate' }}
-                    </button>
+                  <input
+                    type="text"
+                    id="term"
+                    ref="wordInputRef"
+                    v-model="termLowerCase"
+                    placeholder="Enter the word"
+                    @keydown.enter="handleEnterKey"
+                    class="w-full px-3 py-2 pr-20 border border-primary-700 rounded-md text-xs bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                    required
+                  />
+                  <button
+                    type="button"
+                    @click="generateDescription"
+                    :disabled="isGenerating || !formData.term.trim()"
+                    class="absolute right-1 top-1 bottom-1 px-2.5 text-xs font-medium rounded bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {{ isGenerating ? '...' : 'Generate' }}
+                  </button>
                   </div>
                 </div>
 
-                <div class="mt-3">
-                  <span class="text-xs text-primary-300">
+                <div class="mt-2">
+                  <span class="text-[10px] text-primary-300">
                     Default category:
                   </span>
-                  <div class="flex gap-4 mt-1">
-                    <label class="flex items-center gap-2 cursor-pointer">
+                  <div class="flex gap-3 mt-1">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="radio"
                         v-model="defaultCategory"
                         value="learning"
-                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
-                      <span class="text-sm text-primary-300">Learning</span>
+                      <span class="text-xs text-primary-300">Learning</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="radio"
                         v-model="defaultCategory"
                         value=""
-                        class="w-5 h-5 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
+                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
                       />
-                      <span class="text-sm text-primary-300">
+                      <span class="text-xs text-primary-300">
                         Generate New!
                       </span>
                     </label>
                   </div>
                 </div>
 
-                <div v-if="formData.categoryName" class="mt-3">
-                  <span class="text-xs text-primary-300">Category:</span>
-                  <span class="ml-2 text-sm text-primary-50">
+                <div v-if="formData.categoryName" class="mt-2">
+                  <span class="text-[10px] text-primary-300">Category:</span>
+                  <span class="ml-2 text-xs text-primary-50">
                     {{ formData.categoryName }}
                   </span>
                 </div>
 
                 <div
                   v-if="formData.descriptionText"
-                  class="mt-3 space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"
+                  class="mt-2 space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar"
                 >
                   <div v-if="formData.descriptionText">
                     <label
-                      class="block text-xs font-medium text-primary-300 mb-1"
+                      class="block text-[10px] font-medium text-primary-300 mb-1"
                     >
                       Description
                     </label>
                     <div
-                      class="text-sm text-primary-50 bg-primary-800/50 p-2 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
+                      class="text-xs text-primary-50 bg-primary-800/50 p-2 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
                       v-html="renderedDescription"
                     ></div>
                   </div>
                 </div>
 
-                <div v-if="errorMessage" class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md">
-                  <p class="text-sm text-red-200">{{ errorMessage }}</p>
+                <div v-if="errorMessage" class="mt-2 p-2.5 bg-red-900/50 border border-red-700 rounded-md">
+                  <p class="text-xs text-red-200">{{ errorMessage }}</p>
                 </div>
 
-                <div class="mt-6 flex justify-end space-x-3">
+                <div class="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     @click="closeModal"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 px-4 py-2 text-sm font-medium text-primary-50 hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
+                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 px-4 py-2 text-xs font-medium text-primary-50 hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     :disabled="!isFormValid || isSubmitting"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-sm font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-xs font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {{ isSubmitting ? 'Saving...' : (isEditing ? 'Save Changes' : 'Add Word') }}
                   </button>

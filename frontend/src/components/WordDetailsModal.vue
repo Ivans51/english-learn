@@ -30,30 +30,30 @@
             <!-- Close Button -->
             <button
               @click="closeModal"
-              class="absolute top-4 right-4 text-primary-400 hover:text-primary-200 focus:outline-none transition-colors z-10"
+              class="absolute top-3 right-3 text-primary-400 hover:text-primary-200 focus:outline-none transition-colors z-10 p-1.5 rounded-md hover:bg-primary-800"
             >
-              <X class="w-6 h-6" />
+              <X class="w-5 h-5" />
             </button>
 
             <!-- Content -->
-            <div class="p-6 overflow-y-auto custom-scrollbar">
+            <div class="p-4 overflow-y-auto custom-scrollbar">
               <!-- Word Term -->
-              <div class="mb-6 pr-8">
-                <h2 class="text-3xl font-bold text-primary-50">
+              <div class="mb-4 pr-8">
+                <h2 class="text-xl font-bold text-primary-50">
                   {{ word.term }}
                 </h2>
-                <span class="text-sm text-primary-400">
+                <span class="text-xs text-primary-400">
                   category: {{ word.categoryName }}
                 </span>
               </div>
 
-              <hr class="mb-4 border-primary-700" />
+              <hr class="mb-3 border-primary-700" />
 
               <!-- Description -->
-              <div class="mb-6">
-                <h4 class="text-lg font-medium text-primary-50 mb-3 flex items-center">
+              <div class="mb-4">
+                <h4 class="text-base font-medium text-primary-50 mb-2 flex items-center">
                   <svg
-                    class="w-5 h-5 mr-2 text-primary-400"
+                    class="w-4 h-4 mr-2 text-primary-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -67,17 +67,17 @@
                   </svg>
                   Description
                 </h4>
-                <div class="bg-primary-800/50 rounded-lg p-4 max-h-80 overflow-y-auto custom-scrollbar">
-                  <div class="text-primary-200 leading-relaxed prose prose-invert prose-base max-w-none description-content" v-html="renderedDescription"></div>
+                <div class="bg-primary-800/50 rounded-lg p-3 max-h-64 overflow-y-auto custom-scrollbar">
+                  <div class="text-primary-200 leading-relaxed prose prose-invert prose-sm max-w-none description-content" v-html="renderedDescription"></div>
                 </div>
               </div>
 
               <!-- Status Badge & Actions -->
-              <div class="flex items-center justify-between pt-4 border-t border-primary-700">
-                <div class="flex items-center gap-3">
+              <div class="flex items-center justify-between pt-3 border-t border-primary-700">
+                <div class="flex items-center gap-2">
                   <button
                     @click="toggleWordStatus"
-                    class="text-sm px-3 py-1 rounded cursor-pointer transition-colors hover:opacity-80"
+                    class="text-xs px-2.5 py-1 rounded cursor-pointer transition-colors hover:opacity-80"
                     :class="[
                       localWordStatus === 'completed'
                         ? 'bg-green-900/60 text-green-200'
@@ -87,28 +87,28 @@
                   >
                     {{ localWordStatus === 'completed' ? 'completed' : 'pending' }}
                   </button>
-                  <span class="text-xs text-primary-500">click to toggle</span>
+                  <span class="text-[10px] text-primary-500">click to toggle</span>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-1.5">
                   <button
                     @click="handleVoicePractice"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Practice pronunciation"
                   >
                     <Mic class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleGrammarCheck"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Practice grammar"
                   >
                     <MessageCircle class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleDelete"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Delete word"
                   >
                     <Trash2 class="w-4 h-4" />

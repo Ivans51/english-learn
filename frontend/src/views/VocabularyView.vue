@@ -16,19 +16,19 @@
                 class="w-6 h-6 mr-2 text-primary-600 dark:text-primary-400"
               />
               <h1
-                class="text-xl sm:text-2xl font-bold text-primary-900 dark:text-primary-50"
+                class="text-lg sm:text-xl font-bold text-primary-900 dark:text-primary-50"
               >
                 My Vocabulary
               </h1>
             </div>
-            <button
-              @click="showSearchFilter = !showSearchFilter"
-              class="sm:hidden p-2 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-              title="Toggle filters"
-            >
-              <Search v-if="!showSearchFilter" class="w-5 h-5" />
-              <X v-else class="w-5 h-5" />
-            </button>
+              <button
+                @click="showSearchFilter = !showSearchFilter"
+                class="sm:hidden p-2.5 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                title="Toggle filters"
+              >
+                <Search v-if="!showSearchFilter" class="w-5 h-5" />
+                <X v-else class="w-5 h-5" />
+              </button>
           </div>
         </div>
 
@@ -55,7 +55,7 @@
                   value=""
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">All</span>
+                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">All</span>
               </label>
               <label
                 class="flex items-center cursor-pointer"
@@ -66,7 +66,7 @@
                   value="pending"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Pending</span>
+                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">Pending</span>
               </label>
               <label
                 class="flex items-center cursor-pointer"
@@ -146,7 +146,7 @@
                   value=""
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">All</span>
+                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">All</span>
               </label>
               <label
                 class="flex items-center cursor-pointer"
@@ -157,7 +157,7 @@
                   value="pending"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Pending</span>
+                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">Pending</span>
               </label>
               <label
                 class="flex items-center cursor-pointer"
@@ -218,12 +218,12 @@
         <div class="mb-4 sm:mb-6">
           <div class="flex flex-col sm:flex-row justify-between gap-4">
             <div
-              class="text-lg sm:text-lg font-medium text-primary-900 dark:text-primary-50"
+              class="text-base sm:text-base font-medium text-primary-900 dark:text-primary-50"
             >
-              <div class="text-xl sm:text-lg font-bold">
+              <div class="text-lg sm:text-lg font-bold">
                 {{ Object.keys(filteredWords).length }} words
               </div>
-              <div class="text-sm text-primary-600 dark:text-primary-400 mt-1">
+              <div class="text-xs text-primary-600 dark:text-primary-400 mt-1">
                 {{ completedWordsCount }} completed,
                 {{ pendingWordsCount }} pending
               </div>
@@ -231,21 +231,21 @@
             <div class="flex gap-2 sm:w-auto sm:min-w-[400px] items-center">
               <button
                 @click="openTopicWordsModal"
-                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
+                class="flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Layers class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add Group Words</span>
               </button>
               <button
                 @click="openAddWordModal"
-                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
+                class="flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2.5 px-3 sm:py-2 sm:px-4 rounded-md text-xs font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
               >
                 <Plus class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 <span class="text-xs sm:text-sm">Add New Word</span>
               </button>
               <button
                 @click="viewMode = 'grid'"
-                class="p-2 rounded-md transition-colors"
+                class="p-2.5 rounded-md transition-colors"
                 :class="viewMode === 'grid' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
                 title="Grid view"
               >
@@ -258,7 +258,7 @@
               </button>
               <button
                 @click="viewMode = 'list'"
-                class="p-2 rounded-md transition-colors"
+                class="p-2.5 rounded-md transition-colors"
                 :class="viewMode === 'list' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
                 title="List view"
               >
@@ -270,7 +270,7 @@
             <div class="flex gap-2 w-full">
               <select
                 v-model="selectedCategory"
-                class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-xs bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
               >
                 <option value="">select category</option>
                 <option
@@ -283,7 +283,7 @@
               </select>
               <button
                 @click="navigateToCategories"
-                class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
+                class="px-3 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-xs hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center"
                 title="Manage Categories"
               >
                 <Settings class="w-4 h-4" />
@@ -301,7 +301,7 @@
             class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-600 dark:border-primary-400"
           ></div>
           <span
-            class="text-sm sm:text-base text-primary-600 dark:text-primary-400"
+            class="text-xs sm:text-sm text-primary-600 dark:text-primary-400"
           >
             Loading vocabulary...
           </span>
@@ -328,15 +328,15 @@
               <!-- Delete Button -->
               <button
                 @click.stop="deleteWord(uid)"
-                class="absolute top-2 right-2 h-6 w-6 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
+                class="absolute top-2 right-2 h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
                 title="Delete word"
               >
-                <X class="w-3 h-3" />
+                <X class="w-4 h-4" />
               </button>
 
               <!-- Word Header -->
               <h3
-                class="text-lg font-semibold text-primary-900 dark:text-primary-50 break-words leading-tight line-clamp-2 text-center w-full px-2"
+                class="text-base font-semibold text-primary-900 dark:text-primary-50 break-words leading-tight line-clamp-2 text-center w-full px-2"
               >
                 {{ word.term }}
               </h3>
@@ -364,14 +364,14 @@
               <div class="flex items-center justify-between pr-8">
                 <div class="flex-1">
                   <h3
-                    class="text-lg font-semibold text-primary-900 dark:text-primary-50 break-words"
+                    class="text-base font-semibold text-primary-900 dark:text-primary-50 break-words"
                   >
                     {{ word.term }}
                   </h3>
                 </div>
                 <div class="ml-4 flex items-center gap-2">
                   <span
-                    class="px-2 py-1 text-xs rounded-full"
+                    class="px-2 py-1 text-[10px] rounded-full"
                     :class="[
                       word.status === 'completed'
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -382,17 +382,17 @@
                   </span>
                   <button
                     @click.stop="openVoicePracticeModal(word.term)"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
                     title="Practice pronunciation"
                   >
-                    <Mic class="w-4 h-4" />
+                    <Mic class="w-5 h-5" />
                   </button>
                   <button
                     @click="openGrammarCheck(uid, word.term)"
-                    class="h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
                     title="Practice grammar"
                   >
-                    <MessageCircle class="w-4 h-4" />
+                    <MessageCircle class="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -400,10 +400,10 @@
               <!-- Delete Button -->
               <button
                 @click.stop="deleteWord(uid)"
-                class="absolute top-2 right-2 h-6 w-6 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
+                class="absolute top-2 right-2 h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
                 title="Delete word"
               >
-                <X class="w-3 h-3" />
+                <X class="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -413,9 +413,9 @@
             v-if="Object.keys(filteredWords).length === 0 && !isLoading"
             class="text-center py-8 sm:py-12 px-4"
           >
-            <div
-              class="mx-auto h-16 w-16 sm:h-24 sm:w-24 text-primary-400 dark:text-primary-500 mb-4"
-            >
+          <div
+            class="mx-auto h-14 w-14 sm:h-20 sm:w-20 text-primary-400 dark:text-primary-500 mb-4"
+          >
               <BookOpen
                 fill="none"
                 stroke="currentColor"
@@ -424,12 +424,12 @@
               />
             </div>
             <h3
-              class="text-base sm:text-lg font-medium text-primary-900 dark:text-primary-50 mb-2"
+              class="text-sm sm:text-base font-medium text-primary-900 dark:text-primary-50 mb-2"
             >
               No vocabulary words yet
             </h3>
             <p
-              class="text-sm sm:text-base text-primary-500 dark:text-primary-400 mb-6 max-w-sm mx-auto"
+              class="text-xs sm:text-sm text-primary-500 dark:text-primary-400 mb-6 max-w-sm mx-auto"
             >
               Start building your personal vocabulary collection by adding new
               words.
