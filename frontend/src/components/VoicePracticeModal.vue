@@ -25,7 +25,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
+              class="w-[80%] max-w-3xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
@@ -60,27 +60,6 @@
                 <p class="text-lg font-bold text-secondary-400 mt-1">
                   {{ targetWord }}
                 </p>
-              </div>
-
-              <div class="mt-4">
-                <label class="block text-sm font-medium text-primary-50 mb-2">
-                  Difficulty Level
-                </label>
-                <div class="flex gap-2">
-                  <button
-                    v-for="level in ['easy', 'medium', 'hard']"
-                    :key="level"
-                    @click="difficulty = level as 'easy' | 'medium' | 'hard'"
-                    class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors"
-                    :class="[
-                      difficulty === level
-                        ? 'bg-secondary-600 text-white'
-                        : 'bg-primary-800 text-primary-300 hover:bg-primary-700'
-                    ]"
-                  >
-                    {{ level.charAt(0).toUpperCase() + level.slice(1) }}
-                  </button>
-                </div>
               </div>
 
               <div class="mt-4">
@@ -278,7 +257,6 @@ const emit = defineEmits(['close'])
 
 const { error: showErrorToast } = useToast()
 
-const difficulty = ref<'easy' | 'medium' | 'hard'>('medium')
 const currentPhrase = ref('')
 const currentPhraseData = ref<VoicePracticePhrase | null>(null)
 const selectedSense = ref<VoicePracticePhraseSense | null>(null)
@@ -306,7 +284,6 @@ const generatePhrase = async () => {
   try {
     const data = await voicePracticeService.generatePhrase(
       props.targetWord,
-      difficulty.value,
     )
     currentPhraseData.value = data
     if (data.senses && data.senses.length > 0) {
@@ -393,10 +370,4 @@ watch(
     }
   },
 )
-
-watch(difficulty, () => {
-  if (props.isOpen && currentPhraseData.value?.senses?.length) {
-    generatePhrase()
-  }
-})
 </script>
