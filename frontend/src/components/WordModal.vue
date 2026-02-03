@@ -59,59 +59,67 @@
               <form @submit.prevent="addOrUpdateWord" class="mt-4 space-y-3">
                 <div>
                   <div class="relative">
-                  <input
-                    type="text"
-                    id="term"
-                    ref="wordInputRef"
-                    v-model="termLowerCase"
-                    placeholder="Enter the word"
-                    @keydown.enter="handleEnterKey"
-                    class="w-full px-3 py-2.5 pr-20 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                    required
-                  />
-                  <button
-                    type="button"
-                    @click="generateDescription"
-                    :disabled="isGenerating || !formData.term.trim()"
-                    class="absolute right-1 top-1 bottom-1 px-3 text-base font-medium rounded bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {{ isGenerating ? '...' : 'Generate' }}
-                  </button>
+                    <input
+                      type="text"
+                      id="term"
+                      ref="wordInputRef"
+                      v-model="termLowerCase"
+                      placeholder="Enter the word"
+                      @keydown.enter="handleEnterKey"
+                      class="w-full px-3 py-2.5 pr-20 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                      required
+                    />
+                    <button
+                      type="button"
+                      @click="generateDescription"
+                      :disabled="isGenerating || !formData.term.trim()"
+                      class="absolute right-1 top-1 bottom-1 px-3 text-base font-medium rounded bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {{ isGenerating ? '...' : 'Generate' }}
+                    </button>
                   </div>
                 </div>
 
                 <div class="mt-3">
-                  <span class="text-sm text-primary-300">
-                    Default category:
-                  </span>
-                  <div class="flex gap-4 mt-2">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        v-model="defaultCategory"
-                        value="learning"
-                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
-                      />
-                      <span class="text-base text-primary-300">Learning</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        v-model="defaultCategory"
-                        value=""
-                        class="w-4 h-4 text-secondary-500 bg-primary-800 border-primary-600 focus:ring-secondary-500 focus:ring-offset-primary-900"
-                      />
-                      <span class="text-base text-primary-300">
-                        Generate New!
-                      </span>
-                    </label>
-                  </div>
+                  <label class="block text-sm text-primary-300 mb-1">
+                    Category
+                  </label>
+                  <select
+                    v-model="selectedCategoryId"
+                    @change="updateCategoryFromSelection"
+                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  >
+                    <option value="">Auto-generate</option>
+                    <option
+                      v-for="category in categoriesList"
+                      :key="category.id"
+                      :value="category.id"
+                    >
+                      {{ category.name }}
+                    </option>
+                    <option value="custom">+ Add custom category...</option>
+                  </select>
                 </div>
 
-                <div v-if="formData.categoryName" class="mt-3">
+                <div v-if="selectedCategoryId === 'custom'" class="mt-3">
+                  <label class="block text-sm text-primary-300 mb-1">
+                    New category name
+                  </label>
+                  <input
+                    type="text"
+                    v-model="customCategoryName"
+                    placeholder="Enter category name"
+                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  />
+                </div>
+
+                <div
+                  v-if="formData.categoryName || selectedCategoryId"
+                  class="mt-3"
+                >
                   <span class="text-sm text-primary-300">Category:</span>
                   <span class="ml-2 text-base text-primary-50">
-                    {{ formData.categoryName }}
+                    {{ getSelectedCategoryDisplayName() }}
                   </span>
                 </div>
 
@@ -132,7 +140,10 @@
                   </div>
                 </div>
 
-                <div v-if="errorMessage" class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md">
+                <div
+                  v-if="errorMessage"
+                  class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md"
+                >
                   <p class="text-base text-red-200">{{ errorMessage }}</p>
                 </div>
 
@@ -142,7 +153,13 @@
                     :disabled="!isFormValid || isSubmitting"
                     class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2.5 text-base font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {{ isSubmitting ? 'Saving...' : (isEditing ? 'Save Changes' : 'Add Word') }}
+                    {{
+                      isSubmitting
+                        ? 'Saving...'
+                        : isEditing
+                          ? 'Save Changes'
+                          : 'Add Word'
+                    }}
                   </button>
                 </div>
               </form>
@@ -191,8 +208,14 @@ const isGenerating = ref(false)
 const isSubmitting = ref(false)
 const wordInputRef = ref<HTMLInputElement>()
 const renderedDescription = ref('')
-const defaultCategory = ref('learning')
+const selectedCategoryId = ref('')
+const customCategoryName = ref('')
 const errorMessage = ref('')
+
+const categoriesList = computed(() => {
+  const cats = props.categories || {}
+  return Object.entries(cats).map(([id, cat]) => ({ id, name: cat.name }))
+})
 
 onMounted(() => {
   marked.setOptions({
@@ -228,7 +251,14 @@ const isEditing = computed(() => !!props.currentWord)
 
 // Computed property to check if form is valid for submission
 const isFormValid = computed(() => {
-  return formData.value.term.trim() && formData.value.descriptionText.trim()
+  const hasTerm = formData.value.term.trim()
+  const hasDescription = formData.value.descriptionText.trim()
+  const hasCategory = formData.value.categoryName.trim()
+  const hasCustomCategory =
+    selectedCategoryId.value === 'custom'
+      ? customCategoryName.value.trim()
+      : true
+  return hasTerm && hasDescription && hasCategory && hasCustomCategory
 })
 
 // Computed property for term with automatic lowercase conversion
@@ -247,9 +277,60 @@ watch(
       formData.value.term = currentWordVal.term
       formData.value.descriptionText = currentWordVal.description
       formData.value.categoryName = currentWordVal.categoryName
+      const catName = currentWordVal.categoryName?.toLowerCase()
+      const matchedId = Object.keys(props.categories || {}).find(
+        (id) => props.categories?.[id]?.name?.toLowerCase() === catName,
+      )
+      if (matchedId) {
+        selectedCategoryId.value = matchedId
+        updateCategoryFromSelection()
+      }
     }
   },
 )
+
+function updateCategoryFromSelection() {
+  console.log(selectedCategoryId.value)
+  if (
+    selectedCategoryId.value === 'custom' &&
+    customCategoryName.value.trim()
+  ) {
+    formData.value.categoryName = customCategoryName.value.trim()
+  } else if (
+    selectedCategoryId.value !== '' &&
+    selectedCategoryId.value !== 'custom'
+  ) {
+    const category = categoriesList.value.find(
+      (c) => c.id === selectedCategoryId.value,
+    )
+    formData.value.categoryName = category?.name || ''
+  } else if (selectedCategoryId.value === '') {
+    formData.value.categoryName = ''
+  }
+}
+
+function getSelectedCategoryDisplayName(): string {
+  if (
+    selectedCategoryId.value === 'custom' &&
+    customCategoryName.value.trim()
+  ) {
+    return customCategoryName.value.trim()
+  }
+  if (
+    selectedCategoryId.value !== '' &&
+    selectedCategoryId.value !== 'custom'
+  ) {
+    const category = categoriesList.value.find(
+      (c) => c.id === selectedCategoryId.value,
+    )
+    return category?.name || formData.value.categoryName || ''
+  }
+  return formData.value.categoryName || ''
+}
+
+watch([selectedCategoryId, customCategoryName], updateCategoryFromSelection, {
+  immediate: true,
+})
 
 // Watch for modal open state to handle focus and form reset
 watch(
@@ -270,26 +351,14 @@ watch(
   { immediate: true },
 )
 
-// Watch for modal open state to handle focus and UI state
-watch(
-  () => props.isOpen,
-  async (isOpenVal) => {
-    if (!isOpenVal) {
-      resetForm()
-    } else {
-      await nextTick()
-      wordInputRef.value?.focus()
-    }
-  },
-)
-
 function closeModal() {
   emit('close')
 }
 
 function resetForm() {
   Object.assign(formData.value, initialFormData)
-  defaultCategory.value = 'learning'
+  selectedCategoryId.value = ''
+  customCategoryName.value = ''
 }
 
 function handleEnterKey(event: KeyboardEvent) {
@@ -300,11 +369,12 @@ function handleEnterKey(event: KeyboardEvent) {
 
 async function generateDescription() {
   if (formData.value.term.trim()) {
+    updateCategoryFromSelection()
     isGenerating.value = true
     try {
       const { vocabularyWordsService } =
         await import('@/services/vocabularyService')
-      const skipCategorySuggestion = defaultCategory.value !== ''
+      const skipCategorySuggestion = selectedCategoryId.value !== ''
       const response: ExplainWordResponse =
         await vocabularyWordsService.explainWord(
           formData.value.term,
@@ -314,10 +384,7 @@ async function generateDescription() {
       formData.value.descriptionText = response.description
 
       if (response.suggestedCategory && !skipCategorySuggestion) {
-        const suggested = response.suggestedCategory.trim()
-        formData.value.categoryName = suggested
-      } else if (defaultCategory.value) {
-        formData.value.categoryName = defaultCategory.value
+        formData.value.categoryName = response.suggestedCategory.trim()
       }
     } catch (error) {
       console.warn('Failed to generate description:', error)
@@ -337,7 +404,8 @@ async function addOrUpdateWord() {
   errorMessage.value = ''
 
   try {
-    const { vocabularyWordsService } = await import('@/services/vocabularyService')
+    const { vocabularyWordsService } =
+      await import('@/services/vocabularyService')
 
     if (isEditing.value && props.currentWord && props.wordUid) {
       const updatedWord = await vocabularyWordsService.updateWord(

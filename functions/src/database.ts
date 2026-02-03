@@ -152,7 +152,8 @@ export async function findOrCreateVocabularyWord(
       categoryId,
       categoryName,
       description,
-      status: 'pending'
+      status: 'pending',
+      createdAt: new Date().toISOString()
     };
     
     await storeVocabularyWord(env, userId, newVocabularyWord);

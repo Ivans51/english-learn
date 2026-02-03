@@ -101,7 +101,6 @@
                   v-model="selectedCategory"
                   class="w-40 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
-                  <option value="">Category</option>
                   <option
                     v-for="(category, id) in categories"
                     :key="id"
@@ -192,7 +191,6 @@
                     v-model="selectedCategory"
                     class="flex-1 px-3 py-2.5 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                   >
-                    <option value="">Category</option>
                     <option
                       v-for="(category, id) in categories"
                       :key="id"
@@ -360,26 +358,26 @@
                   >
                     <Mic class="w-5 h-5" />
                   </button>
-                  <button
-                    @click="openGrammarCheck(uid, word.term)"
-                    class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
-                    title="Practice grammar"
-                  >
-                    <MessageCircle class="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              <!-- Delete Button -->
               <button
-                @click.stop="deleteWord(uid)"
-                class="absolute top-2 right-2 h-8 w-8 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
-                title="Delete word"
+                @click="openGrammarCheck(uid, word.term)"
+                class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                title="Practice grammar"
               >
-                <X class="w-4 h-4" />
+                <MessageCircle class="w-5 h-5" />
               </button>
             </div>
           </div>
+
+          <!-- Delete Button -->
+          <button
+            @click.stop="deleteWord(uid)"
+            class="absolute top-2 right-2 h-12 w-12 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
+            title="Delete word"
+          >
+            <X class="w-6 h-6" />
+          </button>
+        </div>
+      </div>
 
           <!-- Empty State -->
           <div

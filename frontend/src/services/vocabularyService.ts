@@ -2,6 +2,7 @@ import type {
   CreateTopicWordsRequest,
   CreateTopicWordsResponse,
   CreateVocabularyWordRequest,
+  VocabularyCollection,
   VocabularyData,
   VocabularyWord,
 } from '@/types'
@@ -47,7 +48,22 @@ class VocabularyWordsService {
       )
     }
 
-    return await response.json()
+    const data: VocabularyData = await response.json()
+
+    const sortedVocabulary: VocabularyCollection = {}
+    const entries = Object.entries(data.vocabulary || {})
+
+    entries
+      .sort((a, b) => {
+        const dateA = a[1].createdAt || ''
+        const dateB = b[1].createdAt || ''
+        return dateB.localeCompare(dateA)
+      })
+      .forEach(([uid, word]) => {
+        sortedVocabulary[uid] = word
+      })
+
+    return { vocabulary: sortedVocabulary, categories: data.categories || {} }
   }
 
   async updateWord(

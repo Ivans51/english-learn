@@ -14,10 +14,10 @@
             class="p-1.5 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200 rounded transition-colors"
             title="Go back"
           >
-            <ArrowLeft class="w-5 h-5" />
+            <ArrowLeft class="w-6 h-6" />
           </button>
           <h1
-            class="text-xl font-semibold text-primary-900 dark:text-primary-50"
+            class="text-2xl font-semibold text-primary-900 dark:text-primary-50"
           >
             Categories
           </h1>
@@ -33,7 +33,7 @@
             class="flex-1 px-3 py-1.5 text-base bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
             ref="searchInput"
           />
-          <span class="text-sm text-primary-400 dark:text-primary-500">
+          <span class="text-base text-primary-400 dark:text-primary-500">
           {{ filteredCategoriesCount }} / {{ Object.keys(categories).length }}
         </span>
       </div>
@@ -51,7 +51,7 @@
           v-else-if="Object.keys(filteredCategories).length === 0"
           class="text-center py-8"
         >
-          <p class="text-base text-primary-500 dark:text-primary-400">
+          <p class="text-lg text-primary-500 dark:text-primary-400">
             {{ searchQuery ? 'No matching categories' : 'No categories yet' }}
           </p>
         </div>
@@ -68,14 +68,14 @@
                 v-if="editingCategory === String(id)"
                 v-model="editingName"
                 type="text"
-                class="w-full px-2 py-1 text-base bg-transparent border-b border-secondary-500 focus:outline-none text-primary-900 dark:text-primary-50"
+                class="w-full px-2 py-1 text-lg bg-transparent border-b border-secondary-500 focus:outline-none text-primary-900 dark:text-primary-50"
                 @keyup.enter="handleSaveEdit(String(id))"
                 @keyup.escape="cancelEdit"
                 ref="editInput"
               />
               <span
                 v-else
-                class="text-base text-primary-700 dark:text-primary-300 cursor-pointer hover:text-primary-900 dark:hover:text-primary-100"
+                class="text-lg text-primary-700 dark:text-primary-300 cursor-pointer hover:text-primary-900 dark:hover:text-primary-100"
                 @click="startEdit(String(id), category.name)"
               >
                 {{ category.name }}
@@ -94,7 +94,7 @@
                 class="p-1.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 rounded transition-colors"
                 title="Edit category"
               >
-                <Edit3 class="w-3.5 h-3.5" />
+                <Edit3 class="w-5 h-5" />
               </button>
 
               <!-- Save button -->
@@ -113,7 +113,7 @@
                   v-if="isUpdating"
                   class="animate-spin rounded-full h-3.5 w-3.5 border-b border-primary-500"
                 ></span>
-                <Check v-else class="w-3.5 h-3.5" />
+                <Check v-else class="w-5 h-5" />
               </button>
 
               <!-- Cancel button -->
@@ -123,7 +123,7 @@
                 class="p-1.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 rounded transition-colors"
                 title="Cancel editing"
               >
-                <X class="w-3.5 h-3.5" />
+                <X class="w-5 h-5" />
               </button>
 
               <!-- Delete button -->
@@ -132,7 +132,7 @@
                 class="p-1.5 text-primary-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
                 title="Delete category and all related words"
               >
-                <Trash2 v-if="!isLoading" class="w-3.5 h-3.5" />
+                <Trash2 v-if="!isLoading" class="w-5 h-5" />
                 <span
                   v-else
                   class="animate-spin rounded-full h-3.5 w-3.5 border-b border-primary-500"
