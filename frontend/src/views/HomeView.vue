@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import MainHeader from '@/components/MainHeader.vue'
 import { useAuth } from '@/composables/useAuth'
+import { BaseButton } from '@/components/ui'
 
 const { isAuthenticated } = useAuth()
 
@@ -60,11 +61,10 @@ const ctaLink = computed(() => (isAuthenticated() ? '/vocabulary' : '/login'))
         </p>
 
         <div class="mt-8">
-          <router-link
-            :to="ctaLink"
-            class="inline-block bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-md text-lg font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors"
-          >
-            {{ ctaText }}
+          <router-link :to="ctaLink">
+            <BaseButton variant="primary">
+              {{ ctaText }}
+            </BaseButton>
           </router-link>
         </div>
       </div>

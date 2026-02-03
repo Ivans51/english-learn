@@ -51,30 +51,24 @@
               <!-- Single Step: Words Input Only -->
               <div class="mt-4 space-y-3">
                 <div>
-                  <label
-                    for="words"
-                    class="block text-base font-medium text-primary-50 mb-1"
-                  >
-                    <textarea
-                      id="words"
-                      ref="wordsInputRef"
-                      v-model="words"
-                      placeholder="e.g., apples, grapes, oranges, bananas"
-                      rows="4"
-                      class="w-full px-3 py-2 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
-                      required
-                      @keydown.ctrl.enter.prevent="createTopicWords"
-                      @keydown.enter.ctrl.prevent="createTopicWords"
-                    ></textarea>
-                  </label>
+                  <BaseInput
+                    id="words"
+                    ref="wordsInputRef"
+                    v-model="words"
+                    type="textarea"
+                    placeholder="e.g., apples, grapes, oranges, bananas"
+                    required
+                    @keydown.ctrl.enter.prevent="createTopicWords"
+                    @keydown.enter.ctrl.prevent="createTopicWords"
+                  />
                 </div>
 
                 <div class="flex justify-end gap-2">
-                  <button
+                  <BaseButton
+                    variant="secondary"
                     type="button"
                     @click="createTopicWords"
                     :disabled="!words.trim() || isCreating"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-secondary-600 text-white px-4 py-2 text-base font-medium hover:bg-secondary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Loader2
                       v-if="isCreating"
@@ -89,7 +83,7 @@
                         ? 'Creating Words...'
                         : 'Generate & Create Words'
                     }}
-                  </button>
+                  </BaseButton>
                 </div>
               </div>
             </DialogPanel>
@@ -110,6 +104,7 @@ import {
   TransitionRoot,
 } from '@headlessui/vue'
 import { Loader2, Sparkles, X } from 'lucide-vue-next'
+import { BaseButton, BaseInput } from '@/components/ui'
 
 import { vocabularyWordsService } from '@/services/vocabularyService'
 
@@ -122,7 +117,7 @@ const props = defineProps<{
 
 const words = ref('')
 const isCreating = ref(false)
-const wordsInputRef = ref<HTMLTextAreaElement>()
+const wordsInputRef = ref<InstanceType<typeof BaseInput>>()
 
 // Watch for modal open state to handle focus
 watch(

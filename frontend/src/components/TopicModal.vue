@@ -61,37 +61,22 @@
 
               <form @submit.prevent="addOrUpdateTopic" class="mt-6 space-y-4">
                 <div>
-                  <label
-                    for="title"
-                    class="block text-sm font-medium text-primary-50 mb-1"
-                  >
-                    Topic Title
-                  </label>
-                  <input
-                    type="text"
+                  <BaseInput
                     id="title"
                     v-model="formData.title"
                     placeholder="Enter topic title"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 placeholder-primary-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                     required
                     @input="forceLowercase"
                   />
                 </div>
 
-                <div class="mt-6 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    @click="closeModal"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-700 px-4 py-2 text-sm font-medium text-primary-50 hover:bg-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
-                  >
+                <div class="mt-6 flex justify-end gap-3">
+                  <BaseButton variant="secondary" @click="closeModal">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-primary-50 text-primary-950 px-4 py-2 text-sm font-medium hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
-                  >
+                  </BaseButton>
+                  <BaseButton variant="primary" type="submit">
                     {{ isEditing ? 'Save Changes' : 'Add Topic' }}
-                  </button>
+                  </BaseButton>
                 </div>
               </form>
             </DialogPanel>
@@ -111,6 +96,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue'
+import { BaseButton, BaseInput } from '@/components/ui'
 
 const emit = defineEmits(['close', 'add-topic', 'update-topic'])
 

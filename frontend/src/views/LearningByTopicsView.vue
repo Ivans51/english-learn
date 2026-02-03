@@ -42,10 +42,7 @@
             </div>
           </div>
           <div class="sm:w-40">
-            <button
-              @click="openAddTopicModal"
-              class="w-full bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer"
-            >
+            <BaseButton variant="primary" @click="openAddTopicModal" class="w-full">
               <svg
                 class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
                 fill="none"
@@ -60,7 +57,7 @@
                 ></path>
               </svg>
               <span class="text-xs sm:text-sm">Add New Topic</span>
-            </button>
+            </BaseButton>
           </div>
         </div>
 
@@ -242,6 +239,7 @@ import { topicService } from '@/services/topicService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import { fireSwal } from '../utils/swalUtils'
+import { BaseButton } from '@/components/ui'
 import type { Topic } from '@/types'
 
 const { user: firebaseUser, loading: authLoading } = useAuth()

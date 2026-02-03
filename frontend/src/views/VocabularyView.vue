@@ -222,24 +222,18 @@
               </div>
             </div>
             <div class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center">
-<button
-                  @click="openTopicWordsModal"
-                  class="w-full sm:w-auto sm:flex-1 bg-secondary-600 dark:bg-secondary-700 text-white py-2.5 px-4 rounded-md text-sm font-medium hover:bg-secondary-700 dark:hover:bg-secondary-600 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
-                >
-                  <Layers class="w-5 h-5 mr-2" />
-                  Add Group Words
-                </button>
-                <button
-                  @click="openAddWordModal"
-                  class="w-full sm:w-auto sm:flex-1 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 py-2.5 px-4 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors flex items-center justify-center cursor-pointer whitespace-nowrap"
-                >
-                  <Plus class="w-5 h-5 mr-2" />
-                  Add New Word
-                </button>
+              <BaseButton variant="secondary" @click="openTopicWordsModal">
+                <Layers class="w-5 h-5 mr-2" />
+                Add Group Words
+              </BaseButton>
+              <BaseButton variant="primary" @click="openAddWordModal">
+                <Plus class="w-5 h-5 mr-2" />
+                Add New Word
+              </BaseButton>
               <button
                 @click="viewMode = 'grid'"
-                class="p-2.5 rounded-md transition-colors flex-shrink-0"
-                :class="viewMode === 'grid' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
+                class="btn-icon"
+                :class="viewMode === 'grid' ? '!bg-secondary-600 !text-white' : ''"
                 title="Grid view"
               >
                 <div class="grid grid-cols-2 gap-0.5 w-5 h-5">
@@ -251,8 +245,8 @@
               </button>
               <button
                 @click="viewMode = 'list'"
-                class="p-2.5 rounded-md transition-colors flex-shrink-0 cursor-pointer"
-                :class="viewMode === 'list' ? 'bg-secondary-600 text-white' : 'text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800'"
+                class="btn-icon"
+                :class="viewMode === 'list' ? '!bg-secondary-600 !text-white' : ''"
                 title="List view"
               >
                 <List class="w-5 h-5" />
@@ -465,6 +459,7 @@ import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import { BaseButton } from '@/components/ui'
 import type {
   CategoryCollection,
   VocabularyData,

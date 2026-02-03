@@ -42,45 +42,26 @@
         </div>
         <form class="space-y-6" @submit.prevent="handleRegister">
           <div>
-            <label
-              for="email"
-              class="block text-sm font-medium text-primary-700 dark:text-primary-300"
-            >
-              Email address
-            </label>
-            <div class="mt-1">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-                v-model="form.email"
-                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors"
-                placeholder="Enter your email"
-              />
-            </div>
+            <BaseInput
+              id="email"
+              v-model="form.email"
+              type="email"
+              label="Email address"
+              placeholder="Enter your email"
+              required
+            />
           </div>
 
           <div>
-            <label
-              for="password"
-              class="block text-sm font-medium text-primary-700 dark:text-primary-300"
+            <BaseInput
+              id="password"
+              v-model="form.password"
+              :type="passwordFieldType"
+              label="Password"
+              placeholder="Create a password"
+              required
             >
-              Password
-            </label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <input
-                id="password"
-                name="password"
-                :type="passwordFieldType"
-                autocomplete="new-password"
-                required
-                v-model="form.password"
-                class="appearance-none block w-full px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md placeholder-primary-400 dark:placeholder-primary-500 bg-white dark:bg-primary-700 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm transition-colors pr-10"
-                placeholder="Create a password"
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <template #suffix>
                 <button
                   type="button"
                   @click="togglePasswordVisibility"
@@ -89,25 +70,21 @@
                   <Eye v-if="passwordFieldType === 'password'" class="h-5 w-5" />
                   <EyeOff v-else class="h-5 w-5" />
                 </button>
-              </div>
-            </div>
+              </template>
+            </BaseInput>
             <p class="mt-1 text-xs text-primary-500 dark:text-primary-400">
               Must be at least 6 characters long
             </p>
           </div>
 
           <div>
-            <button
-              type="submit"
-              :disabled="isLoading || !form.email || !form.password"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
+            <BaseButton variant="accent" type="submit" :disabled="isLoading || !form.email || !form.password" class="w-full">
               <span v-if="isLoading" class="flex items-center">
                 <Loader2 class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                 Creating account...
               </span>
               <span v-else>Create account</span>
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>
@@ -120,6 +97,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { Eye, EyeOff, Loader2 } from 'lucide-vue-next'
+import { BaseButton, BaseInput } from '@/components/ui'
 
 const router = useRouter()
 const { register, getAuthErrorMessage } = useAuth()

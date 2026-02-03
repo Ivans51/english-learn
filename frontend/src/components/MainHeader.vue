@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
+import { BaseButton } from '@/components/ui'
 
 const router = useRouter()
 const { isDark, toggleTheme } = useTheme()
@@ -124,19 +125,15 @@ const closeMobileMenu = () => {
           </button>
 
           <template v-if="isAuthenticated()">
-            <button
-              @click="handleLogout"
-              class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer"
-            >
+            <BaseButton variant="secondary" @click="handleLogout">
               Logout
-            </button>
+            </BaseButton>
           </template>
           <template v-else>
-            <router-link
-              to="/login"
-              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors"
-            >
-              Sign In
+            <router-link to="/login">
+              <BaseButton variant="primary">
+                Sign In
+              </BaseButton>
             </router-link>
           </template>
         </div>

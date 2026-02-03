@@ -30,21 +30,17 @@
           <div
             class="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <router-link
-              to="/"
-              class="inline-flex items-center gap-2 bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary-800 dark:hover:bg-primary-100 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <span class="text-xl">🏠</span>
-              Go to Home
+            <router-link to="/">
+              <BaseButton variant="primary">
+                <span class="text-xl">🏠</span>
+                Go to Home
+              </BaseButton>
             </router-link>
 
-            <button
-              @click="goBack"
-              class="inline-flex items-center gap-2 bg-white dark:bg-primary-800 text-primary-700 dark:text-primary-200 border-2 border-primary-300 dark:border-primary-600 px-8 py-3 rounded-xl text-lg font-semibold hover:bg-primary-50 dark:hover:bg-primary-700 transition-all duration-300 hover:scale-105 hover:shadow-md"
-            >
+            <BaseButton variant="ghost" @click="goBack">
               <span class="text-xl">←</span>
               Go Back
-            </button>
+            </BaseButton>
           </div>
 
           <!-- Additional Help Text -->
@@ -66,6 +62,7 @@
 <script setup lang="ts">
 import MainHeader from '@/components/MainHeader.vue'
 import { useRouter } from 'vue-router'
+import { BaseButton } from '@/components/ui'
 
 const router = useRouter()
 

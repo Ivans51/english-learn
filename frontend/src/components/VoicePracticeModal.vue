@@ -36,17 +36,13 @@
                   Voice Practice
                 </div>
                 <div class="flex items-center gap-2">
-                  <button
-                    @click="generatePhrase"
-                    :disabled="isGenerating"
-                    class="py-2 px-3 rounded-md text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center cursor-pointer"
-                  >
+                  <BaseButton variant="primary" size="sm" @click="generatePhrase" :disabled="isGenerating">
                     <RefreshCw class="w-4 h-4 mr-1.5" />
                     Regenerate
-                  </button>
+                  </BaseButton>
                   <button
                     @click="closeModal"
-                    class="text-primary-400 hover:text-primary-200 focus:outline-none p-2 rounded-md hover:bg-primary-800 transition-colors cursor-pointer"
+                    class="btn-icon"
                   >
                     <X class="w-5 h-5" />
                   </button>
@@ -229,12 +225,9 @@
               </div>
 
               <div class="mt-5 flex justify-end">
-                <button
-                  @click="closeModal"
-                  class="px-4 py-2 bg-primary-700 text-primary-50 rounded-md text-xs font-medium hover:bg-primary-600 transition-colors cursor-pointer"
-                >
+                <BaseButton variant="secondary" size="sm" @click="closeModal">
                   Close
-                </button>
+                </BaseButton>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -256,6 +249,7 @@ import {
 import { Mic, RefreshCw, Square, X, Volume2 } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
 import { useToast } from '@/composables/useToast'
+import { BaseButton } from '@/components/ui'
 import type { VoicePracticePhrase, VoicePracticePhraseSense, VoicePracticeResult } from '@/types'
 
 const props = defineProps<{

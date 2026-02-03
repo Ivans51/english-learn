@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import sweetAlertService from '@/services/sweetAlertService'
+import { BaseButton, BaseInput } from '@/components/ui'
 
 const router = useRouter()
 const auth = getAuth()
@@ -131,44 +132,28 @@ const updateUserPassword = async () => {
 
           <form @submit.prevent="updateProfileInfo" class="space-y-4">
             <div>
-              <label
-                for="displayName"
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Display Name
-              </label>
-              <input
+              <BaseInput
                 id="displayName"
                 v-model="displayName"
                 type="text"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
+                label="Display Name"
                 placeholder="Enter your display name"
               />
             </div>
 
             <div>
-              <label
-                for="email"
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Email Address
-              </label>
-              <input
+              <BaseInput
                 id="email"
                 v-model="email"
                 type="email"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
+                label="Email Address"
                 placeholder="Enter your email"
               />
             </div>
 
-            <button
-              type="submit"
-              :disabled="isLoading"
-              class="bg-primary-900 dark:bg-primary-50 text-primary-50 dark:text-primary-950 px-6 py-2 rounded-md font-medium hover:bg-primary-800 dark:hover:bg-primary-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <BaseButton variant="primary" type="submit" :disabled="isLoading">
               {{ isLoading ? 'Updating...' : 'Update Profile' }}
-            </button>
+            </BaseButton>
           </form>
         </div>
 
@@ -182,44 +167,28 @@ const updateUserPassword = async () => {
 
           <form @submit.prevent="updateUserPassword" class="space-y-4">
             <div>
-              <label
-                for="newPassword"
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                New Password
-              </label>
-              <input
+              <BaseInput
                 id="newPassword"
                 v-model="newPassword"
                 type="password"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
+                label="New Password"
                 placeholder="Enter new password"
               />
             </div>
 
             <div>
-              <label
-                for="confirmPassword"
-                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-1"
-              >
-                Confirm New Password
-              </label>
-              <input
+              <BaseInput
                 id="confirmPassword"
                 v-model="confirmPassword"
                 type="password"
-                class="w-full px-4 py-2 border border-primary-300 dark:border-primary-700 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-primary-800 text-primary-900 dark:text-primary-50 transition-colors"
+                label="Confirm New Password"
                 placeholder="Confirm new password"
               />
             </div>
 
-            <button
-              type="submit"
-              :disabled="isLoading || !newPassword || !confirmPassword"
-              class="bg-secondary-900 dark:bg-secondary-800 text-primary-50 px-6 py-2 rounded-md font-medium hover:bg-secondary-800 dark:hover:bg-secondary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <BaseButton variant="secondary" type="submit" :disabled="isLoading || !newPassword || !confirmPassword">
               {{ isLoading ? 'Updating...' : 'Change Password' }}
-            </button>
+            </BaseButton>
           </form>
         </div>
 
