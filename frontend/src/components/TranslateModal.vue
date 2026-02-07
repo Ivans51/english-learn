@@ -77,9 +77,16 @@
             <div class="flex-1 overflow-hidden flex flex-col">
               <!-- Phrase Display -->
               <div class="p-4 border-b border-primary-700">
-                <div class="text-xs text-primary-400 mb-2">
-                  Translate this {{ sourceLanguageName }} phrase to
-                  {{ targetLanguageName }}:
+                <div
+                  v-if="currentPhrase?.style || currentPhrase?.grammarFocus"
+                  class="mb-2 flex flex-wrap gap-2"
+                >
+                  <span
+                    v-if="currentPhrase.style"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-800 text-primary-300 border border-primary-700"
+                  >
+                    {{ currentPhrase.style }} - {{ currentPhrase.grammarFocus }}
+                  </span>
                 </div>
                 <div
                   v-if="currentPhrase"
@@ -87,23 +94,6 @@
                   :class="phraseBoxClass"
                 >
                   {{ currentPhrase.phrase }}
-                </div>
-                <div
-                  v-if="currentPhrase?.style || currentPhrase?.grammarFocus"
-                  class="mt-2 flex flex-wrap gap-2"
-                >
-                  <span
-                    v-if="currentPhrase.style"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-800 text-primary-300 border border-primary-700"
-                  >
-                    {{ currentPhrase.style }}
-                  </span>
-                  <span
-                    v-if="currentPhrase.grammarFocus"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-800 text-primary-300 border border-primary-700"
-                  >
-                    {{ currentPhrase.grammarFocus }}
-                  </span>
                 </div>
                 <div v-else-if="isGeneratingPhrase" class="text-center py-4">
                   <div
@@ -250,14 +240,8 @@ const isGeneratingPhrase = ref(false)
 const lastResult = ref<{ isCorrect: boolean; feedback?: string } | null>(null)
 const translationDirection = ref<'es-en' | 'en-es'>('es-en')
 
-const sourceLanguage = computed(() =>
-  translationDirection.value === 'es-en' ? 'es' : 'en',
-)
 const targetLanguage = computed(() =>
   translationDirection.value === 'es-en' ? 'en' : 'es',
-)
-const sourceLanguageName = computed(() =>
-  sourceLanguage.value === 'es' ? 'Spanish' : 'English',
 )
 const targetLanguageName = computed(() =>
   targetLanguage.value === 'es' ? 'Spanish' : 'English',
