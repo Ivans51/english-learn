@@ -1,185 +1,197 @@
 <template>
-  <div class="min-h-screen bg-primary-50 dark:bg-primary-950 transition-colors">
-    <MainHeader />
+  <Transition
+    name="modal"
+    appear
+    appear-active-class="transition-opacity duration-300"
+    appear-from-class="opacity-0"
+    appear-to-class="opacity-100"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click="closeModal"
+    >
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-      <div class="mb-6">
-        <button
-          @click="goBack"
-          class="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors cursor-pointer mb-4"
-        >
-          <svg
-            class="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            ></path>
-          </svg>
-          <span class="text-sm font-medium">Back to Topics</span>
-        </button>
-
-        <div class="border-b border-gray-600 pb-6">
-          <div class="flex justify-between items-start">
-            <div class="flex items-center">
-              <div
-                class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-800 mr-3"
-              >
-                <MessageCircle
-                  class="h-6 w-6 text-primary-600 dark:text-primary-300"
-                />
-              </div>
-              <div>
-                <h1
-                  class="text-xl sm:text-2xl font-bold text-primary-900 dark:text-primary-50"
-                >
-                  Grammar Practice
-                </h1>
-                <p
-                  class="text-sm sm:text-base text-primary-600 dark:text-primary-400 mt-1"
-                >
-                  Topic: {{ topicTitle }}
-                </p>
-              </div>
-            </div>
-            <BaseButton variant="secondary" @click="generatePracticePhrase" :disabled="isLoading">
-              <Plus class="h-4 w-4 mr-2" />
-              Generate Phrase
-              <kbd class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono">Ctrl+K</kbd>
-            </BaseButton>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <p class="text-sm text-primary-600 dark:text-primary-400">
-          Practice your English grammar! Type a sentence and I'll help you
-          improve it.
-        </p>
-      </div>
-
-      <div class="mt-6">
-        <div
-          id="chat-container"
-          class="h-[calc(100vh-400px)] min-h-[300px] max-h-[600px] overflow-y-auto rounded-lg p-4 bg-black"
+        <!-- Modal -->
+        <Transition
+          name="modal-content"
+          appear
+          appear-active-class="transition-all duration-300"
+          appear-from-class="opacity-0 scale-95 translate-y-4"
+          appear-to-class="opacity-100 scale-100 translate-y-0"
         >
           <div
-            v-if="chatMessages.length === 0"
-            class="flex flex-col items-center justify-center text-center text-primary-400 h-full"
+            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto max-h-[90vh] flex flex-col"
+            @click.stop
           >
-            <MessageCircle class="mx-auto h-12 w-12 text-primary-500 mb-4" />
-            <p>Start practicing your English grammar!</p>
-            <p class="text-sm mt-2">
-              Type a sentence and I'll help you improve it.
-            </p>
-          </div>
-
-          <div v-else class="space-y-4">
-            <div
-              v-for="message in chatMessages"
-              :key="message.id"
-              class="flex"
-              :class="message.type === 'user' ? 'justify-end' : 'justify-start'"
-            >
-              <div
-                class="max-w-xs lg:max-w-md px-3 py-1 rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-50 leading-tight"
-              >
-                <div v-if="message.isLoading" class="flex items-center">
-                  <div
-                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"
-                  ></div>
-                  <span>{{ message.content }}</span>
-                </div>
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-primary-700">
+              <div class="flex items-center">
                 <div
-                  v-else
-                  class="markdown-content"
-                  :class="{
-                    'correct-feedback': message.isCorrect,
-                    'incorrect-feedback': message.isCorrect === false,
-                    'practice-feedback': message.isCorrect === undefined && message.type === 'assistant'
-                  }"
-                  v-html="message.content"
-                ></div>
-                <div
-                  v-if="message.showTranslation && message.translation"
-                  class="mt-2 p-2 rounded bg-primary-800/50 border border-primary-700 text-blue-300 text-sm"
+                  class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
                 >
-                  <span class="font-medium text-xs text-blue-400 block mb-1">ES:</span>
-                  {{ message.translation }}
+                  <MessageCircle
+                    class="h-6 w-6 text-primary-300"
+                  />
                 </div>
-                <div class="text-xs opacity-70 mt-1 flex items-center">
-                  <span>{{ message.timestamp.toLocaleTimeString() }}</span>
-                  <button
-                    v-if="message.type === 'assistant' && !message.isLoading"
-                    @click="translateMessage(message)"
-                    :disabled="message.isTranslating"
-                    class="ml-2 text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                <div>
+                  <h2
+                    class="text-xl font-bold text-primary-50"
                   >
-                    <span v-if="message.isTranslating">...</span>
-                    <span v-else-if="message.showTranslation && message.translation">Hide ES</span>
-                    <span v-else>Translate to ES</span>
-                  </button>
+                    Grammar Practice
+                  </h2>
+                  <p
+                    class="text-sm text-primary-400 mt-1"
+                  >
+                    {{ topicTitle }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <BaseButton variant="secondary" @click="generatePracticePhrase" :disabled="isLoading" size="sm">
+                  <Plus class="h-4 w-4 mr-2" />
+                  Generate Phrase
+                  <kbd class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono">Ctrl+K</kbd>
+                </BaseButton>
+                <button
+                  @click="closeModal"
+                  class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
+                >
+                  <X class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="flex-1 overflow-hidden">
+              <div
+                id="grammar-chat-container"
+                ref="chatContainerRef"
+                class="h-[50vh] min-h-[300px] max-h-[500px] overflow-y-auto p-4 bg-black"
+              >
+                <div
+                  v-if="chatMessages.length === 0"
+                  class="flex flex-col items-center justify-center text-center text-primary-400 h-full"
+                >
+                  <MessageCircle class="mx-auto h-12 w-12 text-primary-500 mb-4" />
+                  <p>Start practicing your English grammar!</p>
+                  <p class="text-sm mt-2">
+                    Type a sentence and I'll help you improve it.
+                  </p>
+                </div>
+
+                <div v-else class="space-y-4">
+                  <div
+                    v-for="message in chatMessages"
+                    :key="message.id"
+                    class="flex"
+                    :class="message.type === 'user' ? 'justify-end' : 'justify-start'"
+                  >
+                    <div
+                      class="max-w-xs lg:max-w-md px-3 py-1 rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-50 leading-tight"
+                    >
+                      <div v-if="message.isLoading" class="flex items-center">
+                        <div
+                          class="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"
+                        ></div>
+                        <span>{{ message.content }}</span>
+                      </div>
+                      <div
+                        v-else
+                        class="markdown-content"
+                        :class="{
+                          'correct-feedback': message.isCorrect,
+                          'incorrect-feedback': message.isCorrect === false,
+                          'practice-feedback': message.isCorrect === undefined && message.type === 'assistant'
+                        }"
+                        v-html="message.content"
+                      ></div>
+                      <div
+                        v-if="message.showTranslation && message.translation"
+                        class="mt-2 p-2 rounded bg-primary-800/50 border border-primary-700 text-blue-300 text-sm"
+                      >
+                        <span class="font-medium text-xs text-blue-400 block mb-1">ES:</span>
+                        {{ message.translation }}
+                      </div>
+                      <div class="text-xs opacity-70 mt-1 flex items-center">
+                        <span>{{ message.timestamp.toLocaleTimeString() }}</span>
+                        <button
+                          v-if="message.type === 'assistant' && !message.isLoading"
+                          @click="translateMessage(message)"
+                          :disabled="message.isTranslating"
+                          class="ml-2 text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                        >
+                          <span v-if="message.isTranslating">...</span>
+                          <span v-else-if="message.showTranslation && message.translation">Hide ES</span>
+                          <span v-else>Translate to ES</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-primary-700">
+              <div class="flex space-x-3">
+                <div class="flex-1">
+                  <input
+                    ref="inputRef"
+                    type="text"
+                    v-model="currentMessage"
+                    @keydown="handleKeyPress"
+                    @input="forceCapitalization"
+                    placeholder="Type your sentence here..."
+                    autocapitalize="sentences"
+                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                    :disabled="isLoading"
+                  />
+                  <div class="text-xs text-gray-500 mt-1 ml-1">
+                    Press <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd> to focus
+                  </div>
+                </div>
+                <div>
+                  <BaseButton variant="secondary" @click="sendMessage" :disabled="!currentMessage.trim() || isLoading">
+                    <Send v-if="!isLoading" class="h-4 w-4" />
+                    <span
+                      v-else
+                      class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-950"
+                    ></span>
+                  </BaseButton>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <div class="flex space-x-3">
-          <div class="flex-1">
-            <input
-              ref="inputRef"
-              type="text"
-              v-model="currentMessage"
-              @keydown="handleKeyPress"
-              @input="forceCapitalization"
-              placeholder="Type your sentence here..."
-              autocapitalize="sentences"
-              class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black dark:bg-primary-900 text-primary-50 dark:text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-              :disabled="isLoading"
-            />
-            <div class="text-xs text-gray-500 mt-1 ml-1">
-              Press <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd> to focus
-            </div>
-          </div>
-          <div>
-            <BaseButton variant="secondary" @click="sendMessage" :disabled="!currentMessage.trim() || isLoading">
-              <Send v-if="!isLoading" class="h-4 w-4" />
-              <span
-                v-else
-                class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-950"
-              ></span>
-            </BaseButton>
-          </div>
-        </div>
+        </Transition>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
-import { MessageCircle, Plus, Send } from 'lucide-vue-next'
-import MainHeader from '@/components/MainHeader.vue'
+import { MessageCircle, Plus, Send, X } from 'lucide-vue-next'
 import { BaseButton } from '@/components/ui'
 
 interface Props {
+  isOpen: boolean
   topicId: string
   topicTitle: string
 }
 
+interface Emits {
+  (e: 'close'): void
+}
+
 const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 
 interface ChatMessage {
   id: string
@@ -199,17 +211,31 @@ interface GrammarCheckResult {
   suggestions?: string[]
 }
 
-const router = useRouter()
 const { error: showErrorToast } = useToast()
 
 const currentMessage = ref('')
 const chatMessages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
-const from = ref(sessionStorage.getItem('grammarCheckFrom') || '/learning-topics')
+const chatContainerRef = ref<HTMLElement | null>(null)
 
-const goBack = () => {
-  router.push(from.value)
+// Reset state when modal opens
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    // Reset state
+    chatMessages.value = []
+    currentMessage.value = ''
+    isLoading.value = false
+    
+    // Focus input after modal animation completes
+    setTimeout(() => {
+      focusInput()
+    }, 350)
+  }
+})
+
+const closeModal = () => {
+  emit('close')
 }
 
 const focusInput = async () => {
@@ -417,7 +443,7 @@ const generatePracticePhrase = async () => {
 }
 
 const scrollToBottom = async () => {
-  const chatContainer = document.getElementById('chat-container')
+  const chatContainer = chatContainerRef.value
   if (chatContainer) {
     await nextTick()
     chatContainer.scrollTop = chatContainer.scrollHeight
@@ -475,6 +501,8 @@ const handleKeyPress = (event: KeyboardEvent) => {
 }
 
 const handleGlobalKeydown = (event: KeyboardEvent) => {
+  if (!props.isOpen) return
+  
   if (event.ctrlKey && event.key === 'k') {
     event.preventDefault()
     generatePracticePhrase()
@@ -486,7 +514,6 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 }
 
 onMounted(() => {
-  focusInput()
   window.addEventListener('keydown', handleGlobalKeydown)
 })
 
@@ -496,21 +523,21 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-#chat-container::-webkit-scrollbar {
+#grammar-chat-container::-webkit-scrollbar {
   width: 8px;
 }
 
-#chat-container::-webkit-scrollbar-track {
+#grammar-chat-container::-webkit-scrollbar-track {
   background: #1f2937;
   border-radius: 4px;
 }
 
-#chat-container::-webkit-scrollbar-thumb {
+#grammar-chat-container::-webkit-scrollbar-thumb {
   background: #4b5563;
   border-radius: 4px;
 }
 
-#chat-container::-webkit-scrollbar-thumb:hover {
+#grammar-chat-container::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 </style>

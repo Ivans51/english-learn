@@ -199,6 +199,13 @@
                       {{ category.name }}
                     </option>
                   </select>
+                  <button
+                    @click="navigateToCategories"
+                    class="px-4 py-2.5 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center cursor-pointer"
+                    title="Manage Categories"
+                  >
+                    <Settings class="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -353,7 +360,7 @@
                     <Mic class="w-5 h-5" />
                   </button>
               <button
-                @click="openGrammarCheck(uid, word.term)"
+                @click.stop="openGrammarCheck(uid, word.term)"
                 class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
                 title="Practice grammar"
               >
@@ -442,6 +449,14 @@
       :target-word="selectedWordForVoicePractice"
       @close="showVoicePracticeModal = false"
     />
+
+    <!-- Grammar Check Modal -->
+    <GrammarCheckModal
+      :is-open="showGrammarCheckModal"
+      :topic-id="selectedWordForGrammar?.uid || ''"
+      :topic-title="selectedWordForGrammar?.term || ''"
+      @close="closeGrammarCheckModal"
+    />
   </main>
 </template>
 
@@ -455,6 +470,7 @@ import WordModal from '@/components/WordModal.vue'
 import TopicWordsModal from '@/components/TopicWordsModal.vue'
 import WordDetailsModal from '@/components/WordDetailsModal.vue'
 import VoicePracticeModal from '@/components/VoicePracticeModal.vue'
+import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
 import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
@@ -496,6 +512,8 @@ const showTopicWordsModal = ref(false)
 const showSearchFilter = ref(false)
 const showVoicePracticeModal = ref(false)
 const selectedWordForVoicePractice = ref('')
+const showGrammarCheckModal = ref(false)
+const selectedWordForGrammar = ref<{ uid: string; term: string } | null>(null)
 const viewMode = ref<'grid' | 'list'>(
   (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
 )
@@ -519,8 +537,13 @@ watch(selectedCategory, (newCategory) => {
 const renderedDescriptions = ref<Record<string, string>>({})
 
 const openGrammarCheck = (uid: string, term: string) => {
-  sessionStorage.setItem('grammarCheckFrom', '/vocabulary')
-  router.push(`/grammar-check/${uid}/${encodeURIComponent(term)}`)
+  selectedWordForGrammar.value = { uid, term }
+  showGrammarCheckModal.value = true
+}
+
+const closeGrammarCheckModal = () => {
+  showGrammarCheckModal.value = false
+  selectedWordForGrammar.value = null
 }
 
 // Watch for changes in the firebaseUser
@@ -625,15 +648,17 @@ const closeTopicWordsModal = () => {
   showTopicWordsModal.value = false
 }
 
-const openVoicePracticeModal = (word: string) => {
+const openVoicePracticeModal = (word: string, closeWordDetails = true) => {
   selectedWordForVoicePractice.value = word
-  showWordDetailsModal.value = false
+  if (closeWordDetails) {
+    showWordDetailsModal.value = false
+  }
   showVoicePracticeModal.value = true
 }
 
 const handleWordDetailsVoicePractice = (term: string) => {
-  closeWordDetailsModal()
-  setTimeout(() => openVoicePracticeModal(term), 150)
+  // Don't close WordDetailsModal - let it stay open behind VoicePracticeModal
+  openVoicePracticeModal(term, false)
 }
 
 const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {

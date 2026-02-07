@@ -227,14 +227,22 @@
       @add-topic="addNewTopic"
       @update-topic="updateTopic"
     />
+
+    <!-- Grammar Check Modal -->
+    <GrammarCheckModal
+      :is-open="showGrammarCheckModal"
+      :topic-id="selectedTopicForGrammar?.id || ''"
+      :topic-title="selectedTopicForGrammar?.title || ''"
+      @close="closeGrammarCheckModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import MainHeader from '@/components/MainHeader.vue'
 import TopicModal from '@/components/TopicModal.vue'
+import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
 import { topicService } from '@/services/topicService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -243,7 +251,6 @@ import { BaseButton } from '@/components/ui'
 import type { Topic } from '@/types'
 
 const { user: firebaseUser, loading: authLoading } = useAuth()
-const router = useRouter()
 const { success: showSuccessToast, error: showErrorToast } = useToast()
 const userId = ref('anonymous')
 
@@ -252,6 +259,8 @@ const isLoading = ref(false)
 
 const showAddTopicModal = ref(false)
 const topicToEdit = ref<Topic | null>(null)
+const showGrammarCheckModal = ref(false)
+const selectedTopicForGrammar = ref<{ id: string; title: string } | null>(null)
 
 // Modal functions
 const openAddTopicModal = () => {
@@ -358,8 +367,13 @@ const formatDate = (dateString: string) => {
 }
 
 const openGrammarCheck = (topicId: string, topicTitle: string) => {
-  sessionStorage.setItem('grammarCheckFrom', '/learning-topics')
-  router.push(`/grammar-check/${topicId}/${encodeURIComponent(topicTitle)}`)
+  selectedTopicForGrammar.value = { id: topicId, title: topicTitle }
+  showGrammarCheckModal.value = true
+}
+
+const closeGrammarCheckModal = () => {
+  showGrammarCheckModal.value = false
+  selectedTopicForGrammar.value = null
 }
 
 // Load topics when user changes
