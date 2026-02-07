@@ -71,7 +71,7 @@
             </div>
 
             <!-- Chat Container -->
-            <div class="flex-1 overflow-hidden">
+            <div class="flex-1 overflow-y-auto">
               <div
                 id="grammar-chat-container"
                 ref="chatContainerRef"

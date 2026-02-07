@@ -74,7 +74,7 @@
             </div>
 
             <!-- Content -->
-            <div class="flex-1 overflow-hidden flex flex-col">
+            <div class="flex-1 overflow-y-auto flex flex-col">
               <!-- Phrase Display -->
               <div class="p-4 border-b border-primary-700">
                 <div
