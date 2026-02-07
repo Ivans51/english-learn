@@ -232,7 +232,7 @@
               </BaseButton>
               <button
                 @click="viewMode = 'grid'"
-                class="btn-icon"
+                class="btn-icon hidden sm:block"
                 :class="viewMode === 'grid' ? '!bg-secondary-600 !text-white' : ''"
                 title="Grid view"
               >
@@ -245,7 +245,7 @@
               </button>
               <button
                 @click="viewMode = 'list'"
-                class="btn-icon"
+                class="btn-icon hidden sm:block"
                 :class="viewMode === 'list' ? '!bg-secondary-600 !text-white' : ''"
                 title="List view"
               >
@@ -274,7 +274,7 @@
         <div v-else>
           <!-- Grid Layout -->
           <div
-            v-if="viewMode === 'grid'"
+            v-if="viewMode === 'grid' || isMobile"
             class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
           >
             <div
@@ -310,7 +310,7 @@
 
           <!-- List Layout -->
           <div
-            v-else
+            v-else-if="viewMode === 'list' && !isMobile"
             class="vocabulary-list-view flex flex-col gap-3"
           >
             <div
@@ -500,6 +500,11 @@ const viewMode = ref<'grid' | 'list'>(
   (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
 )
 const initialLoadComplete = ref(false)
+const isMobile = ref(window.innerWidth < 640)
+
+const updateIsMobile = () => {
+  isMobile.value = window.innerWidth < 640
+}
 
 watch(viewMode, (newMode) => {
   localStorage.setItem('vocabularyViewMode', newMode)
@@ -762,11 +767,12 @@ onMounted(async () => {
 
   // Add keyboard shortcut listener
   document.addEventListener('keydown', handleKeyboardShortcut)
+  window.addEventListener('resize', updateIsMobile)
 })
 
 onUnmounted(() => {
-  // Clean up keyboard shortcut listener
   document.removeEventListener('keydown', handleKeyboardShortcut)
+  window.removeEventListener('resize', updateIsMobile)
 })
 
 // Watch for auth loading to complete
