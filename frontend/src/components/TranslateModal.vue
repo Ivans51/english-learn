@@ -29,34 +29,44 @@
           >
             <!-- Header -->
             <div
-              class="flex items-center justify-between p-4 border-b border-primary-700"
+              class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-primary-700 gap-3"
             >
-              <div class="flex items-center">
-                <div
-                  class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div
+                    class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
+                  >
+                    <Languages class="h-6 w-6 text-primary-300" />
+                  </div>
+                  <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-primary-50">
+                      Translate
+                    </h2>
+                    <p class="text-sm text-primary-400 mt-1" v-if="word">
+                      Word: {{ word }}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  @click="closeModal"
+                  class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800 sm:hidden"
                 >
-                  <Languages class="h-6 w-6 text-primary-300" />
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-primary-50">Translate</h2>
-                  <p class="text-sm text-primary-400 mt-1" v-if="word">
-                    Word: {{ word }}
-                  </p>
-                </div>
+                  <X class="w-5 h-5" />
+                </button>
               </div>
               <div class="flex items-center gap-2">
                 <!-- Language Direction Selector -->
                 <select
                   v-model="translationDirection"
                   @change="handleDirectionChange"
-                  class="px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="flex-1 sm:flex-none px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
                   <option value="es-en">Spanish → English</option>
                   <option value="en-es">English → Spanish</option>
                 </select>
                 <button
                   @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
+                  class="hidden sm:block text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
                 >
                   <X class="w-5 h-5" />
                 </button>
@@ -150,6 +160,7 @@
                     v-model="userTranslation"
                     @keydown="handleKeyPress"
                     @input="forceCapitalization"
+                    @focus="handleInputFocus"
                     :placeholder="`Type the translation in ${targetLanguageName}...`"
                     rows="3"
                     class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
@@ -382,6 +393,16 @@ const handleGlobalKeyPress = (event: KeyboardEvent) => {
       generateNewPhrase()
     }
   }
+}
+
+const handleInputFocus = () => {
+  // Scroll input into view when keyboard opens on mobile
+  setTimeout(() => {
+    translationInput.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+  }, 300)
 }
 
 const forceCapitalization = () => {

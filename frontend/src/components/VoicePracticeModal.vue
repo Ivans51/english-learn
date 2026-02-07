@@ -14,7 +14,9 @@
       </TransitionChild>
 
       <div class="fixed inset-0 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div
+          class="flex min-h-full items-center justify-center p-4 text-center"
+        >
           <TransitionChild
             as="template"
             enter="duration-300 ease-out"
@@ -36,14 +38,16 @@
                   Voice Practice
                 </div>
                 <div class="flex items-center gap-2">
-                  <BaseButton variant="primary" size="sm" @click="generatePhrase" :disabled="isGenerating">
+                  <BaseButton
+                    variant="primary"
+                    size="sm"
+                    @click="generatePhrase"
+                    :disabled="isGenerating"
+                  >
                     <RefreshCw class="w-4 h-4 mr-1.5" />
                     Regenerate
                   </BaseButton>
-                  <button
-                    @click="closeModal"
-                    class="btn-icon"
-                  >
+                  <button @click="closeModal" class="btn-icon">
                     <X class="w-5 h-5" />
                   </button>
                 </div>
@@ -66,11 +70,18 @@
                   v-if="isGenerating"
                   class="bg-primary-800 rounded-lg p-4 text-center"
                 >
-                  <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-500 mx-auto"></div>
-                  <p class="text-xs text-primary-400 mt-2">Generating phrases...</p>
+                  <div
+                    class="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-500 mx-auto"
+                  ></div>
+                  <p class="text-xs text-primary-400 mt-2">
+                    Generating phrases...
+                  </p>
                 </div>
                 <div
-                  v-else-if="currentPhraseData?.senses && currentPhraseData.senses.length > 0"
+                  v-else-if="
+                    currentPhraseData?.senses &&
+                    currentPhraseData.senses.length > 0
+                  "
                   class="space-y-2"
                 >
                   <div
@@ -81,7 +92,7 @@
                     :class="[
                       selectedSense?.phrase === sense.phrase
                         ? 'border-secondary-500 bg-primary-750'
-                        : 'border-transparent hover:bg-primary-750'
+                        : 'border-transparent hover:bg-primary-750',
                     ]"
                   >
                     <div class="flex items-start justify-between">
@@ -92,11 +103,15 @@
                         <span
                           class="text-xs px-2 py-0.5 rounded"
                           :class="[
-                            sense.senseType === 'literal' ? 'bg-blue-900/50 text-blue-300' :
-                            sense.senseType === 'idiomatic' ? 'bg-purple-900/50 text-purple-300' :
-                            sense.senseType === 'slang' ? 'bg-red-900/50 text-red-300' :
-                            sense.senseType === 'colloquial' ? 'bg-yellow-900/50 text-yellow-300' :
-                            'bg-gray-700 text-gray-300'
+                            sense.senseType === 'literal'
+                              ? 'bg-blue-900/50 text-blue-300'
+                              : sense.senseType === 'idiomatic'
+                                ? 'bg-purple-900/50 text-purple-300'
+                                : sense.senseType === 'slang'
+                                  ? 'bg-red-900/50 text-red-300'
+                                  : sense.senseType === 'colloquial'
+                                    ? 'bg-yellow-900/50 text-yellow-300'
+                                    : 'bg-gray-700 text-gray-300',
                           ]"
                         >
                           {{ sense.senseType || 'literal' }}
@@ -107,7 +122,10 @@
                           class="px-2 rounded-md hover:bg-primary-700 transition-colors text-primary-400 hover:text-primary-200 disabled:opacity-50 cursor-pointer"
                           title="Listen to pronunciation"
                         >
-                          <Volume2 class="w-6 h-6" :class="{ 'animate-pulse': isPlaying }" />
+                          <Volume2
+                            class="w-6 h-6"
+                            :class="{ 'animate-pulse': isPlaying }"
+                          />
                         </button>
                       </div>
                     </div>
@@ -124,7 +142,10 @@
                       {{ sense.grammarFocus }}
                     </p>
                   </div>
-                  <p v-if="!selectedSense" class="text-primary-400 text-xs text-center py-2">
+                  <p
+                    v-if="!selectedSense"
+                    class="text-primary-400 text-xs text-center py-2"
+                  >
                     Click on a phrase to select it for practice
                   </p>
                 </div>
@@ -141,17 +162,11 @@
                   :class="[
                     isRecording
                       ? 'bg-red-600 text-white animate-pulse'
-                      : 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                      : 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed',
                   ]"
                 >
-                  <Mic
-                    v-if="!isRecording"
-                    class="w-5 h-5 mr-2"
-                  />
-                  <Square
-                    v-else
-                    class="w-5 h-5 mr-2"
-                  />
+                  <Mic v-if="!isRecording" class="w-5 h-5 mr-2" />
+                  <Square v-else class="w-5 h-5 mr-2" />
                   {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
                 </button>
               </div>
@@ -167,7 +182,7 @@
                     class="w-2 bg-red-500 rounded-full animate-pulse"
                     :style="{
                       height: `${8 + Math.random() * 16}px`,
-                      animationDelay: `${i * 0.1}s`
+                      animationDelay: `${i * 0.1}s`,
                     }"
                   ></div>
                 </div>
@@ -178,30 +193,47 @@
                 v-if="isEvaluating"
                 class="mt-3 bg-primary-800 rounded-lg p-4 text-center"
               >
-                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-secondary-500 mx-auto"></div>
-                <p class="text-xs text-primary-400 mt-2">Analyzing your pronunciation...</p>
+                <div
+                  class="animate-spin rounded-full h-7 w-7 border-b-2 border-secondary-500 mx-auto"
+                ></div>
+                <p class="text-xs text-primary-400 mt-2">
+                  Analyzing your pronunciation...
+                </p>
               </div>
 
-              <div
-                v-if="result"
-                class="mt-3 bg-primary-800 rounded-lg p-4"
-              >
+              <div v-if="result" class="mt-3 bg-primary-800 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-medium text-primary-50">Pronunciation Score</span>
-                  <span
-                    class="text-xl font-bold"
-                    :class="[
-                      result.score >= 80 ? 'text-green-500' :
-                      result.score >= 60 ? 'text-yellow-500' : 'text-red-500'
-                    ]"
-                  >
-                    {{ result.score }}%
+                  <span class="text-sm font-medium text-primary-50">
+                    Pronunciation Score
                   </span>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="text-xl font-bold"
+                      :class="[
+                        result.score >= 80
+                          ? 'text-green-500'
+                          : result.score >= 60
+                            ? 'text-yellow-500'
+                            : 'text-red-500',
+                      ]"
+                    >
+                      {{ result.score }}%
+                    </span>
+                    <button
+                      @click="result = null"
+                      class="p-1 hover:bg-primary-700 rounded transition-colors text-primary-400 hover:text-primary-200"
+                      title="Clear result"
+                    >
+                      <X class="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 <div class="mb-2">
-                  <p class="text-[10px] text-primary-400 mb-1">You said:</p>
-                  <p class="text-primary-200 text-xs">"{{ result.transcription }}"</p>
+                  <p class="text-xs text-primary-400 mb-1">You said:</p>
+                  <p class="text-primary-200 text-sm">
+                    "{{ result.transcription }}"
+                  </p>
                 </div>
 
                 <div
@@ -209,15 +241,17 @@
                   :class="[
                     result.isCorrect
                       ? 'bg-green-900/30 border border-green-700'
-                      : 'bg-yellow-900/30 border border-yellow-700'
+                      : 'bg-yellow-900/30 border border-yellow-700',
                   ]"
                 >
-                  <p class="text-[10px] text-primary-400 mb-1">
+                  <p class="text-xs text-primary-400 mb-1">
                     {{ result.isCorrect ? '✓ Great job!' : '💡 Feedback' }}
                   </p>
                   <p
-                    class="text-xs"
-                    :class="result.isCorrect ? 'text-green-200' : 'text-yellow-200'"
+                    class="text-sm"
+                    :class="
+                      result.isCorrect ? 'text-green-200' : 'text-yellow-200'
+                    "
                   >
                     {{ result.feedback }}
                   </p>
@@ -250,7 +284,11 @@ import { Mic, RefreshCw, Square, X, Volume2 } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
 import { useToast } from '@/composables/useToast'
 import { BaseButton } from '@/components/ui'
-import type { VoicePracticePhrase, VoicePracticePhraseSense, VoicePracticeResult } from '@/types'
+import type {
+  VoicePracticePhrase,
+  VoicePracticePhraseSense,
+  VoicePracticeResult,
+} from '@/types'
 
 const props = defineProps<{
   isOpen: boolean
@@ -287,9 +325,7 @@ const generatePhrase = async () => {
   currentPhrase.value = ''
 
   try {
-    const data = await voicePracticeService.generatePhrase(
-      props.targetWord,
-    )
+    const data = await voicePracticeService.generatePhrase(props.targetWord)
     currentPhraseData.value = data
     if (data.senses && data.senses.length > 0) {
       selectedSense.value = data.senses[0]

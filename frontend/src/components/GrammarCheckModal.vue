@@ -28,33 +28,38 @@
             @click.stop
           >
             <!-- Header -->
-            <div class="flex items-center justify-between p-4 border-b border-primary-700">
+            <div
+              class="flex items-center justify-between p-4 border-b border-primary-700"
+            >
               <div class="flex items-center">
                 <div
                   class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
                 >
-                  <MessageCircle
-                    class="h-6 w-6 text-primary-300"
-                  />
+                  <MessageCircle class="h-6 w-6 text-primary-300" />
                 </div>
                 <div>
-                  <h2
-                    class="text-xl font-bold text-primary-50"
-                  >
+                  <h2 class="text-xl font-bold text-primary-50">
                     Grammar Practice
                   </h2>
-                  <p
-                    class="text-sm text-primary-400 mt-1"
-                  >
+                  <p class="text-sm text-primary-400 mt-1">
                     {{ topicTitle }}
                   </p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <BaseButton variant="secondary" @click="generatePracticePhrase" :disabled="isLoading" size="sm">
+                <BaseButton
+                  variant="secondary"
+                  @click="generatePracticePhrase"
+                  :disabled="isLoading"
+                  size="sm"
+                >
                   <Plus class="h-4 w-4 mr-2" />
                   Generate Phrase
-                  <kbd class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono">Ctrl+K</kbd>
+                  <kbd
+                    class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono"
+                  >
+                    Ctrl+K
+                  </kbd>
                 </BaseButton>
                 <button
                   @click="closeModal"
@@ -76,7 +81,9 @@
                   v-if="chatMessages.length === 0"
                   class="flex flex-col items-center justify-center text-center text-primary-400 h-full"
                 >
-                  <MessageCircle class="mx-auto h-12 w-12 text-primary-500 mb-4" />
+                  <MessageCircle
+                    class="mx-auto h-12 w-12 text-primary-500 mb-4"
+                  />
                   <p>Start practicing your English grammar!</p>
                   <p class="text-sm mt-2">
                     Type a sentence and I'll help you improve it.
@@ -88,7 +95,9 @@
                     v-for="message in chatMessages"
                     :key="message.id"
                     class="flex"
-                    :class="message.type === 'user' ? 'justify-end' : 'justify-start'"
+                    :class="
+                      message.type === 'user' ? 'justify-end' : 'justify-start'
+                    "
                   >
                     <div
                       class="max-w-xs lg:max-w-md px-3 py-1 rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-50 leading-tight"
@@ -105,7 +114,9 @@
                         :class="{
                           'correct-feedback': message.isCorrect,
                           'incorrect-feedback': message.isCorrect === false,
-                          'practice-feedback': message.isCorrect === undefined && message.type === 'assistant'
+                          'practice-feedback':
+                            message.isCorrect === undefined &&
+                            message.type === 'assistant',
                         }"
                         v-html="message.content"
                       ></div>
@@ -113,19 +124,33 @@
                         v-if="message.showTranslation && message.translation"
                         class="mt-2 p-2 rounded bg-primary-800/50 border border-primary-700 text-blue-300 text-sm"
                       >
-                        <span class="font-medium text-xs text-blue-400 block mb-1">ES:</span>
+                        <span
+                          class="font-medium text-xs text-blue-400 block mb-1"
+                        >
+                          ES:
+                        </span>
                         {{ message.translation }}
                       </div>
                       <div class="text-xs opacity-70 mt-1 flex items-center">
-                        <span>{{ message.timestamp.toLocaleTimeString() }}</span>
+                        <span>
+                          {{ message.timestamp.toLocaleTimeString() }}
+                        </span>
                         <button
-                          v-if="message.type === 'assistant' && !message.isLoading"
+                          v-if="
+                            message.type === 'assistant' && !message.isLoading
+                          "
                           @click="translateMessage(message)"
                           :disabled="message.isTranslating"
                           class="ml-2 text-blue-400 hover:text-blue-300 disabled:opacity-50"
                         >
                           <span v-if="message.isTranslating">...</span>
-                          <span v-else-if="message.showTranslation && message.translation">Hide ES</span>
+                          <span
+                            v-else-if="
+                              message.showTranslation && message.translation
+                            "
+                          >
+                            Hide ES
+                          </span>
                           <span v-else>Translate to ES</span>
                         </button>
                       </div>
@@ -145,17 +170,24 @@
                     v-model="currentMessage"
                     @keydown="handleKeyPress"
                     @input="forceCapitalization"
+                    @focus="handleInputFocus"
                     placeholder="Type your sentence here..."
                     autocapitalize="sentences"
                     class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                     :disabled="isLoading"
                   />
                   <div class="text-xs text-gray-500 mt-1 ml-1">
-                    Press <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd> to focus
+                    Press
+                    <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd>
+                    to focus
                   </div>
                 </div>
                 <div>
-                  <BaseButton variant="secondary" @click="sendMessage" :disabled="!currentMessage.trim() || isLoading">
+                  <BaseButton
+                    variant="secondary"
+                    @click="sendMessage"
+                    :disabled="!currentMessage.trim() || isLoading"
+                  >
                     <Send v-if="!isLoading" class="h-4 w-4" />
                     <span
                       v-else
@@ -220,19 +252,22 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const chatContainerRef = ref<HTMLElement | null>(null)
 
 // Reset state when modal opens
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    // Reset state
-    chatMessages.value = []
-    currentMessage.value = ''
-    isLoading.value = false
-    
-    // Focus input after modal animation completes
-    setTimeout(() => {
-      focusInput()
-    }, 350)
-  }
-})
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      // Reset state
+      chatMessages.value = []
+      currentMessage.value = ''
+      isLoading.value = false
+
+      // Focus input after modal animation completes
+      setTimeout(() => {
+        focusInput()
+      }, 350)
+    }
+  },
+)
 
 const closeModal = () => {
   emit('close')
@@ -293,7 +328,8 @@ const sendMessage = async () => {
 
     chatMessages.value = chatMessages.value.filter((msg) => !msg.isLoading)
 
-    const { content: formattedContent, isCorrect } = await formatGrammarFeedback(result)
+    const { content: formattedContent, isCorrect } =
+      await formatGrammarFeedback(result)
     const assistantMessage: ChatMessage = {
       id: (Date.now() + 2).toString(),
       type: 'assistant',
@@ -362,7 +398,10 @@ const formatGrammarFeedback = async (
           result.suggestions.length > 0
         ) {
           const suggestionsText = result.suggestions
-            .map((s: string, i: number) => `${i + 1}. ${typeof s === 'string' ? s.replace(/^["']|["']$/g, '') : s}`)
+            .map(
+              (s: string, i: number) =>
+                `${i + 1}. ${typeof s === 'string' ? s.replace(/^["']|["']$/g, '') : s}`,
+            )
             .join('\n')
           feedback += `\n## Suggestions\n${suggestionsText}`
         }
@@ -493,6 +532,16 @@ const forceCapitalization = (event: Event) => {
   currentMessage.value = value
 }
 
+const handleInputFocus = () => {
+  // Scroll input into view when keyboard opens on mobile
+  setTimeout(() => {
+    inputRef.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+  }, 300)
+}
+
 const handleKeyPress = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
@@ -502,7 +551,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   if (!props.isOpen) return
-  
+
   if (event.ctrlKey && event.key === 'k') {
     event.preventDefault()
     generatePracticePhrase()
