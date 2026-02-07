@@ -21,14 +21,14 @@
                 My Vocabulary
               </h1>
             </div>
-              <button
-                @click="showSearchFilter = !showSearchFilter"
-                class="sm:hidden p-2.5 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-                title="Toggle filters"
-              >
-                <Search v-if="!showSearchFilter" class="w-5 h-5" />
-                <X v-else class="w-5 h-5" />
-              </button>
+            <button
+              @click="showSearchFilter = !showSearchFilter"
+              class="sm:hidden p-2.5 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+              title="Toggle filters"
+            >
+              <Search v-if="!showSearchFilter" class="w-5 h-5" />
+              <X v-else class="w-5 h-5" />
+            </button>
           </div>
         </div>
 
@@ -46,38 +46,44 @@
               Search & Filter
             </div>
             <div class="flex gap-3">
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value=""
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">All</span>
+                <span
+                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
+                >
+                  All
+                </span>
               </label>
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value="pending"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">Pending</span>
+                <span
+                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
+                >
+                  Pending
+                </span>
               </label>
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value="completed"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Completed</span>
+                <span
+                  class="ml-2 text-sm text-primary-700 dark:text-primary-300"
+                >
+                  Completed
+                </span>
               </label>
             </div>
           </h3>
@@ -136,38 +142,44 @@
               Search & Filter
             </div>
             <div class="flex gap-3">
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value=""
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">All</span>
+                <span
+                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
+                >
+                  All
+                </span>
               </label>
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value="pending"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-xs text-primary-700 dark:text-primary-300">Pending</span>
+                <span
+                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
+                >
+                  Pending
+                </span>
               </label>
-              <label
-                class="flex items-center cursor-pointer"
-              >
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="radio"
                   v-model="selectedStatus"
                   value="completed"
                   class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
                 />
-                <span class="ml-2 text-sm text-primary-700 dark:text-primary-300">Completed</span>
+                <span
+                  class="ml-2 text-sm text-primary-700 dark:text-primary-300"
+                >
+                  Completed
+                </span>
               </label>
             </div>
           </h3>
@@ -228,7 +240,9 @@
                 {{ pendingWordsCount }} pending
               </div>
             </div>
-            <div class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center">
+            <div
+              class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center"
+            >
               <BaseButton variant="secondary" @click="openTopicWordsModal">
                 <Layers class="w-5 h-5 mr-2" />
                 Add Group Words
@@ -240,7 +254,9 @@
               <button
                 @click="viewMode = 'grid'"
                 class="btn-icon hidden sm:block"
-                :class="viewMode === 'grid' ? '!bg-secondary-600 !text-white' : ''"
+                :class="
+                  viewMode === 'grid' ? '!bg-secondary-600 !text-white' : ''
+                "
                 title="Grid view"
               >
                 <div class="grid grid-cols-2 gap-0.5 w-5 h-5">
@@ -253,7 +269,9 @@
               <button
                 @click="viewMode = 'list'"
                 class="btn-icon hidden sm:block"
-                :class="viewMode === 'list' ? '!bg-secondary-600 !text-white' : ''"
+                :class="
+                  viewMode === 'list' ? '!bg-secondary-600 !text-white' : ''
+                "
                 title="List view"
               >
                 <List class="w-5 h-5" />
@@ -346,7 +364,7 @@
                     :class="[
                       word.status === 'completed'
                         ? 'bg-green-900/60 text-green-200'
-                        : 'bg-yellow-900/40 text-yellow-200'
+                        : 'bg-yellow-900/40 text-yellow-200',
                     ]"
                     title="Click to change status"
                   >
@@ -359,35 +377,35 @@
                   >
                     <Mic class="w-5 h-5" />
                   </button>
+                  <button
+                    @click.stop="openGrammarCheck(uid, word.term)"
+                    class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    title="Practice grammar"
+                  >
+                    <MessageCircle class="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Delete Button -->
               <button
-                @click.stop="openGrammarCheck(uid, word.term)"
-                class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
-                title="Practice grammar"
+                @click.stop="deleteWord(uid)"
+                class="absolute top-2 right-2 h-12 w-12 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
+                title="Delete word"
               >
-                <MessageCircle class="w-5 h-5" />
+                <X class="w-6 h-6" />
               </button>
             </div>
           </div>
-
-          <!-- Delete Button -->
-          <button
-            @click.stop="deleteWord(uid)"
-            class="absolute top-2 right-2 h-12 w-12 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded cursor-pointer transition-colors z-10"
-            title="Delete word"
-          >
-            <X class="w-6 h-6" />
-          </button>
-        </div>
-      </div>
 
           <!-- Empty State -->
           <div
             v-if="Object.keys(filteredWords).length === 0 && !isLoading"
             class="text-center py-8 sm:py-12 px-4"
           >
-          <div
-            class="mx-auto h-14 w-14 sm:h-20 sm:w-20 text-primary-400 dark:text-primary-500 mb-4"
-          >
+            <div
+              class="mx-auto h-14 w-14 sm:h-20 sm:w-20 text-primary-400 dark:text-primary-500 mb-4"
+            >
               <BookOpen
                 fill="none"
                 stroke="currentColor"
@@ -423,7 +441,7 @@
     />
 
     <!-- Create by Topic Words Modal -->
-    <TopicWordsModal
+    <WordListModal
       :is-open="showTopicWordsModal"
       :user-id="userId"
       @close="closeTopicWordsModal"
@@ -463,11 +481,21 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Layers, List, MessageCircle, Mic, Plus, Search, Settings, X } from 'lucide-vue-next'
+import {
+  BookOpen,
+  Layers,
+  List,
+  MessageCircle,
+  Mic,
+  Plus,
+  Search,
+  Settings,
+  X,
+} from 'lucide-vue-next'
 import { marked } from 'marked'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
-import TopicWordsModal from '@/components/TopicWordsModal.vue'
+import WordListModal from '@/components/WordListModal.vue'
 import WordDetailsModal from '@/components/WordDetailsModal.vue'
 import VoicePracticeModal from '@/components/VoicePracticeModal.vue'
 import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
@@ -515,7 +543,7 @@ const selectedWordForVoicePractice = ref('')
 const showGrammarCheckModal = ref(false)
 const selectedWordForGrammar = ref<{ uid: string; term: string } | null>(null)
 const viewMode = ref<'grid' | 'list'>(
-  (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid'
+  (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid',
 )
 const initialLoadComplete = ref(false)
 const isMobile = ref(window.innerWidth < 640)
@@ -765,8 +793,8 @@ const loadWordsFromFirebase = async () => {
       if (savedCategory && categories.value[savedCategory]) {
         selectedCategory.value = savedCategory
       } else {
-        const learningCategoryId = Object.keys(categories.value).find((id) =>
-          categories.value[id]?.name.toLowerCase() === 'learning',
+        const learningCategoryId = Object.keys(categories.value).find(
+          (id) => categories.value[id]?.name.toLowerCase() === 'learning',
         )
         if (learningCategoryId) {
           selectedCategory.value = learningCategoryId
