@@ -16,6 +16,10 @@ import {
   VoicePracticePhraseRequest,
   VoicePracticePhraseResponse,
   TextToSpeechRequest,
+  GenerateTranslatePhraseRequest,
+  GenerateTranslatePhraseResponse,
+  CheckTranslationRequest,
+  WhisperInput,
 } from './types';
 import {
   addHTMLMarkup,
@@ -25,6 +29,7 @@ import {
   generateGrammarCheckPrompt,
   generatePracticePhrasePrompt,
   generateVoicePracticePhrasePrompt,
+  generateTranslatePracticePhrasePrompt,
 } from './utils';
 import {
   deleteCategory,
@@ -39,9 +44,14 @@ import {
   storeTopic,
   updateCategory,
   updateTopic,
-  updateVocabularyWord
+  updateVocabularyWord,
 } from './database';
-import {ErrorResponses, logError, SuccessResponses, validateRequiredFields} from './errors';
+import {
+  ErrorResponses,
+  logError,
+  SuccessResponses,
+  validateRequiredFields,
+} from './errors';
 
 export async function handleExplainWordRequest(
   request: Request,
@@ -50,7 +60,7 @@ export async function handleExplainWordRequest(
 ): Promise<Response> {
   try {
     const body: ExplainRequest = await request.json();
-    const {word, skipCategorySuggestion} = body;
+    const { word, skipCategorySuggestion } = body;
 
     const validationError = validateRequiredFields(body, ['word'], corsHeaders);
     if (validationError) {
@@ -61,7 +71,10 @@ export async function handleExplainWordRequest(
     const mistralResponse = await callMistralAPI(explanationPrompt);
 
     if (!mistralResponse) {
-      return ErrorResponses.internalServerError('Failed to generate explanation', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to generate explanation',
+        corsHeaders
+      );
     }
 
     let suggestedCategory: string | undefined;
@@ -69,12 +82,17 @@ export async function handleExplainWordRequest(
       try {
         const categoryPrompt = generateCategorySuggestionPrompt(word);
         const categoryResponse = await callMistralAPI(categoryPrompt);
-        
+
         if (categoryResponse) {
           suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
-          suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
-          
-          if (suggestedCategory === 'default' || suggestedCategory === 'learning') {
+          suggestedCategory = suggestedCategory
+            .replace(/^["']|["']$/g, '')
+            .toLowerCase();
+
+          if (
+            suggestedCategory === 'default' ||
+            suggestedCategory === 'learning'
+          ) {
             suggestedCategory = undefined;
           }
         }
@@ -83,11 +101,13 @@ export async function handleExplainWordRequest(
       }
     }
 
-    return SuccessResponses.ok({
-      description: mistralResponse,
-      suggestedCategory
-    }, corsHeaders);
-
+    return SuccessResponses.ok(
+      {
+        description: mistralResponse,
+        suggestedCategory,
+      },
+      corsHeaders
+    );
   } catch (error) {
     logError('handleExplainWordRequest', error);
     return ErrorResponses.invalidRequestBody(corsHeaders);
@@ -101,7 +121,7 @@ export async function handleCreateVocabularyWord(
 ): Promise<Response> {
   try {
     const body: CreateVocabularyWordRequest = await request.json();
-    const {term, description, categoryName, userId = 'anonymous'} = body;
+    const { term, description, categoryName, userId = 'anonymous' } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -113,31 +133,42 @@ export async function handleCreateVocabularyWord(
     }
 
     // Find or create category
-    const {categoryId} = await findOrCreateCategory(env, userId, categoryName);
+    const { categoryId } = await findOrCreateCategory(
+      env,
+      userId,
+      categoryName
+    );
 
     // Find or create vocabulary word
-    const {word: vocabularyWord, isNewWord} = await findOrCreateVocabularyWord(
-      env, 
-      userId, 
-      term, 
-      categoryId, 
-      categoryName, 
-      description
-    );
+    const { word: vocabularyWord, isNewWord } =
+      await findOrCreateVocabularyWord(
+        env,
+        userId,
+        term,
+        categoryId,
+        categoryName,
+        description
+      );
 
     // Return appropriate response based on whether word was new
     if (isNewWord) {
       return SuccessResponses.created(vocabularyWord, corsHeaders);
     } else {
-      return SuccessResponses.ok({
-        ...vocabularyWord,
-        message: 'Vocabulary word already exists',
-        isNewWord: false
-      }, corsHeaders);
+      return SuccessResponses.ok(
+        {
+          ...vocabularyWord,
+          message: 'Vocabulary word already exists',
+          isNewWord: false,
+        },
+        corsHeaders
+      );
     }
   } catch (error) {
     logError('handleCreateVocabularyWord', error);
-    return ErrorResponses.internalServerError('Failed to create vocabulary word', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to create vocabulary word',
+      corsHeaders
+    );
   }
 }
 
@@ -152,18 +183,21 @@ export async function handleGetVocabularyWords(
 
     const [vocabulary, categories] = await Promise.all([
       getVocabularyWords(env, userId),
-      getCategories(env, userId)
+      getCategories(env, userId),
     ]);
 
     const responseData = {
       vocabulary,
-      categories
+      categories,
     };
 
     return SuccessResponses.ok(responseData, corsHeaders);
   } catch (error) {
     logError('handleGetVocabularyWords', error);
-    return ErrorResponses.internalServerError('Failed to retrieve vocabulary words', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to retrieve vocabulary words',
+      corsHeaders
+    );
   }
 }
 
@@ -178,18 +212,24 @@ export async function handleDeleteVocabularyWord(
     const wordUid = url.pathname.split('/').pop();
 
     if (!wordUid) {
-      return ErrorResponses.missingRequiredField('word UID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'word UID in URL',
+        corsHeaders
+      );
     }
 
     await deleteVocabularyWord(env, userId, wordUid);
 
     return SuccessResponses.ok(
-      {success: true, message: `Vocabulary word ${wordUid} deleted.`},
+      { success: true, message: `Vocabulary word ${wordUid} deleted.` },
       corsHeaders
     );
   } catch (error) {
     logError('handleDeleteVocabularyWord', error);
-    return ErrorResponses.internalServerError('Failed to delete vocabulary word', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to delete vocabulary word',
+      corsHeaders
+    );
   }
 }
 
@@ -204,7 +244,10 @@ export async function handleUpdateVocabularyWord(
     const wordUid = url.pathname.split('/').pop();
 
     if (!wordUid) {
-      return ErrorResponses.missingRequiredField('word UID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'word UID in URL',
+        corsHeaders
+      );
     }
 
     const body: Partial<VocabularyWord> = await request.json();
@@ -218,7 +261,10 @@ export async function handleUpdateVocabularyWord(
     return SuccessResponses.ok(updatedWord, corsHeaders);
   } catch (error) {
     logError('handleUpdateVocabularyWord', error);
-    return ErrorResponses.internalServerError('Failed to update vocabulary word', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to update vocabulary word',
+      corsHeaders
+    );
   }
 }
 
@@ -230,7 +276,7 @@ export async function handleCreateTopic(
 ): Promise<Response> {
   try {
     const body: CreateTopicRequest = await request.json();
-    const {title, userId = 'anonymous'} = body;
+    const { title, userId = 'anonymous' } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -243,15 +289,18 @@ export async function handleCreateTopic(
 
     const newTopic: Topic = {
       title,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
-    const {topicId, topic} = await storeTopic(env, userId, newTopic);
+    const { topicId, topic } = await storeTopic(env, userId, newTopic);
 
-    return SuccessResponses.created({...topic, id: topicId}, corsHeaders);
+    return SuccessResponses.created({ ...topic, id: topicId }, corsHeaders);
   } catch (error) {
     logError('handleCreateTopic', error);
-    return ErrorResponses.internalServerError('Failed to create topic', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to create topic',
+      corsHeaders
+    );
   }
 }
 
@@ -269,13 +318,16 @@ export async function handleGetTopics(
     // Transform topics to include ID in the response
     const topicsWithIds = Object.entries(topics).map(([id, topic]) => ({
       id,
-      ...topic
+      ...topic,
     }));
 
     return SuccessResponses.ok(topicsWithIds, corsHeaders);
   } catch (error) {
     logError('handleGetTopics', error);
-    return ErrorResponses.internalServerError('Failed to retrieve topics', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to retrieve topics',
+      corsHeaders
+    );
   }
 }
 
@@ -290,18 +342,24 @@ export async function handleDeleteTopic(
     const topicId = url.pathname.split('/').pop();
 
     if (!topicId) {
-      return ErrorResponses.missingRequiredField('topic ID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'topic ID in URL',
+        corsHeaders
+      );
     }
 
     await deleteTopic(env, userId, topicId);
 
     return SuccessResponses.ok(
-      {success: true, message: `Topic ${topicId} deleted.`},
+      { success: true, message: `Topic ${topicId} deleted.` },
       corsHeaders
     );
   } catch (error) {
     logError('handleDeleteTopic', error);
-    return ErrorResponses.internalServerError('Failed to delete topic', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to delete topic',
+      corsHeaders
+    );
   }
 }
 
@@ -316,7 +374,10 @@ export async function handleUpdateTopic(
     const topicId = url.pathname.split('/').pop();
 
     if (!topicId) {
-      return ErrorResponses.missingRequiredField('topic ID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'topic ID in URL',
+        corsHeaders
+      );
     }
 
     const body: UpdateTopicRequest = await request.json();
@@ -327,10 +388,13 @@ export async function handleUpdateTopic(
 
     const updatedTopic = await updateTopic(env, userId, topicId, body);
 
-    return SuccessResponses.ok({...updatedTopic, id: topicId}, corsHeaders);
+    return SuccessResponses.ok({ ...updatedTopic, id: topicId }, corsHeaders);
   } catch (error) {
     logError('handleUpdateTopic', error);
-    return ErrorResponses.internalServerError('Failed to update topic', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to update topic',
+      corsHeaders
+    );
   }
 }
 
@@ -341,7 +405,7 @@ export async function handleGrammarCheck(
 ): Promise<Response> {
   try {
     const body: GrammarCheckRequest = await request.json();
-    const {input, topic, userId = 'anonymous'} = body;
+    const { input, topic } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -356,7 +420,10 @@ export async function handleGrammarCheck(
     const geminiResponse = await callMistralAPI(grammarPrompt);
 
     if (!geminiResponse) {
-      return ErrorResponses.internalServerError('Failed to generate grammar feedback', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to generate grammar feedback',
+        corsHeaders
+      );
     }
 
     let parsedResponse;
@@ -377,30 +444,50 @@ export async function handleGrammarCheck(
 
       parsedResponse = JSON.parse(jsonText);
 
-      if (typeof parsedResponse !== 'object' || parsedResponse === null || !('isCorrect' in parsedResponse)) {
+      if (
+        typeof parsedResponse !== 'object' ||
+        parsedResponse === null ||
+        !('isCorrect' in parsedResponse)
+      ) {
         throw new Error('Invalid response structure');
       }
 
-      if (typeof parsedResponse.feedback === 'string' && parsedResponse.feedback.includes('"isCorrect"')) {
+      if (
+        typeof parsedResponse.feedback === 'string' &&
+        parsedResponse.feedback.includes('"isCorrect"')
+      ) {
         try {
-          const nestedFeedback = JSON.parse(parsedResponse.feedback)
+          const nestedFeedback = JSON.parse(parsedResponse.feedback);
           if (nestedFeedback && typeof nestedFeedback === 'object') {
-            if ('feedback' in nestedFeedback && typeof nestedFeedback.feedback === 'string' && nestedFeedback.feedback.trim()) {
-              parsedResponse.feedback = nestedFeedback.feedback
+            if (
+              'feedback' in nestedFeedback &&
+              typeof nestedFeedback.feedback === 'string' &&
+              nestedFeedback.feedback.trim()
+            ) {
+              parsedResponse.feedback = nestedFeedback.feedback;
             }
-            if ('suggestions' in nestedFeedback && Array.isArray(nestedFeedback.suggestions)) {
-              parsedResponse.suggestions = nestedFeedback.suggestions
+            if (
+              'suggestions' in nestedFeedback &&
+              Array.isArray(nestedFeedback.suggestions)
+            ) {
+              parsedResponse.suggestions = nestedFeedback.suggestions;
             }
           }
         } catch {
+          // Ignore nested feedback parsing errors
         }
       }
 
-      if (typeof parsedResponse.feedback === 'string' && parsedResponse.feedback.trim()) {
-        const headingPattern = /^##\s+(?:Grammar Analysis|Grammar Feedback|Feedback)[\s\S]*?(?=##\s+[\w]|$)/
-        parsedResponse.feedback = parsedResponse.feedback.replace(headingPattern, '').trim()
+      if (
+        typeof parsedResponse.feedback === 'string' &&
+        parsedResponse.feedback.trim()
+      ) {
+        const headingPattern =
+          /^##\s+(?:Grammar Analysis|Grammar Feedback|Feedback)[\s\S]*?(?=##\s+[\w]|$)/;
+        parsedResponse.feedback = parsedResponse.feedback
+          .replace(headingPattern, '')
+          .trim();
       }
-
     } catch (parseError) {
       console.warn('Failed to parse Gemini response as JSON:', parseError);
       console.warn('Raw response:', geminiResponse);
@@ -409,7 +496,7 @@ export async function handleGrammarCheck(
       parsedResponse = {
         isCorrect: false,
         feedback: fallbackFeedback,
-        suggestions: []
+        suggestions: [],
       };
     }
 
@@ -427,7 +514,7 @@ export async function handleGeneratePracticePhrase(
 ): Promise<Response> {
   try {
     const body: PracticePhraseRequest = await request.json();
-    const {topic, difficulty = 'medium', userId = 'anonymous'} = body;
+    const { topic, difficulty = 'medium' } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -442,7 +529,10 @@ export async function handleGeneratePracticePhrase(
     const geminiResponse = await callMistralAPI(practicePrompt);
 
     if (!geminiResponse) {
-      return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to generate practice phrase',
+        corsHeaders
+      );
     }
 
     // Try to parse JSON response from Gemini
@@ -468,7 +558,11 @@ export async function handleGeneratePracticePhrase(
       parsedResponse = JSON.parse(jsonText);
 
       // Validate the parsed response has the expected structure
-      if (typeof parsedResponse !== 'object' || parsedResponse === null || !('phrase' in parsedResponse)) {
+      if (
+        typeof parsedResponse !== 'object' ||
+        parsedResponse === null ||
+        !('phrase' in parsedResponse)
+      ) {
         throw new Error('Invalid response structure');
       }
     } catch (parseError) {
@@ -482,13 +576,15 @@ export async function handleGeneratePracticePhrase(
         .trim();
 
       // Try to extract just the practice phrase part
-      const phraseMatch = cleanedResponse.match(/["']?phrase["']?\s*:\s*["']([^"']+)["']/i);
+      const phraseMatch = cleanedResponse.match(
+        /["']?phrase["']?\s*:\s*["']([^"']+)["']/i
+      );
       const extractedPhrase = phraseMatch ? phraseMatch[1] : cleanedResponse;
 
       parsedResponse = {
         phrase: `Practice phrase for ${topic}: ${extractedPhrase}`,
         translation: '',
-        grammarFocus: 'General practice'
+        grammarFocus: 'General practice',
       };
     }
 
@@ -507,13 +603,9 @@ export async function handleCreateCategory(
 ): Promise<Response> {
   try {
     const body: CreateCategoryRequest = await request.json();
-    const {name, userId = 'anonymous'} = body;
+    const { name, userId = 'anonymous' } = body;
 
-    const validationError = validateRequiredFields(
-      body,
-      ['name'],
-      corsHeaders
-    );
+    const validationError = validateRequiredFields(body, ['name'], corsHeaders);
     if (validationError) {
       return validationError;
     }
@@ -522,15 +614,21 @@ export async function handleCreateCategory(
     const categoryId = `cat_${Date.now()}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;
 
     const newCategory: Category = {
-      name: name.trim()
+      name: name.trim(),
     };
 
     await storeCategory(env, userId, categoryId, newCategory);
 
-    return SuccessResponses.created({...newCategory, id: categoryId}, corsHeaders);
+    return SuccessResponses.created(
+      { ...newCategory, id: categoryId },
+      corsHeaders
+    );
   } catch (error) {
     logError('handleCreateCategory', error);
-    return ErrorResponses.internalServerError('Failed to create category', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to create category',
+      corsHeaders
+    );
   }
 }
 
@@ -545,21 +643,35 @@ export async function handleUpdateCategory(
     const categoryId = url.pathname.split('/').pop();
 
     if (!categoryId) {
-      return ErrorResponses.missingRequiredField('category ID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'category ID in URL',
+        corsHeaders
+      );
     }
 
     const body: { name: string } = await request.json();
 
     if (!body.name || body.name.trim() === '') {
-      return ErrorResponses.badRequest('Category name is required', corsHeaders);
+      return ErrorResponses.badRequest(
+        'Category name is required',
+        corsHeaders
+      );
     }
 
-    const updatedCategory = await updateCategory(env, userId, categoryId, {name: body.name.trim()});
+    const updatedCategory = await updateCategory(env, userId, categoryId, {
+      name: body.name.trim(),
+    });
 
-    return SuccessResponses.ok({...updatedCategory, id: categoryId}, corsHeaders);
+    return SuccessResponses.ok(
+      { ...updatedCategory, id: categoryId },
+      corsHeaders
+    );
   } catch (error) {
     logError('handleUpdateCategory', error);
-    return ErrorResponses.internalServerError('Failed to update category', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to update category',
+      corsHeaders
+    );
   }
 }
 
@@ -574,7 +686,10 @@ export async function handleDeleteCategory(
     const categoryId = url.pathname.split('/').pop();
 
     if (!categoryId) {
-      return ErrorResponses.missingRequiredField('category ID in URL', corsHeaders);
+      return ErrorResponses.missingRequiredField(
+        'category ID in URL',
+        corsHeaders
+      );
     }
 
     // First, get all vocabulary words to find and delete words with this category
@@ -599,13 +714,16 @@ export async function handleDeleteCategory(
     return SuccessResponses.ok(
       {
         success: true,
-        message: `Category ${categoryId} deleted along with ${wordsToDelete.length} related words.`
+        message: `Category ${categoryId} deleted along with ${wordsToDelete.length} related words.`,
       },
       corsHeaders
     );
   } catch (error) {
     logError('handleDeleteCategory', error);
-    return ErrorResponses.internalServerError('Failed to delete category', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to delete category',
+      corsHeaders
+    );
   }
 }
 
@@ -617,7 +735,7 @@ export async function handleCreateTopicWords(
 ): Promise<Response> {
   try {
     const body: CreateTopicWordsRequest = await request.json();
-    const {words, userId = 'anonymous'} = body;
+    const { words, userId = 'anonymous' } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -629,10 +747,16 @@ export async function handleCreateTopicWords(
     }
 
     // Parse comma-separated words
-    const wordList = words.split(',').map(w => w.trim()).filter(w => w.length > 0);
-    
+    const wordList = words
+      .split(',')
+      .map((w) => w.trim())
+      .filter((w) => w.length > 0);
+
     if (wordList.length === 0) {
-      return ErrorResponses.badRequest('No valid words found in input', corsHeaders);
+      return ErrorResponses.badRequest(
+        'No valid words found in input',
+        corsHeaders
+      );
     }
 
     const createdWords: VocabularyWord[] = [];
@@ -646,7 +770,9 @@ export async function handleCreateTopicWords(
         const description = await callMistralAPI(explanationPrompt);
 
         if (!description) {
-          console.warn(`Failed to generate description for word "${word}", using fallback`);
+          console.warn(
+            `Failed to generate description for word "${word}", using fallback`
+          );
           // Continue with fallback description
         }
 
@@ -655,35 +781,49 @@ export async function handleCreateTopicWords(
         try {
           const categoryPrompt = generateCategorySuggestionPrompt(word);
           const categoryResponse = await callMistralAPI(categoryPrompt);
-          
+
           if (categoryResponse) {
             suggestedCategory = categoryResponse.trim().split('\n')[0].trim();
-            suggestedCategory = suggestedCategory.replace(/^["']|["']$/g, '').toLowerCase();
-            
-            if (suggestedCategory === 'default' || suggestedCategory === 'learning' || !suggestedCategory) {
+            suggestedCategory = suggestedCategory
+              .replace(/^["']|["']$/g, '')
+              .toLowerCase();
+
+            if (
+              suggestedCategory === 'default' ||
+              suggestedCategory === 'learning' ||
+              !suggestedCategory
+            ) {
               suggestedCategory = 'general';
             }
           } else {
             suggestedCategory = 'general';
           }
         } catch (categoryError) {
-          console.warn(`Failed to generate category suggestion for word "${word}":`, categoryError);
+          console.warn(
+            `Failed to generate category suggestion for word "${word}":`,
+            categoryError
+          );
           suggestedCategory = 'general';
         }
-        
+
         // Find or create category
-        const {categoryId} = await findOrCreateCategory(env, userId, suggestedCategory);
-        
-        // Find or create vocabulary word
-        const {word: vocabularyWord, isNewWord} = await findOrCreateVocabularyWord(
-          env, 
-          userId, 
-          word, 
-          categoryId, 
-          suggestedCategory, 
-          description || `Definition for ${word}`
+        const { categoryId } = await findOrCreateCategory(
+          env,
+          userId,
+          suggestedCategory
         );
-        
+
+        // Find or create vocabulary word
+        const { word: vocabularyWord, isNewWord } =
+          await findOrCreateVocabularyWord(
+            env,
+            userId,
+            word,
+            categoryId,
+            suggestedCategory,
+            description || `Definition for ${word}`
+          );
+
         if (isNewWord) {
           createdWords.push(vocabularyWord);
         } else {
@@ -701,20 +841,25 @@ export async function handleCreateTopicWords(
         existingWords,
         totalWords: wordList.length,
         successfullyCreated: createdWords.length,
-        alreadyExisted: existingWords.length
+        alreadyExisted: existingWords.length,
       },
       corsHeaders
     );
   } catch (error) {
     logError('handleCreateTopicWords', error);
-    return ErrorResponses.internalServerError('Failed to create topic words', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to create topic words',
+      corsHeaders
+    );
   }
 }
 
 function levenshteinDistance(str1: string, str2: string): number {
   const m = str1.length;
   const n = str2.length;
-  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  const dp: number[][] = Array(m + 1)
+    .fill(null)
+    .map(() => Array(n + 1).fill(0));
 
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
@@ -777,7 +922,7 @@ export async function handleVoicePractice(
 ): Promise<Response> {
   try {
     const body: VoicePracticeRequest = await request.json();
-    const { audio, targetPhrase, userId = 'anonymous' } = body;
+    const { audio, targetPhrase } = body;
 
     if (!audio || audio.length === 0) {
       return ErrorResponses.badRequest('Audio data is empty', corsHeaders);
@@ -795,18 +940,24 @@ export async function handleVoicePractice(
     let transcription: string;
     try {
       const audioArray = base64ToNumberArray(audio);
-      const whisperResult = await env.AI.run('@cf/openai/whisper', {
+      const whisperResult = (await env.AI.run('@cf/openai/whisper', {
         audio: audioArray,
-      } as any) as { text?: string };
+      } as WhisperInput)) as { text?: string };
       transcription = whisperResult?.text || '';
     } catch (whisperError) {
       console.error('Whisper transcription error:', whisperError);
-      return ErrorResponses.internalServerError('Failed to transcribe audio', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to transcribe audio',
+        corsHeaders
+      );
     }
 
     const normalizedTranscription = transcription.toLowerCase().trim();
     const normalizedTarget = targetPhrase.toLowerCase().trim();
-    const score = calculateWordSimilarity(normalizedTranscription, normalizedTarget);
+    const score = calculateWordSimilarity(
+      normalizedTranscription,
+      normalizedTarget
+    );
     const isCorrect = score >= 80;
 
     let feedback: string;
@@ -837,7 +988,9 @@ Respond with a JSON object:
             jsonText = directJsonMatch ? directJsonMatch[0] : '';
           }
           const parsed = JSON.parse(jsonText);
-          feedback = parsed.feedback || 'Try again with more emphasis on the target words.';
+          feedback =
+            parsed.feedback ||
+            'Try again with more emphasis on the target words.';
         } catch {
           feedback = 'Try again with more emphasis on the target words.';
         }
@@ -846,12 +999,15 @@ Respond with a JSON object:
       }
     }
 
-    return SuccessResponses.ok({
-      transcription,
-      score: Math.round(score),
-      feedback,
-      isCorrect,
-    }, corsHeaders);
+    return SuccessResponses.ok(
+      {
+        transcription,
+        score: Math.round(score),
+        feedback,
+        isCorrect,
+      },
+      corsHeaders
+    );
   } catch (error) {
     logError('handleVoicePractice', error);
     return ErrorResponses.invalidRequestBody(corsHeaders);
@@ -865,13 +1021,9 @@ export async function handleGenerateVoicePracticePhrase(
 ): Promise<Response> {
   try {
     const body: VoicePracticePhraseRequest = await request.json();
-    const { word, difficulty = 'medium', userId = 'anonymous' } = body;
+    const { word, difficulty = 'medium' } = body;
 
-    const validationError = validateRequiredFields(
-      body,
-      ['word'],
-      corsHeaders
-    );
+    const validationError = validateRequiredFields(body, ['word'], corsHeaders);
     if (validationError) {
       return validationError;
     }
@@ -880,7 +1032,10 @@ export async function handleGenerateVoicePracticePhrase(
     const geminiResponse = await callMistralAPI(prompt);
 
     if (!geminiResponse) {
-      return ErrorResponses.internalServerError('Failed to generate practice phrase', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to generate practice phrase',
+        corsHeaders
+      );
     }
 
     let parsedResponse: VoicePracticePhraseResponse;
@@ -911,15 +1066,21 @@ export async function handleGenerateVoicePracticePhrase(
         }
         parsedResponse.senses = parsedResponse.senses.slice(0, 5);
       } else if ('phrase' in parsedResponse) {
-        const oldResponse = parsedResponse as { phrase?: string; translation?: string; grammarFocus?: string };
+        const oldResponse = parsedResponse as {
+          phrase?: string;
+          translation?: string;
+          grammarFocus?: string;
+        };
         parsedResponse = {
           word: word,
-          senses: [{
-            phrase: oldResponse.phrase || '',
-            translation: oldResponse.translation || '',
-            grammarFocus: oldResponse.grammarFocus || 'General practice',
-            senseType: 'literal'
-          }]
+          senses: [
+            {
+              phrase: oldResponse.phrase || '',
+              translation: oldResponse.translation || '',
+              grammarFocus: oldResponse.grammarFocus || 'General practice',
+              senseType: 'literal',
+            },
+          ],
         };
       } else {
         throw new Error('Invalid response structure: missing senses or phrase');
@@ -932,23 +1093,198 @@ export async function handleGenerateVoicePracticePhrase(
         .replace(/```\s*$/gi, '')
         .trim();
 
-      const phraseMatch = cleanedResponse.match(/["']?phrase["']?\s*:\s*["']([^"']+)["']/i);
+      const phraseMatch = cleanedResponse.match(
+        /["']?phrase["']?\s*:\s*["']([^"']+)["']/i
+      );
       const extractedPhrase = phraseMatch ? phraseMatch[1] : cleanedResponse;
 
       parsedResponse = {
         word: word,
-        senses: [{
-          phrase: extractedPhrase,
-          translation: '',
-          grammarFocus: 'General practice',
-          senseType: 'literal'
-        }]
+        senses: [
+          {
+            phrase: extractedPhrase,
+            translation: '',
+            grammarFocus: 'General practice',
+            senseType: 'literal',
+          },
+        ],
       };
     }
 
     return SuccessResponses.ok(parsedResponse, corsHeaders);
   } catch (error) {
     logError('handleGenerateVoicePracticePhrase', error);
+    return ErrorResponses.invalidRequestBody(corsHeaders);
+  }
+}
+
+export async function handleGenerateTranslatePhrase(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: GenerateTranslatePhraseRequest = await request.json();
+    const { word, direction = 'es-en' } = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['word', 'direction'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const prompt = generateTranslatePracticePhrasePrompt(
+      word,
+      direction,
+      'medium'
+    );
+    const mistralResponse = await callMistralAPI(prompt);
+
+    if (!mistralResponse) {
+      return ErrorResponses.internalServerError(
+        'Failed to generate translate phrase',
+        corsHeaders
+      );
+    }
+
+    let parsedResponse: GenerateTranslatePhraseResponse;
+    try {
+      const jsonMatch = mistralResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+      let jsonText: string;
+
+      if (jsonMatch) {
+        jsonText = jsonMatch[1].trim();
+      } else {
+        const directJsonMatch = mistralResponse.match(/\{[\s\S]*\}/);
+        if (directJsonMatch) {
+          jsonText = directJsonMatch[0];
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      }
+
+      const parsed = JSON.parse(jsonText);
+
+      if (typeof parsed !== 'object' || parsed === null) {
+        throw new Error('Invalid response structure');
+      }
+
+      if (!parsed.phrase || !parsed.translation) {
+        throw new Error('Missing phrase or translation');
+      }
+
+      parsedResponse = {
+        phrase: parsed.phrase,
+        translation: parsed.translation,
+        grammarFocus: parsed.grammarFocus,
+        style: parsed.style,
+      };
+    } catch (parseError) {
+      console.warn('Failed to parse response as JSON:', parseError);
+
+      parsedResponse = {
+        phrase: `Practice phrase with "${word}"`,
+        translation: 'Translation not available',
+      };
+    }
+
+    return SuccessResponses.ok(parsedResponse, corsHeaders);
+  } catch (error) {
+    logError('handleGenerateTranslatePhrase', error);
+    return ErrorResponses.invalidRequestBody(corsHeaders);
+  }
+}
+
+export async function handleCheckTranslation(
+  request: Request,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const body: CheckTranslationRequest = await request.json();
+    const { phrase, userTranslation, direction } = body;
+
+    const validationError = validateRequiredFields(
+      body,
+      ['phrase', 'userTranslation', 'direction'],
+      corsHeaders
+    );
+    if (validationError) {
+      return validationError;
+    }
+
+    const sourceLang = direction === 'es-en' ? 'Spanish' : 'English';
+    const targetLang = direction === 'es-en' ? 'English' : 'Spanish';
+
+    const checkPrompt = `Check if the user's translation is CORRECT and EXACT for the given phrase.
+Be STRICT - the translation must convey the exact same meaning.
+
+Original phrase (${sourceLang}): "${phrase}"
+User's translation (${targetLang}): "${userTranslation}"
+
+Evaluate if the user's translation accurately conveys the exact same meaning.
+Consider:
+- Exact semantic equivalence (not just similar meaning)
+- Proper grammar in ${targetLang}
+- Correct vocabulary usage
+
+Return a JSON object:
+{
+  "isCorrect": true/false,
+  "correctTranslation": "the exact correct translation",
+  "feedback": "explanation of what was wrong (only if isCorrect is false)"
+}
+
+If isCorrect is true, feedback should be empty or null.
+If isCorrect is false, provide specific feedback about what was wrong.`;
+
+    const mistralResponse = await callMistralAPI(checkPrompt);
+
+    if (!mistralResponse) {
+      return ErrorResponses.internalServerError(
+        'Failed to check translation',
+        corsHeaders
+      );
+    }
+
+    let parsedResponse;
+    try {
+      const jsonMatch = mistralResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+      let jsonText: string;
+
+      if (jsonMatch) {
+        jsonText = jsonMatch[1].trim();
+      } else {
+        const directJsonMatch = mistralResponse.match(/\{[\s\S]*\}/);
+        if (directJsonMatch) {
+          jsonText = directJsonMatch[0];
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      }
+
+      parsedResponse = JSON.parse(jsonText);
+
+      if (typeof parsedResponse !== 'object' || parsedResponse === null) {
+        throw new Error('Invalid response structure');
+      }
+    } catch (parseError) {
+      console.warn('Failed to parse response as JSON:', parseError);
+
+      // Fallback: do simple string comparison
+      parsedResponse = {
+        isCorrect: false,
+        correctTranslation: phrase,
+        feedback: 'Unable to verify translation accuracy',
+      };
+    }
+
+    return SuccessResponses.ok(parsedResponse, corsHeaders);
+  } catch (error) {
+    logError('handleCheckTranslation', error);
     return ErrorResponses.invalidRequestBody(corsHeaders);
   }
 }
@@ -960,7 +1296,7 @@ export async function handleTranslateRequest(
 ): Promise<Response> {
   try {
     const body: TranslateRequest = await request.json();
-    const { text, targetLanguage, userId = 'anonymous' } = body;
+    const { text, targetLanguage } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -983,13 +1319,17 @@ export async function handleTranslateRequest(
       ko: 'Korean',
     };
 
-    const languageName = languageNames[targetLanguage.toLowerCase()] || targetLanguage;
+    const languageName =
+      languageNames[targetLanguage.toLowerCase()] || targetLanguage;
     const translationPrompt = `Translate the following text to ${languageName}:\n\n"${text}"\n\nRespond with a JSON object:\n{\n  "translation": "translated text here"\n}`;
 
     const mistralResponse = await callMistralAPI(translationPrompt);
 
     if (!mistralResponse) {
-      return ErrorResponses.internalServerError('Failed to translate text', corsHeaders);
+      return ErrorResponses.internalServerError(
+        'Failed to translate text',
+        corsHeaders
+      );
     }
 
     let translation: string;
@@ -1012,7 +1352,9 @@ export async function handleTranslateRequest(
       translation = parsed.translation || text;
     } catch (parseError) {
       console.warn('Failed to parse translation response as JSON:', parseError);
-      const match = mistralResponse.match(/["']?translation["']?\s*:\s*["']([^"']+)["']/i);
+      const match = mistralResponse.match(
+        /["']?translation["']?\s*:\s*["']([^"']+)["']/i
+      );
       translation = match ? match[1] : text;
     }
 
@@ -1037,10 +1379,10 @@ export async function handleTextToSpeech(
       return validationError;
     }
 
-    const result = await env.AI.run('@cf/myshell-ai/melotts', {
+    const result = (await env.AI.run('@cf/myshell-ai/melotts', {
       prompt: text,
       lang,
-    }) as { audio: string };
+    })) as { audio: string };
 
     const binaryString = atob(result.audio);
     const bytes = new Uint8Array(binaryString.length);
@@ -1056,7 +1398,9 @@ export async function handleTextToSpeech(
     });
   } catch (error) {
     logError('handleTextToSpeech', error);
-    return ErrorResponses.internalServerError('Failed to generate speech', corsHeaders);
+    return ErrorResponses.internalServerError(
+      'Failed to generate speech',
+      corsHeaders
+    );
   }
 }
-

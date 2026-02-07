@@ -384,6 +384,13 @@
                   >
                     <MessageCircle class="w-5 h-5" />
                   </button>
+                  <button
+                    @click.stop="openTranslateModal(word.term)"
+                    class="h-10 w-10 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-purple-600 dark:hover:text-purple-400 rounded border border-white dark:border-primary-800 cursor-pointer flex-shrink-0"
+                    title="Translate word"
+                  >
+                    <Languages class="w-5 h-5" />
+                  </button>
                 </div>
               </div>
 
@@ -459,6 +466,7 @@
       @grammar-check="openGrammarCheck"
       @voice-practice="handleWordDetailsVoicePractice"
       @delete-word="deleteWord"
+      @translate="handleWordDetailsTranslate"
     />
 
     <!-- Voice Practice Modal -->
@@ -475,6 +483,13 @@
       :topic-title="selectedWordForGrammar?.term || ''"
       @close="closeGrammarCheckModal"
     />
+
+    <!-- Translate Modal -->
+    <TranslateModal
+      :is-open="showTranslateModal"
+      :word="selectedWordForTranslate"
+      @close="closeTranslateModal"
+    />
   </main>
 </template>
 
@@ -483,6 +498,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   BookOpen,
+  Languages,
   Layers,
   List,
   MessageCircle,
@@ -499,6 +515,7 @@ import WordListModal from '@/components/WordListModal.vue'
 import WordDetailsModal from '@/components/WordDetailsModal.vue'
 import VoicePracticeModal from '@/components/VoicePracticeModal.vue'
 import GrammarCheckModal from '@/components/GrammarCheckModal.vue'
+import TranslateModal from '@/components/TranslateModal.vue'
 import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
@@ -542,6 +559,8 @@ const showVoicePracticeModal = ref(false)
 const selectedWordForVoicePractice = ref('')
 const showGrammarCheckModal = ref(false)
 const selectedWordForGrammar = ref<{ uid: string; term: string } | null>(null)
+const showTranslateModal = ref(false)
+const selectedWordForTranslate = ref<string>('')
 const viewMode = ref<'grid' | 'list'>(
   (localStorage.getItem('vocabularyViewMode') as 'grid' | 'list') || 'grid',
 )
@@ -572,6 +591,15 @@ const openGrammarCheck = (uid: string, term: string) => {
 const closeGrammarCheckModal = () => {
   showGrammarCheckModal.value = false
   selectedWordForGrammar.value = null
+}
+
+const openTranslateModal = (word?: string) => {
+  selectedWordForTranslate.value = word || ''
+  showTranslateModal.value = true
+}
+
+const closeTranslateModal = () => {
+  showTranslateModal.value = false
 }
 
 // Watch for changes in the firebaseUser
@@ -687,6 +715,11 @@ const openVoicePracticeModal = (word: string, closeWordDetails = true) => {
 const handleWordDetailsVoicePractice = (term: string) => {
   // Don't close WordDetailsModal - let it stay open behind VoicePracticeModal
   openVoicePracticeModal(term, false)
+}
+
+const handleWordDetailsTranslate = (term: string) => {
+  // Don't close WordDetailsModal - let it stay open behind TranslateModal
+  openTranslateModal(term)
 }
 
 const handleTopicWordsCreated = (data: { createdWords: VocabularyWord[] }) => {

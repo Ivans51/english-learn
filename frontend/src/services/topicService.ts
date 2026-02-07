@@ -201,6 +201,76 @@ class TopicService {
       throw error
     }
   }
+
+  async generateTranslatePhrase(
+    word: string,
+    direction: 'es-en' | 'en-es',
+    userId: string = 'anonymous',
+  ): Promise<{ phrase: string; translation: string }> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/translate-practice/generate-phrase`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            word,
+            direction,
+            userId,
+          }),
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error generating translate phrase:', error)
+      throw error
+    }
+  }
+
+  async checkTranslation(
+    phrase: string,
+    userTranslation: string,
+    direction: 'es-en' | 'en-es',
+    userId: string = 'anonymous',
+  ): Promise<{
+    isCorrect: boolean
+    correctTranslation: string
+    feedback?: string
+  }> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/translate-practice/check`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phrase,
+            userTranslation,
+            direction,
+            userId,
+          }),
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error checking translation:', error)
+      throw error
+    }
+  }
 }
 
 export const topicService = new TopicService()

@@ -1,5 +1,5 @@
-import {GoogleGenerativeAI} from '@google/generative-ai';
-import {Env} from './types';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Env } from './types';
 
 let globalEnv: Env | null = null;
 
@@ -14,7 +14,7 @@ function getApiKeys(): { gemini: string; mistral: string; openrouter: string } {
   return {
     gemini: globalEnv.GEMINI_API_KEY,
     mistral: globalEnv.MISTRAL_API_KEY,
-    openrouter: globalEnv.OPENROUTER_API_KEY
+    openrouter: globalEnv.OPENROUTER_API_KEY,
   };
 }
 
@@ -26,14 +26,14 @@ export const corsHeaders = {
 
 export async function callGeminiAPI(prompt: string): Promise<string | null> {
   try {
-    const {gemini: apiKey} = getApiKeys();
+    const { gemini: apiKey } = getApiKeys();
     console.log('Calling Gemini API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
     console.log('=== PROMPT END ===');
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    let model = genAI.getGenerativeModel({model: "gemma-3-27b-it"});
+    const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
     const generationConfig = {
       temperature: 0.7,
@@ -44,8 +44,8 @@ export async function callGeminiAPI(prompt: string): Promise<string | null> {
     };
 
     const result = await model.generateContent({
-      contents: [{role: "user", parts: [{text: prompt}]}],
-      generationConfig
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig,
     });
     const response = result.response;
     const responseText = response.text();
@@ -61,36 +61,43 @@ export async function callGeminiAPI(prompt: string): Promise<string | null> {
   }
 }
 
-export async function callOpenRouterAPI(prompt: string): Promise<string | null> {
+export async function callOpenRouterAPI(
+  prompt: string
+): Promise<string | null> {
   try {
-    const {openrouter: apiKey} = getApiKeys();
+    const { openrouter: apiKey } = getApiKeys();
     console.log('Calling OpenRouter API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
     console.log('=== PROMPT END ===');
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
-        "messages": [
-          {
-            "role": "user",
-            "content": prompt
-          }
-        ]
-      })
-    });
+    const response = await fetch(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'nvidia/nemotron-3-nano-30b-a3b:free',
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
     const responseText = data.choices?.[0]?.message?.content;
 
     console.log('=== OPENROUTER RESPONSE START ===');
@@ -106,37 +113,42 @@ export async function callOpenRouterAPI(prompt: string): Promise<string | null> 
 
 export async function callMistralAPI(prompt: string): Promise<string | null> {
   try {
-    const {mistral: apiKey} = getApiKeys();
+    const { mistral: apiKey } = getApiKeys();
     console.log('Calling Mistral API with prompt:');
     console.log('=== PROMPT START ===');
     console.log(prompt);
     console.log('=== PROMPT END ===');
 
-    const response = await fetch("https://codestral.mistral.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        "model": "codestral-latest",
-        "temperature": 0.8,
-        "top_p": 0.95,
-        "messages": [
-          {
-            "role": "user",
-            "content": prompt
-          }
-        ]
-      })
-    });
+    const response = await fetch(
+      'https://codestral.mistral.ai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'codestral-latest',
+          temperature: 0.8,
+          top_p: 0.95,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
     const responseText = data.choices?.[0]?.message?.content;
 
     console.log('=== MISTRAL RESPONSE START ===');
@@ -186,7 +198,10 @@ Guidelines:
 Respond only with the formatted explanation, no JSON or code blocks.`;
 }
 
-export function generateGrammarCheckPrompt(input: string, topic: string): string {
+export function generateGrammarCheckPrompt(
+  input: string,
+  topic: string
+): string {
   return `You are an English grammar teacher. Please check the grammar of the following sentence and provide feedback as a JSON response.
 
     Sentence: "${input}"
@@ -206,28 +221,80 @@ export function generateGrammarCheckPrompt(input: string, topic: string): string
     Focus on grammar, sentence structure, and word usage appropriate for the topic: ${topic}.`;
 }
 
-export function generatePracticePhrasePrompt(topic: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
+export function generatePracticePhrasePrompt(
+  topic: string,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+): string {
   const timestamp = Date.now();
   const randomVariation = timestamp % 10000;
   const randomTopics = [
-    "education", "career", "travel", "cooking", "sports", "technology", "environment", "culture", "health", "finance",
-    "entertainment", "science", "art", "nature", "business", "relationships", "hobbies", "history", "food", "music"
+    'education',
+    'career',
+    'travel',
+    'cooking',
+    'sports',
+    'technology',
+    'environment',
+    'culture',
+    'health',
+    'finance',
+    'entertainment',
+    'science',
+    'art',
+    'nature',
+    'business',
+    'relationships',
+    'hobbies',
+    'history',
+    'food',
+    'music',
   ];
 
   const randomWords = [
-    "creative", "dynamic", "innovative", "exciting", "challenging", "fascinating", "interesting", "surprising", "unexpected", "unique",
-    "vibrant", "colorful", "adventurous", "mysterious", "wonderful", "amazing", "brilliant", "spectacular", "extraordinary", "remarkable"
+    'creative',
+    'dynamic',
+    'innovative',
+    'exciting',
+    'challenging',
+    'fascinating',
+    'interesting',
+    'surprising',
+    'unexpected',
+    'unique',
+    'vibrant',
+    'colorful',
+    'adventurous',
+    'mysterious',
+    'wonderful',
+    'amazing',
+    'brilliant',
+    'spectacular',
+    'extraordinary',
+    'remarkable',
   ];
 
   // Pick random elements to force variation
-  const randomModifier = randomTopics[Math.floor(Math.random() * randomTopics.length)];
-  const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
+  const randomModifier =
+    randomTopics[Math.floor(Math.random() * randomTopics.length)];
+  const randomWord =
+    randomWords[Math.floor(Math.random() * randomWords.length)];
   const randomSentenceStarters = [
-    "Have you ever wondered", "What if I told you", "Imagine a world where", "Did you know that", "Picture this:",
-    "Consider this scenario:", "Think about the time when", "Here's an interesting thought:", "Let me ask you this:", "Here's something surprising:"
+    'Have you ever wondered',
+    'What if I told you',
+    'Imagine a world where',
+    'Did you know that',
+    'Picture this:',
+    'Consider this scenario:',
+    'Think about the time when',
+    "Here's an interesting thought:",
+    'Let me ask you this:',
+    "Here's something surprising:",
   ];
 
-  const randomStarter = randomSentenceStarters[Math.floor(Math.random() * randomSentenceStarters.length)];
+  const randomStarter =
+    randomSentenceStarters[
+      Math.floor(Math.random() * randomSentenceStarters.length)
+    ];
 
   return `CRITICAL: Generate a COMPLETELY DIFFERENT practice sentence for English learners. Topic: "${topic}" at ${difficulty} difficulty.
 
@@ -313,7 +380,11 @@ export function generateCategorySuggestionPrompt(term: string): string {
 Respond with ONLY the category name, no explanation, no markdown, no quotes.`;
 }
 
-export function generateVoicePracticePhrasePrompt(word: string, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): string {
+export function generateVoicePracticePhrasePrompt(
+  word: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+): string {
   const requestId = crypto.randomUUID();
 
   return `Generate diverse English examples for the word "${word}" showing different meanings, contexts, and usage types.
@@ -383,33 +454,207 @@ For word "break" (medium):
 Generate diverse, interesting examples now! Request ID: ${requestId}`;
 }
 
-export function addHTMLMarkup(geminiResponse: string, userInput: string): string {
+export function addHTMLMarkup(
+  geminiResponse: string,
+  userInput: string
+): string {
   // Add Markdown formatting to highlight important parts
   let markedUpText = geminiResponse;
 
   // Format important grammar terms with **bold**
   const grammarTerms = [
-    'subject', 'verb', 'object', 'predicate', 'noun', 'adjective', 'adverb',
-    'preposition', 'conjunction', 'pronoun', 'article', 'tense', 'mood',
-    'sentence structure', 'grammar', 'syntax', 'punctuation', 'capitalization'
+    'subject',
+    'verb',
+    'object',
+    'predicate',
+    'noun',
+    'adjective',
+    'adverb',
+    'preposition',
+    'conjunction',
+    'pronoun',
+    'article',
+    'tense',
+    'mood',
+    'sentence structure',
+    'grammar',
+    'syntax',
+    'punctuation',
+    'capitalization',
   ];
 
-  grammarTerms.forEach(term => {
+  grammarTerms.forEach((term) => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
     markedUpText = markedUpText.replace(regex, `**${term}**`);
   });
 
   // Format suggestions and recommendations with **bold**
-  markedUpText = markedUpText.replace(/\b(should|could|must|recommend|suggest|consider|try|avoid)\b/gi,
-    '**$1**');
+  markedUpText = markedUpText.replace(
+    /\b(should|could|must|recommend|suggest|consider|try|avoid)\b/gi,
+    '**$1**'
+  );
 
   // Format common mistakes with emphasis
-  const mistakeTerms = ['incorrect', 'wrong', 'error', 'mistake', 'problem', 'issue'];
-  mistakeTerms.forEach(term => {
+  const mistakeTerms = [
+    'incorrect',
+    'wrong',
+    'error',
+    'mistake',
+    'problem',
+    'issue',
+  ];
+  mistakeTerms.forEach((term) => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
     markedUpText = markedUpText.replace(regex, `*${term}*`);
   });
 
   // Format the response with Markdown structure
   return `## Grammar Analysis\n\nI analyzed your sentence: "${userInput}".\n\n## Feedback\n\n${markedUpText}`;
+}
+
+export function generateTranslatePracticePhrasePrompt(
+  word: string,
+  direction: 'es-en' | 'en-es',
+  difficulty: string = 'medium'
+): string {
+  const sourceLang = direction === 'es-en' ? 'Spanish' : 'English';
+  const targetLang = direction === 'es-en' ? 'English' : 'Spanish';
+  const requestId = crypto.randomUUID();
+
+  const contexts = [
+    'daily conversation',
+    'restaurant',
+    'travel',
+    'work',
+    'family',
+    'shopping',
+    'weather',
+    'education',
+    'technology',
+    'health',
+    'sports',
+    'entertainment',
+    'nature',
+    'business',
+    'social media',
+  ];
+
+  const sentenceTypes = [
+    'statement',
+    'question',
+    'exclamation',
+    'conditional',
+    'imperative',
+  ];
+
+  const grammarFocuses = [
+    'Simple present tense',
+    'Simple past tense',
+    'Present continuous',
+    'Present perfect',
+    'Future tense',
+    'Conditional mood',
+    'Passive voice',
+    'Comparative structures',
+    'Relative clauses',
+    'Modal verbs',
+    'Prepositional phrases',
+    'Question formation',
+    'Exclamative structures',
+    'Compound subjects',
+    'Complex sentences',
+  ];
+
+  const styles = [
+    { name: 'literal', description: 'Basic, dictionary definition usage' },
+    {
+      name: 'colloquial',
+      description: 'Common everyday speech patterns, informal expressions',
+    },
+    {
+      name: 'idiomatic',
+      description: 'Expressions, metaphors, figurative language',
+    },
+    { name: 'formal', description: 'Professional or academic contexts' },
+  ];
+
+  const randomContext = contexts[Math.floor(Math.random() * contexts.length)];
+  const randomSentenceType =
+    sentenceTypes[Math.floor(Math.random() * sentenceTypes.length)];
+  const randomGrammarFocus =
+    grammarFocuses[Math.floor(Math.random() * grammarFocuses.length)];
+  const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+
+  return `Generate a ${difficulty} difficulty practice phrase for translation practice using the word "${word}".
+
+RANDOM GENERATION PARAMETERS (Request ID: ${requestId}):
+- Context: ${randomContext}
+- Sentence Type: ${randomSentenceType}
+- Grammar Focus: ${randomGrammarFocus}
+- Style: ${randomStyle.name} (${randomStyle.description})
+
+CRITICAL REQUIREMENTS:
+1. Create a phrase that is genuinely DIFFERENT from typical textbook examples
+2. Use the selected context, sentence type, grammar focus, and style
+3. The phrase MUST naturally include or relate to: "${word}"
+4. Vary tenses: present, past, future, perfect tenses, passive voice
+5. Make it ${randomStyle.name} in tone and structure
+6. Length: 5-20 words depending on complexity
+7. Be creative - avoid predictable patterns
+
+STYLES TO USE:
+- "literal": Basic dictionary meaning, straightforward usage
+- "colloquial": Informal speech, slang, everyday expressions
+- "idiomatic": Figurative language, metaphors, cultural expressions
+- "formal": Academic, professional, or official contexts
+
+Example of diverse outputs:
+Style: literal, Grammar: Simple past, Context: food
+{
+  "phrase": "The chef prepared a delicious meal of grilled salmon and roasted vegetables.",
+  "translation": "El chef preparó una deliciosa comida de salmón a la parrilla y vegetales asados.",
+  "grammarFocus": "Simple past tense, compound subject",
+  "style": "literal"
+}
+
+Style: colloquial, Grammar: Comparative, Context: restaurant
+{
+  "phrase": "That restaurant has some serious food, but the service was terrible.",
+  "translation": "Ese restaurante tiene comida muy buena, pero el servicio fue terrible.",
+  "grammarFocus": "Colloquial intensifier, comparative",
+  "style": "colloquial"
+}
+
+Style: idiomatic, Grammar: Exclamative, Context: general
+{
+  "phrase": "The food was so good that I ate three plates!",
+  "translation": "¡La comida estaba tan buena que comí tres platos!",
+  "grammarFocus": "Exclamative structure, past tense",
+  "style": "idiomatic"
+}
+
+Style: formal, Grammar: Passive voice, Context: education
+{
+  "phrase": "The nutritional value of food is being studied in the new research project.",
+  "translation": "El valor nutricional de la comida está siendo estudiado en el nuevo proyecto de investigación.",
+  "grammarFocus": "Passive voice, present continuous",
+  "style": "formal"
+}
+
+YOUR TASK:
+Generate a phrase in ${sourceLang} with these constraints:
+- Context: ${randomContext}
+- Sentence type: ${randomSentenceType}
+- Grammar focus: ${randomGrammarFocus}
+- Style: ${randomStyle.name}
+- Must include word: "${word}"
+- Direction: ${sourceLang} → ${targetLang}
+
+Respond with ONLY this JSON structure:
+{
+  "phrase": "phrase in ${sourceLang}",
+  "translation": "translation in ${targetLang}",
+  "grammarFocus": "brief description of grammar point",
+  "style": "${randomStyle.name}"
+}`;
 }

@@ -146,8 +146,32 @@ export interface TranslateRequest {
   userId?: string;
 }
 
+export interface GenerateTranslatePhraseRequest {
+  word: string;
+  direction: 'es-en' | 'en-es';
+  userId?: string;
+}
+
+export interface GenerateTranslatePhraseResponse {
+  phrase: string;
+  translation: string;
+  grammarFocus?: string;
+  style?: 'literal' | 'colloquial' | 'idiomatic' | 'formal';
+}
+
+export interface CheckTranslationRequest {
+  phrase: string;
+  userTranslation: string;
+  direction: 'es-en' | 'en-es';
+  userId?: string;
+}
+
 export interface TextToSpeechRequest {
   text: string;
   lang?: string;
   userId?: string;
+}
+
+export interface WhisperInput {
+  audio: number[];
 }

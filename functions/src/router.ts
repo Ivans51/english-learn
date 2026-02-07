@@ -1,4 +1,4 @@
-import {Env} from './types';
+import { Env } from './types';
 import {
   handleCreateCategory,
   handleCreateTopic,
@@ -19,16 +19,18 @@ import {
   handleUpdateTopic,
   handleUpdateVocabularyWord,
   handleVoicePractice,
+  handleGenerateTranslatePhrase,
+  handleCheckTranslation,
 } from './handlers';
-import {corsHeaders, setGlobalEnv} from './utils';
+import { corsHeaders, setGlobalEnv } from './utils';
 
 export async function handleApiRequest(
   request: Request,
   url: URL,
   env: Env,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ctx: ExecutionContext
 ): Promise<Response> {
-
   setGlobalEnv(env);
 
   // Explain word endpoint
@@ -43,10 +45,16 @@ export async function handleApiRequest(
   if (url.pathname === '/api/vocabulary-words' && request.method === 'GET') {
     return handleGetVocabularyWords(request, env, corsHeaders);
   }
-  if (url.pathname.startsWith('/api/vocabulary-words/') && request.method === 'PUT') {
+  if (
+    url.pathname.startsWith('/api/vocabulary-words/') &&
+    request.method === 'PUT'
+  ) {
     return handleUpdateVocabularyWord(request, url, env, corsHeaders);
   }
-  if (url.pathname.startsWith('/api/vocabulary-words/') && request.method === 'DELETE') {
+  if (
+    url.pathname.startsWith('/api/vocabulary-words/') &&
+    request.method === 'DELETE'
+  ) {
     return handleDeleteVocabularyWord(request, url, env, corsHeaders);
   }
 
@@ -71,7 +79,10 @@ export async function handleApiRequest(
   if (url.pathname.startsWith('/api/categories/') && request.method === 'PUT') {
     return handleUpdateCategory(request, url, env, corsHeaders);
   }
-  if (url.pathname.startsWith('/api/categories/') && request.method === 'DELETE') {
+  if (
+    url.pathname.startsWith('/api/categories/') &&
+    request.method === 'DELETE'
+  ) {
     return handleDeleteCategory(request, url, env, corsHeaders);
   }
 
@@ -96,7 +107,10 @@ export async function handleApiRequest(
   }
 
   // Generate voice practice phrase endpoint
-  if (url.pathname === '/api/voice-practice-phrase' && request.method === 'POST') {
+  if (
+    url.pathname === '/api/voice-practice-phrase' &&
+    request.method === 'POST'
+  ) {
     return handleGenerateVoicePracticePhrase(request, env, corsHeaders);
   }
 
@@ -110,15 +124,26 @@ export async function handleApiRequest(
     return handleTextToSpeech(request, env, corsHeaders);
   }
 
+  // Translate practice endpoints
+  if (
+    url.pathname === '/api/translate-practice/generate-phrase' &&
+    request.method === 'POST'
+  ) {
+    return handleGenerateTranslatePhrase(request, env, corsHeaders);
+  }
+  if (
+    url.pathname === '/api/translate-practice/check' &&
+    request.method === 'POST'
+  ) {
+    return handleCheckTranslation(request, env, corsHeaders);
+  }
+
   // 404 for unknown API routes
-  return new Response(
-    JSON.stringify({error: 'API endpoint not found'}),
-    {
-      status: 404,
-      headers: {
-        ...corsHeaders,
-        'content-type': 'application/json',
-      },
-    }
-  );
+  return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
+    status: 404,
+    headers: {
+      ...corsHeaders,
+      'content-type': 'application/json',
+    },
+  });
 }

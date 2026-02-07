@@ -51,17 +51,26 @@
 
               <!-- Description -->
               <div class="mb-4">
-                <h4 class="text-base font-medium text-primary-50 mb-2 flex items-center">
+                <h4
+                  class="text-base font-medium text-primary-50 mb-2 flex items-center"
+                >
                   <BookOpen class="w-4 h-4 mr-2 text-primary-400" />
                   Description
                 </h4>
-                <div class="bg-primary-800/50 rounded-lg p-3 max-h-64 overflow-y-auto custom-scrollbar">
-                  <div class="text-primary-200 leading-relaxed prose prose-invert max-w-none description-content" v-html="renderedDescription"></div>
+                <div
+                  class="bg-primary-800/50 rounded-lg p-3 max-h-64 overflow-y-auto custom-scrollbar"
+                >
+                  <div
+                    class="text-primary-200 leading-relaxed prose prose-invert max-w-none description-content"
+                    v-html="renderedDescription"
+                  ></div>
                 </div>
               </div>
 
               <!-- Status Badge & Actions -->
-              <div class="flex items-center justify-between pt-3 border-t border-primary-700">
+              <div
+                class="flex items-center justify-between pt-3 border-t border-primary-700"
+              >
                 <div class="flex items-center gap-2">
                   <button
                     @click="toggleWordStatus"
@@ -69,11 +78,13 @@
                     :class="[
                       localWordStatus === 'completed'
                         ? 'bg-green-900/60 text-green-200'
-                        : 'bg-yellow-900/40 text-yellow-200'
+                        : 'bg-yellow-900/40 text-yellow-200',
                     ]"
                     title="Click to change status"
                   >
-                    {{ localWordStatus === 'completed' ? 'completed' : 'pending' }}
+                    {{
+                      localWordStatus === 'completed' ? 'completed' : 'pending'
+                    }}
                   </button>
                   <span class="text-xs text-primary-500">click to toggle</span>
                 </div>
@@ -95,6 +106,13 @@
                     <MessageCircle class="w-4 h-4" />
                   </button>
                   <button
+                    @click="handleTranslate"
+                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-purple-600 dark:hover:text-purple-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    title="Translate word"
+                  >
+                    <Languages class="w-4 h-4" />
+                  </button>
+                  <button
                     @click="handleDelete"
                     class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Delete word"
@@ -113,7 +131,14 @@
 
 <script setup lang="ts">
 import type { VocabularyWord } from '@/types'
-import { BookOpen, MessageCircle, Mic, Trash2, X } from 'lucide-vue-next'
+import {
+  BookOpen,
+  Languages,
+  MessageCircle,
+  Mic,
+  Trash2,
+  X,
+} from 'lucide-vue-next'
 import { ref, watch, onMounted } from 'vue'
 import { marked } from 'marked'
 
@@ -125,10 +150,15 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'toggle-status', wordUid: string, currentStatus?: 'pending' | 'completed'): void
+  (
+    e: 'toggle-status',
+    wordUid: string,
+    currentStatus?: 'pending' | 'completed',
+  ): void
   (e: 'grammar-check', wordUid: string, term: string): void
   (e: 'voice-practice', term: string): void
   (e: 'delete-word', wordUid: string): void
+  (e: 'translate', term: string): void
 }
 
 const props = defineProps<Props>()
@@ -138,9 +168,12 @@ const emit = defineEmits<Emits>()
 const localWordStatus = ref(props.word.status)
 
 // Watch for prop changes to update local state
-watch(() => props.word.status, (newStatus) => {
-  localWordStatus.value = newStatus
-})
+watch(
+  () => props.word.status,
+  (newStatus) => {
+    localWordStatus.value = newStatus
+  },
+)
 
 const closeModal = () => {
   emit('close')
@@ -148,7 +181,8 @@ const closeModal = () => {
 
 const toggleWordStatus = () => {
   // Update local state immediately for instant UI feedback
-  localWordStatus.value = localWordStatus.value === 'completed' ? 'pending' : 'completed'
+  localWordStatus.value =
+    localWordStatus.value === 'completed' ? 'pending' : 'completed'
   emit('toggle-status', props.wordUid, props.word.status)
 }
 
@@ -163,6 +197,10 @@ const handleVoicePractice = () => {
 
 const handleGrammarCheck = () => {
   emit('grammar-check', props.wordUid, props.word.term)
+}
+
+const handleTranslate = () => {
+  emit('translate', props.word.term)
 }
 
 // Markdown rendering
@@ -187,11 +225,15 @@ const renderMarkdown = async (markdownText: string): Promise<string> => {
 }
 
 // Update rendered description when word changes
-watch(() => props.word.description, (newDescription) => {
-  if (newDescription) {
-    renderMarkdown(newDescription).then(html => {
-      renderedDescription.value = html
-    })
-  }
-}, { immediate: true })
+watch(
+  () => props.word.description,
+  (newDescription) => {
+    if (newDescription) {
+      renderMarkdown(newDescription).then((html) => {
+        renderedDescription.value = html
+      })
+    }
+  },
+  { immediate: true },
+)
 </script>
