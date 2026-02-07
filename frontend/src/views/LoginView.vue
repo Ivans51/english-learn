@@ -49,6 +49,7 @@
               label="Email address"
               placeholder="Enter your email"
               required
+              autocomplete="email"
             />
           </div>
 
@@ -60,6 +61,7 @@
               label="Password"
               placeholder="Enter your password"
               required
+              autocomplete="current-password"
             >
               <template #suffix>
                 <button
@@ -67,7 +69,10 @@
                   @click="togglePasswordVisibility"
                   class="text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
                 >
-                  <Eye v-if="passwordFieldType === 'password'" class="h-5 w-5" />
+                  <Eye
+                    v-if="passwordFieldType === 'password'"
+                    class="h-5 w-5"
+                  />
                   <EyeOff v-else class="h-5 w-5" />
                 </button>
               </template>
@@ -102,7 +107,12 @@
           </div>
 
           <div>
-            <BaseButton variant="accent" type="submit" :disabled="isLoading" class="w-full">
+            <BaseButton
+              variant="accent"
+              type="submit"
+              :disabled="isLoading"
+              class="w-full"
+            >
               <span v-if="isLoading" class="flex items-center">
                 <Loader2 class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                 Signing in...
@@ -112,12 +122,16 @@
           </div>
 
           <div class="mt-4 text-center">
-            <BaseButton variant="ghost" type="button" @click="router.push('/register')" class="w-full">
+            <BaseButton
+              variant="ghost"
+              type="button"
+              @click="router.push('/register')"
+              class="w-full"
+            >
               Create an account
             </BaseButton>
           </div>
         </form>
-
       </div>
     </div>
   </div>
@@ -150,7 +164,8 @@ const form = reactive<LoginForm>({
 })
 
 const togglePasswordVisibility = (): void => {
-  passwordFieldType.value = passwordFieldType.value === 'password' ? 'text' : 'password'
+  passwordFieldType.value =
+    passwordFieldType.value === 'password' ? 'text' : 'password'
 }
 
 const handleLogin = async (): Promise<void> => {
