@@ -5,14 +5,20 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "lint": "eslint . --fix",
+    "format": "prettier --write .",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231016.0",
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^10.0.0",
+    "prettier": "^3.8.1",
     "typescript": "^5.0.4",
+    "typescript-eslint": "^8.54.0",
     "vitest": "^4.0.16",
     "wrangler": "^3.0.0"
   },

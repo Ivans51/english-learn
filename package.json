@@ -11,6 +11,13 @@
     "build:frontend": "cd frontend && pnpm run build",
     "build:functions": "cd functions && pnpm run deploy",
     "install:all": "pnpm install && cd frontend && pnpm install && cd ../functions && pnpm install",
+    "lint": "pnpm run lint:frontend && pnpm run lint:functions",
+    "lint:frontend": "cd frontend && pnpm run lint",
+    "lint:functions": "cd functions && pnpm run lint",
+    "format": "pnpm run format:frontend && pnpm run format:functions",
+    "format:frontend": "cd frontend && pnpm run format",
+    "format:functions": "cd functions && pnpm run format",
+    "prepare": "husky",
     "test": "pnpm run test:frontend && pnpm run test:functions",
     "test:frontend": "cd frontend && pnpm run test:run",
     "test:functions": "cd functions && pnpm run test:run",
@@ -18,8 +25,30 @@
     "test:coverage:frontend": "cd frontend && pnpm run test:coverage",
     "test:coverage:functions": "cd functions && pnpm run test:coverage"
   },
+  "lint-staged": {
+    "frontend/**/*.{ts,vue}": [
+      "pnpm --prefix frontend exec eslint --fix",
+      "pnpm --prefix frontend exec prettier --write"
+    ],
+    "frontend/**/*.{json,css,md}": [
+      "pnpm --prefix frontend exec prettier --write"
+    ],
+    "functions/**/*.{ts,js}": [
+      "pnpm --prefix functions exec eslint --fix",
+      "pnpm --prefix functions exec prettier --write"
+    ],
+    "functions/**/*.{json,md}": [
+      "pnpm --prefix functions exec prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1"
   },
   "workspaces": [
     "frontend",
