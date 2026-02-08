@@ -29,7 +29,7 @@
           >
             <!-- Header -->
             <div
-              class="flex items-center justify-between p-4 border-b border-primary-700"
+              class="flex flex-col md:flex-row md:items-center md:justify-between p-4 border-b border-primary-700 gap-3"
             >
               <div class="flex items-center">
                 <div
@@ -46,7 +46,7 @@
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 md:self-auto self-end">
                 <BaseButton
                   variant="secondary"
                   @click="generatePracticePhrase"
@@ -56,7 +56,7 @@
                   <Plus class="h-4 w-4 mr-2" />
                   Generate Phrase
                   <kbd
-                    class="ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono"
+                    class="hidden md:inline-block ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono"
                   >
                     Ctrl+K
                   </kbd>
