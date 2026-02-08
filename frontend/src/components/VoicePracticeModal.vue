@@ -257,12 +257,6 @@
                   </p>
                 </div>
               </div>
-
-              <div class="mt-5 flex justify-end">
-                <BaseButton variant="secondary" size="sm" @click="closeModal">
-                  Close
-                </BaseButton>
-              </div>
             </DialogPanel>
           </TransitionChild>
         </div>
