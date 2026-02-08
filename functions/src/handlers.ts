@@ -250,10 +250,21 @@ export async function handleUpdateVocabularyWord(
       );
     }
 
-    const body: Partial<VocabularyWord> = await request.json();
+    const body: Partial<VocabularyWord> & { categoryName?: string } =
+      await request.json();
 
     if (Object.keys(body).length === 0) {
       return ErrorResponses.badRequest('No update data provided', corsHeaders);
+    }
+
+    // If categoryName is provided, find or create the category and update categoryId
+    if (body.categoryName) {
+      const { categoryId } = await findOrCreateCategory(
+        env,
+        userId,
+        body.categoryName
+      );
+      body.categoryId = categoryId;
     }
 
     const updatedWord = await updateVocabularyWord(env, userId, wordUid, body);

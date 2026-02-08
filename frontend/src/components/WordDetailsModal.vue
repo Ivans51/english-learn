@@ -24,7 +24,7 @@
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
           <div
-            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto max-h-[90vh] flex flex-col"
+            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto h-[80vh] flex flex-col"
             @click.stop
           >
             <!-- Close Button -->
@@ -36,21 +36,36 @@
             </button>
 
             <!-- Content -->
-            <div class="p-4 overflow-y-auto custom-scrollbar">
+            <div class="p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
               <!-- Word Term -->
-              <div class="mb-4 pr-8">
+              <div
+                class="mb-4 pr-8 flex items-center justify-between flex-shrink-0"
+              >
                 <h2 class="text-xl font-bold text-primary-50">
                   {{ word.term }}
                 </h2>
-                <span class="text-base text-primary-400">
-                  category: {{ word.categoryName }}
-                </span>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-primary-400">Category:</span>
+                  <select
+                    v-model="selectedCategoryId"
+                    @change="handleCategoryChange"
+                    class="text-sm bg-primary-800 border border-primary-600 rounded px-2 py-1 text-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                  >
+                    <option
+                      v-for="(category, id) in props.categories"
+                      :key="id"
+                      :value="id"
+                    >
+                      {{ category.name }}
+                    </option>
+                  </select>
+                </div>
               </div>
 
-              <hr class="mb-3 border-primary-700" />
+              <hr class="mb-3 border-primary-700 flex-shrink-0" />
 
               <!-- Description -->
-              <div class="mb-4">
+              <div class="mb-4 flex-1 flex flex-col min-h-0">
                 <h4
                   class="text-base font-medium text-primary-50 mb-2 flex items-center"
                 >
@@ -58,7 +73,7 @@
                   Description
                 </h4>
                 <div
-                  class="bg-primary-800/50 rounded-lg p-3 max-h-64 overflow-y-auto custom-scrollbar"
+                  class="bg-primary-800/50 rounded-lg p-3 flex-1 overflow-y-auto custom-scrollbar"
                 >
                   <div
                     class="text-primary-200 leading-relaxed prose prose-invert max-w-none description-content"
@@ -69,7 +84,7 @@
 
               <!-- Status Badge & Actions -->
               <div
-                class="flex items-center justify-between pt-3 border-t border-primary-700"
+                class="flex items-center justify-between pt-3 border-t border-primary-700 flex-shrink-0"
               >
                 <div class="flex items-center gap-2">
                   <button
@@ -130,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import type { VocabularyWord } from '@/types'
+import type { CategoryCollection, VocabularyWord } from '@/types'
 import {
   BookOpen,
   Languages,
@@ -146,6 +161,7 @@ interface Props {
   isOpen: boolean
   word: VocabularyWord
   wordUid: string
+  categories?: CategoryCollection
 }
 
 interface Emits {
@@ -159,6 +175,12 @@ interface Emits {
   (e: 'voice-practice', term: string): void
   (e: 'delete-word', wordUid: string): void
   (e: 'translate', term: string): void
+  (
+    e: 'update-category',
+    wordUid: string,
+    categoryId: string,
+    categoryName: string,
+  ): void
 }
 
 const props = defineProps<Props>()
@@ -166,12 +188,21 @@ const emit = defineEmits<Emits>()
 
 // Local reactive state for immediate UI updates
 const localWordStatus = ref(props.word.status)
+const selectedCategoryId = ref(props.word.categoryId)
 
 // Watch for prop changes to update local state
 watch(
   () => props.word.status,
   (newStatus) => {
     localWordStatus.value = newStatus
+  },
+)
+
+// Watch for category changes from props
+watch(
+  () => props.word.categoryId,
+  (newCategoryId) => {
+    selectedCategoryId.value = newCategoryId
   },
 )
 
@@ -200,6 +231,14 @@ const handleGrammarCheck = () => {
 
 const handleTranslate = () => {
   emit('translate', props.word.term)
+}
+
+const handleCategoryChange = () => {
+  const categoryId = selectedCategoryId.value
+  const category = props.categories?.[categoryId]
+  if (category) {
+    emit('update-category', props.wordUid, categoryId, category.name)
+  }
 }
 
 // Markdown rendering

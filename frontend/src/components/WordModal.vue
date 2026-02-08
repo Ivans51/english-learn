@@ -27,7 +27,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-4xl h-[80vh] flex flex-col transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
             >
               <DialogTitle
                 as="h3"
@@ -56,8 +56,11 @@
                 </button>
               </DialogTitle>
 
-              <form @submit.prevent="addOrUpdateWord" class="mt-4 space-y-3">
-                <div>
+              <form
+                @submit.prevent="addOrUpdateWord"
+                class="mt-4 space-y-3 flex-1 flex flex-col min-h-0 overflow-hidden"
+              >
+                <div class="flex-shrink-0">
                   <div class="relative">
                     <BaseInput
                       id="term"
@@ -79,7 +82,7 @@
                   </div>
                 </div>
 
-                <div class="mt-3">
+                <div class="mt-3 flex-shrink-0">
                   <label class="block text-sm text-primary-300 mb-1">
                     Category
                   </label>
@@ -100,7 +103,10 @@
                   </select>
                 </div>
 
-                <div v-if="selectedCategoryId === 'custom'" class="mt-3">
+                <div
+                  v-if="selectedCategoryId === 'custom'"
+                  class="mt-3 flex-shrink-0"
+                >
                   <BaseInput
                     v-model="customCategoryName"
                     placeholder="Enter category name"
@@ -109,7 +115,7 @@
 
                 <div
                   v-if="formData.categoryName || selectedCategoryId"
-                  class="mt-3"
+                  class="mt-3 flex-shrink-0"
                 >
                   <span class="text-sm text-primary-300">Category:</span>
                   <span class="ml-2 text-base text-primary-50">
@@ -119,16 +125,19 @@
 
                 <div
                   v-if="formData.descriptionText"
-                  class="mt-3 space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar"
+                  class="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden"
                 >
-                  <div v-if="formData.descriptionText">
+                  <div
+                    v-if="formData.descriptionText"
+                    class="flex flex-col flex-1 min-h-0"
+                  >
                     <label
-                      class="block text-sm font-medium text-primary-300 mb-1"
+                      class="block text-sm font-medium text-primary-300 mb-1 flex-shrink-0"
                     >
                       Description
                     </label>
                     <div
-                      class="text-base text-primary-50 bg-primary-800/50 p-3 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
+                      class="flex-1 overflow-y-auto custom-scrollbar pr-2 text-base text-primary-50 bg-primary-800/50 p-3 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
                       v-html="renderedDescription"
                     ></div>
                   </div>
@@ -136,12 +145,12 @@
 
                 <div
                   v-if="errorMessage"
-                  class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md"
+                  class="mt-3 p-3 bg-red-900/50 border border-red-700 rounded-md flex-shrink-0"
                 >
                   <p class="text-base text-red-200">{{ errorMessage }}</p>
                 </div>
 
-                <div class="mt-4 flex justify-end gap-3">
+                <div class="mt-4 flex justify-end gap-3 flex-shrink-0">
                   <BaseButton
                     variant="primary"
                     type="submit"

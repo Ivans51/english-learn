@@ -443,12 +443,14 @@
       :is-open="showWordDetailsModal"
       :word="selectedWordForDetails.word"
       :word-uid="selectedWordForDetails.uid"
+      :categories="categories"
       @close="closeWordDetailsModal"
       @toggle-status="toggleWordStatus"
       @grammar-check="openGrammarCheck"
       @voice-practice="handleWordDetailsVoicePractice"
       @delete-word="deleteWord"
       @translate="handleWordDetailsTranslate"
+      @update-category="updateWordCategory"
     />
 
     <!-- Voice Practice Modal -->
@@ -777,6 +779,30 @@ const toggleWordStatus = async (
   } catch (error) {
     console.error('Error updating word status:', error)
     showErrorToast('Failed to update word status. Please try again.')
+  }
+}
+
+const updateWordCategory = async (
+  wordUid: string,
+  categoryId: string,
+  categoryName: string,
+) => {
+  try {
+    const updated = await vocabularyWordsService.updateWord(
+      wordUid,
+      { categoryId, categoryName },
+      userId.value,
+    )
+
+    // Update local data
+    if (vocabularyData.value) {
+      vocabularyData.value.vocabulary[wordUid] = updated
+    }
+
+    showSuccessToast(`Category updated to "${categoryName}"`)
+  } catch (error) {
+    console.error('Error updating word category:', error)
+    showErrorToast('Failed to update category. Please try again.')
   }
 }
 

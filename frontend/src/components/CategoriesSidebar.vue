@@ -163,7 +163,6 @@
                         ? 'text-white'
                         : 'text-primary-800 dark:text-primary-200',
                     ]"
-                    @click.stop="startEdit(String(id), category.name)"
                   >
                     {{ category.name }}
                   </span>
