@@ -26,14 +26,14 @@
 
       <!-- Search and count -->
       <div class="flex items-center gap-2 mb-4">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search categories..."
-            class="flex-1 px-3 py-1.5 text-base bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
-            ref="searchInput"
-          />
-          <span class="text-base text-primary-400 dark:text-primary-500">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search categories..."
+          class="flex-1 px-3 py-1.5 text-base bg-transparent border-b border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:border-secondary-500 transition-colors"
+          ref="searchInput"
+        />
+        <span class="text-base text-primary-400 dark:text-primary-500">
           {{ filteredCategoriesCount }} / {{ Object.keys(categories).length }}
         </span>
       </div>
@@ -89,7 +89,9 @@
             <div class="flex items-center gap-1">
               <!-- Edit button -->
               <button
-                v-if="editingCategory !== String(id)"
+                v-if="
+                  editingCategory !== String(id) && category.name !== 'learning'
+                "
                 @click="startEdit(String(id), category.name)"
                 class="p-1.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 rounded transition-colors"
                 title="Edit category"
@@ -128,6 +130,7 @@
 
               <!-- Delete button -->
               <button
+                v-if="category.name !== 'learning'"
                 @click="handleDeleteCategory(String(id), category.name)"
                 class="p-1.5 text-primary-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
                 title="Delete category and all related words"
@@ -150,13 +153,7 @@
 // Watch for user changes
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  ArrowLeft,
-  Check,
-  Edit3,
-  Trash2,
-  X,
-} from 'lucide-vue-next'
+import { ArrowLeft, Check, Edit3, Trash2, X } from 'lucide-vue-next'
 import MainHeader from '@/components/MainHeader.vue'
 import { fireSwal } from '@/utils/swalUtils'
 import { useToast } from '@/composables/useToast'
@@ -241,7 +238,9 @@ const filteredCategories = computed(() => {
   return filtered
 })
 
-const filteredCategoriesCount = computed(() => Object.keys(filteredCategories.value).length)
+const filteredCategoriesCount = computed(
+  () => Object.keys(filteredCategories.value).length,
+)
 
 const startEdit = (categoryId: string, currentName: string) => {
   editingCategory.value = categoryId
