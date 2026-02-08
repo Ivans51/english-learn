@@ -6,7 +6,6 @@ import RegisterView from '@/views/RegisterView.vue'
 import VocabularyView from '@/views/VocabularyView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import LearningByTopicsView from '@/views/LearningByTopicsView.vue'
-import CategoriesView from '@/views/CategoriesView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 
 const router = createRouter({
@@ -47,9 +46,7 @@ const router = createRouter({
     },
     {
       path: '/categories',
-      name: 'categories',
-      component: CategoriesView,
-      meta: { requiresAuth: true },
+      redirect: '/vocabulary',
     },
     // Catch-all route for 404 Not Found
     {

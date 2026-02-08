@@ -21,13 +21,35 @@
                 My Vocabulary
               </h1>
             </div>
+            <div class="flex items-center gap-2">
+              <!-- Desktop Categories button - on the right -->
+              <button
+                @click="showCategoriesSidebar = true"
+                class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                title="Categories"
+              >
+                <Library class="w-5 h-5" />
+                <span class="text-sm font-medium">Category</span>
+              </button>
+              <button
+                @click="showSearchFilter = !showSearchFilter"
+                class="sm:hidden p-2.5 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                title="Toggle filters"
+              >
+                <Search v-if="!showSearchFilter" class="w-5 h-5" />
+                <X v-else class="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <!-- Categories button - below on mobile only -->
+          <div class="sm:hidden mt-3">
             <button
-              @click="showSearchFilter = !showSearchFilter"
-              class="sm:hidden p-2.5 rounded-md text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-              title="Toggle filters"
+              @click="showCategoriesSidebar = true"
+              class="flex items-center gap-2 w-full justify-center px-4 py-3 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-800/50 transition-colors"
+              title="Categories"
             >
-              <Search v-if="!showSearchFilter" class="w-5 h-5" />
-              <X v-else class="w-5 h-5" />
+              <Library class="w-5 h-5" />
+              <span class="text-sm font-medium">Open Categories</span>
             </button>
           </div>
         </div>
@@ -103,25 +125,6 @@
                   placeholder="Search..."
                   class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
-                <select
-                  v-model="selectedCategory"
-                  class="w-40 px-3 py-2 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                >
-                  <option
-                    v-for="(category, id) in categories"
-                    :key="id"
-                    :value="id"
-                  >
-                    {{ category.name }}
-                  </option>
-                </select>
-                <button
-                  @click="navigateToCategories"
-                  class="px-4 py-2 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center cursor-pointer"
-                  title="Manage Categories"
-                >
-                  <Settings class="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
@@ -198,27 +201,6 @@
                   placeholder="Search..."
                   class="w-full px-3 py-2.5 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
-                <div class="flex gap-2">
-                  <select
-                    v-model="selectedCategory"
-                    class="flex-1 px-3 py-2.5 border border-primary-300 dark:border-primary-800 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                  >
-                    <option
-                      v-for="(category, id) in categories"
-                      :key="id"
-                      :value="id"
-                    >
-                      {{ category.name }}
-                    </option>
-                  </select>
-                  <button
-                    @click="navigateToCategories"
-                    class="px-4 py-2.5 bg-primary-600 dark:bg-primary-700 text-white rounded-md text-sm hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center justify-center cursor-pointer"
-                    title="Manage Categories"
-                  >
-                    <Settings class="w-4 h-4" />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -490,25 +472,37 @@
       :word="selectedWordForTranslate"
       @close="closeTranslateModal"
     />
+
+    <!-- Categories Sidebar -->
+    <CategoriesSidebar
+      :is-open="showCategoriesSidebar"
+      :categories="categories"
+      :vocabulary-data="vocabularyData"
+      :user-id="userId"
+      :selected-category="selectedCategory"
+      @close="showCategoriesSidebar = false"
+      @select-category="handleSelectCategory"
+      @update-categories="handleCategoriesUpdated"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   BookOpen,
   Languages,
   Layers,
+  Library,
   List,
   MessageCircle,
   Mic,
   Plus,
   Search,
-  Settings,
   X,
 } from 'lucide-vue-next'
 import { marked } from 'marked'
+import CategoriesSidebar from '@/components/CategoriesSidebar.vue'
 import MainHeader from '@/components/MainHeader.vue'
 import WordModal from '@/components/WordModal.vue'
 import WordListModal from '@/components/WordListModal.vue'
@@ -532,7 +526,6 @@ interface EditableVocabularyWord extends VocabularyWord {
   _uid?: string
 }
 
-const router = useRouter()
 const { user: firebaseUser, loading: authLoading } = useAuth()
 const { success: showSuccessToast, error: showErrorToast } = useToast()
 const userId = ref('anonymous')
@@ -554,6 +547,7 @@ const selectedWordForDetails = ref<{
   uid: string
 } | null>(null)
 const showTopicWordsModal = ref(false)
+const showCategoriesSidebar = ref(false)
 const showSearchFilter = ref(false)
 const showVoicePracticeModal = ref(false)
 const selectedWordForVoicePractice = ref('')
@@ -745,8 +739,12 @@ const closeWordModal = () => {
   wordToEdit.value = null
 }
 
-const navigateToCategories = () => {
-  router.push('/categories')
+const handleSelectCategory = (categoryId: string) => {
+  selectedCategory.value = categoryId
+}
+
+const handleCategoriesUpdated = () => {
+  loadWordsFromFirebase()
 }
 
 const handleWordOperation = (word: VocabularyWord) => {
