@@ -225,6 +225,15 @@
             <div
               class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center"
             >
+              <BaseButton
+                v-if="selectedCategory"
+                variant="danger"
+                :disabled="isClearingCategory"
+                @click="clearCategoryWords"
+              >
+                <X class="w-5 h-5 mr-2" />
+                {{ isClearingCategory ? 'Clearing...' : 'Clear Category' }}
+              </BaseButton>
               <BaseButton variant="secondary" @click="openTopicWordsModal">
                 <Layers class="w-5 h-5 mr-2" />
                 Add Group Words
@@ -562,6 +571,7 @@ const viewMode = ref<'grid' | 'list'>(
 )
 const initialLoadComplete = ref(false)
 const isMobile = ref(window.innerWidth < 640)
+const isClearingCategory = ref(false)
 
 const updateIsMobile = () => {
   isMobile.value = window.innerWidth < 640
@@ -674,6 +684,45 @@ const deleteWord = async (wordUid: string) => {
     } catch (error) {
       console.error('Error deleting word:', error)
       showErrorToast('Failed to delete word. Please try again.')
+    }
+  }
+}
+
+const clearCategoryWords = async () => {
+  if (!selectedCategory.value) return
+
+  const result = await fireSwal({
+    title: 'Clear Category?',
+    text: `This will delete all words in the "${categories.value[selectedCategory.value]?.name || 'selected'}" category. This action cannot be undone!`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, clear it!',
+    confirmButtonColor: '#dc2626',
+  })
+
+  if (result.isConfirmed) {
+    isClearingCategory.value = true
+    try {
+      const response = await vocabularyWordsService.clearCategoryWords(
+        selectedCategory.value,
+        userId.value,
+      )
+      // Remove words from local data
+      if (vocabularyData.value) {
+        for (const [uid, word] of Object.entries(
+          vocabularyData.value.vocabulary,
+        )) {
+          if (word.categoryId === selectedCategory.value) {
+            delete vocabularyData.value.vocabulary[uid]
+          }
+        }
+      }
+      showSuccessToast(`Cleared ${response.deletedCount} words from category.`)
+    } catch (error) {
+      console.error('Error clearing category:', error)
+      showErrorToast('Failed to clear category. Please try again.')
+    } finally {
+      isClearingCategory.value = false
     }
   }
 }

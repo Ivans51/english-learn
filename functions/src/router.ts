@@ -1,5 +1,6 @@
 import { Env } from './types';
 import {
+  handleClearCategoryWords,
   handleCreateCategory,
   handleCreateTopic,
   handleCreateTopicWords,
@@ -84,6 +85,14 @@ export async function handleApiRequest(
     request.method === 'DELETE'
   ) {
     return handleDeleteCategory(request, url, env, corsHeaders);
+  }
+
+  // Clear category words endpoint
+  if (
+    url.pathname.startsWith('/api/clear-category-words/') &&
+    request.method === 'DELETE'
+  ) {
+    return handleClearCategoryWords(request, url, env, corsHeaders);
   }
 
   // Grammar check endpoint

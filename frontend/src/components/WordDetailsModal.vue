@@ -39,7 +39,7 @@
             <div class="p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
               <!-- Word Term -->
               <div
-                class="mb-4 pr-8 flex items-center justify-between flex-shrink-0"
+                class="mb-4 pr-8 flex flex-col sm:flex-row sm:items-center sm:justify-between flex-shrink-0 gap-2"
               >
                 <h2 class="text-xl font-bold text-primary-50">
                   {{ word.term }}

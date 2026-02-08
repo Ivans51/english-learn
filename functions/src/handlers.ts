@@ -686,6 +686,56 @@ export async function handleUpdateCategory(
   }
 }
 
+export async function handleClearCategoryWords(
+  request: Request,
+  url: URL,
+  env: Env,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const userId = url.searchParams.get('userId') || 'anonymous';
+    const categoryId = url.pathname.split('/').pop();
+
+    if (!categoryId) {
+      return ErrorResponses.missingRequiredField(
+        'category ID in URL',
+        corsHeaders
+      );
+    }
+
+    // Get all vocabulary words to find words with this category
+    const vocabulary = await getVocabularyWords(env, userId);
+    const wordsToDelete: string[] = [];
+
+    // Find all words that belong to this category
+    for (const [wordUid, word] of Object.entries(vocabulary)) {
+      if (word.categoryId === categoryId) {
+        wordsToDelete.push(wordUid);
+      }
+    }
+
+    // Delete all vocabulary words that belong to this category
+    for (const wordUid of wordsToDelete) {
+      await deleteVocabularyWord(env, userId, wordUid);
+    }
+
+    return SuccessResponses.ok(
+      {
+        success: true,
+        message: `Cleared ${wordsToDelete.length} words from category.`,
+        deletedCount: wordsToDelete.length,
+      },
+      corsHeaders
+    );
+  } catch (error) {
+    logError('handleClearCategoryWords', error);
+    return ErrorResponses.internalServerError(
+      'Failed to clear category words',
+      corsHeaders
+    );
+  }
+}
+
 export async function handleDeleteCategory(
   request: Request,
   url: URL,

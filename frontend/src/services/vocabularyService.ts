@@ -106,7 +106,10 @@ class VocabularyWordsService {
     }
   }
 
-  async explainWord(word: string, skipCategorySuggestion = false): Promise<{ description: string; suggestedCategory?: string }> {
+  async explainWord(
+    word: string,
+    skipCategorySuggestion = false,
+  ): Promise<{ description: string; suggestedCategory?: string }> {
     const response = await fetch(`${this.apiBaseUrl}/api/explain`, {
       method: 'POST',
       headers: {
@@ -137,6 +140,24 @@ class VocabularyWordsService {
 
     if (!response.ok) {
       throw new Error(`Failed to create topic words: ${response.statusText}`)
+    }
+
+    return await response.json()
+  }
+
+  async clearCategoryWords(
+    categoryId: string,
+    userId?: string,
+  ): Promise<{ success: boolean; message: string; deletedCount: number }> {
+    const url = userId
+      ? `${this.apiBaseUrl}/api/clear-category-words/${categoryId}?userId=${userId}`
+      : `${this.apiBaseUrl}/api/clear-category-words/${categoryId}`
+    const response = await fetch(url, {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to clear category words: ${response.statusText}`)
     }
 
     return await response.json()
