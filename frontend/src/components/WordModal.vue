@@ -88,115 +88,13 @@
                   </label>
                   <div class="space-y-2">
                     <div class="flex items-center gap-2">
-                      <Combobox
-                        :model-value="
-                          selectedCategoryId
-                            ? selectedCategoryId.startsWith('custom-')
-                              ? {
-                                  id: selectedCategoryId,
-                                  name: formData.categoryName,
-                                }
-                              : categoriesList.find(
-                                  (c) => c.id === selectedCategoryId,
-                                )
-                            : null
-                        "
-                        @update:model-value="handleCategorySelect"
-                      >
-                        <div class="relative flex-1">
-                          <ComboboxInput
-                            :displayValue="categoryDisplayValue"
-                            @change="handleComboboxChange"
-                            @keydown.enter="handleEnterInCombobox"
-                            placeholder="Search categories..."
-                            class="w-full px-3 py-1.5 border border-primary-700 rounded-md text-base bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                          />
-                          <ComboboxButton
-                            class="absolute inset-y-0 right-0 flex items-center pr-2"
-                          >
-                            <svg
-                              class="h-5 w-5 text-primary-400"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fill-rule="evenodd"
-                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
-                              />
-                            </svg>
-                          </ComboboxButton>
-                          <ComboboxOptions
-                            v-if="
-                              filteredCategories.length > 0 || showCreateOption
-                            "
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-primary-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                          >
-                            <ComboboxOption
-                              v-for="category in filteredCategories"
-                              :key="category.id"
-                              :value="category"
-                              v-slot="{ active, selected }"
-                            >
-                              <li
-                                :class="[
-                                  'relative cursor-default select-none py-2 pl-10 pr-4',
-                                  active
-                                    ? 'bg-secondary-500 text-white'
-                                    : 'text-primary-100',
-                                ]"
-                              >
-                                <span
-                                  :class="[
-                                    'block truncate',
-                                    selected ? 'font-medium' : 'font-normal',
-                                  ]"
-                                >
-                                  {{ category.name }}
-                                </span>
-                                <span
-                                  v-if="selected"
-                                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-secondary-300"
-                                >
-                                  <svg
-                                    class="h-5 w-5"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fill-rule="evenodd"
-                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                      clip-rule="evenodd"
-                                    />
-                                  </svg>
-                                </span>
-                              </li>
-                            </ComboboxOption>
-                            <ComboboxOption
-                              v-if="showCreateOption"
-                              :value="{ id: '__create__', name: query }"
-                              v-slot="{ active }"
-                              @click="
-                                handleCategorySelect({
-                                  id: '__create__',
-                                  name: query,
-                                })
-                              "
-                            >
-                              <li
-                                :class="[
-                                  'relative cursor-default select-none py-2 pl-10 pr-4',
-                                  active
-                                    ? 'bg-secondary-500 text-white'
-                                    : 'text-secondary-300',
-                                ]"
-                              >
-                                + Create "{{ query }}"
-                              </li>
-                            </ComboboxOption>
-                          </ComboboxOptions>
-                        </div>
-                      </Combobox>
+                      <BaseCombobox
+                        id="category"
+                        v-model="selectedCategoryId"
+                        :options="categoriesList"
+                        placeholder="Search categories..."
+                        @create-new="handleCreateNewCategory"
+                      />
                       <BaseButton
                         :variant="autoDetectMode ? 'primary' : 'secondary'"
                         size="sm"
@@ -270,11 +168,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, onMounted } from 'vue'
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
   Dialog,
   DialogPanel,
   DialogTitle,
@@ -283,7 +176,7 @@ import {
 } from '@headlessui/vue'
 import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
-import { BaseButton, BaseInput } from '@/components/ui'
+import { BaseButton, BaseInput, BaseCombobox } from '@/components/ui'
 
 import type { VocabularyWord, ExplainWordResponse } from '@/types'
 
@@ -313,34 +206,12 @@ const renderedDescription = ref('')
 const selectedCategoryId = ref('')
 const customCategoryName = ref('')
 const errorMessage = ref('')
-const query = ref('')
 const autoDetectMode = ref(false)
 
 const categoriesList = computed(() => {
   const cats = props.categories || {}
   return Object.entries(cats).map(([id, cat]) => ({ id, name: cat.name }))
 })
-
-const filteredCategories = computed(() => {
-  if (query.value === '') {
-    return categoriesList.value
-  }
-  return categoriesList.value.filter((category) =>
-    category.name.toLowerCase().includes(query.value.toLowerCase()),
-  )
-})
-
-const showCreateOption = computed(() => {
-  if (query.value === '') return false
-  const normalizedQuery = query.value.toLowerCase().trim()
-  return !categoriesList.value.some(
-    (cat) => cat.name.toLowerCase() === normalizedQuery,
-  )
-})
-
-const categoryDisplayValue = (cat: unknown): string => {
-  return (cat as { name: string })?.name || ''
-}
 
 onMounted(() => {
   marked.setOptions({
@@ -454,32 +325,11 @@ function enableAutoDetect() {
   formData.value.categoryName = ''
 }
 
-function handleCategorySelect(category: { id: string; name: string } | null) {
-  if (!category || !category.id) return
-
+function handleCreateNewCategory(name: string) {
   autoDetectMode.value = false
-
-  if (category.id === '__create__') {
-    const newId = `custom-${Date.now()}`
-    selectedCategoryId.value = newId
-    formData.value.categoryName = query.value.trim()
-  } else {
-    selectedCategoryId.value = category.id
-    formData.value.categoryName = category.name
-  }
-
-  query.value = ''
-}
-
-function handleEnterInCombobox() {
-  if (showCreateOption.value && query.value.trim()) {
-    handleCategorySelect({ id: '__create__', name: query.value.trim() })
-  }
-}
-
-function handleComboboxChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  query.value = target.value
+  const newId = `custom-${Date.now()}`
+  selectedCategoryId.value = newId
+  formData.value.categoryName = name
 }
 
 watch([selectedCategoryId, autoDetectMode], updateCategoryFromSelection, {
@@ -514,7 +364,6 @@ function resetForm() {
   selectedCategoryId.value = ''
   customCategoryName.value = ''
   autoDetectMode.value = false
-  query.value = ''
 }
 
 function handleEnterKey(event: KeyboardEvent) {

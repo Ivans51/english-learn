@@ -56,14 +56,12 @@
               </div>
               <div class="flex flex-wrap items-center gap-2">
                 <!-- Language Direction Selector -->
-                <select
+                <BaseSelect
+                  id="translation-direction"
                   v-model="translationDirection"
+                  :options="translationDirectionOptions"
                   @change="handleDirectionChange"
-                  class="flex-1 sm:flex-none min-w-0 sm:w-auto px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
-                >
-                  <option value="es-en">Spanish → English</option>
-                  <option value="en-es">English → Spanish</option>
-                </select>
+                />
                 <!-- Level Selector -->
                 <div
                   class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
@@ -168,17 +166,15 @@
                   <label class="text-xs text-primary-400 mb-2">
                     Your translation:
                   </label>
-                  <textarea
-                    ref="translationInput"
+                  <BaseInput
+                    id="user-translation"
                     v-model="userTranslation"
-                    @keydown="handleKeyPress"
-                    @input="forceCapitalization"
-                    @focus="handleInputFocus"
+                    type="textarea"
                     :placeholder="`Type the translation in ${targetLanguageName}...`"
-                    rows="3"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors resize-none"
+                    :rows="3"
                     :disabled="isLoading || isGeneratingPhrase"
-                  ></textarea>
+                    @keydown="handleKeyPress"
+                  />
                 </div>
 
                 <!-- Actions -->
@@ -230,11 +226,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
 import { Languages, X, RefreshCw } from 'lucide-vue-next'
-import { BaseButton } from '@/components/ui'
+import { BaseButton, BaseSelect, BaseInput } from '@/components/ui'
 
 interface Props {
   isOpen: boolean
@@ -250,7 +246,6 @@ const emit = defineEmits<Emits>()
 
 const { error: showErrorToast } = useToast()
 
-const translationInput = ref<HTMLTextAreaElement | null>(null)
 const userTranslation = ref('')
 const currentPhrase = ref<{
   phrase: string
@@ -270,6 +265,11 @@ const targetLanguage = computed(() =>
 const targetLanguageName = computed(() =>
   targetLanguage.value === 'es' ? 'Spanish' : 'English',
 )
+
+const translationDirectionOptions = [
+  { value: 'es-en', label: 'Spanish → English' },
+  { value: 'en-es', label: 'English → Spanish' },
+]
 
 const phraseBoxClass = computed(() => {
   if (!lastResult.value) {
@@ -362,10 +362,6 @@ const generateNewPhrase = async () => {
     showErrorToast('Failed to generate phrase. Please try again.')
   } finally {
     isGeneratingPhrase.value = false
-    // Focus the input after phrase generation
-    nextTick(() => {
-      translationInput.value?.focus()
-    })
   }
 }
 
@@ -408,24 +404,6 @@ const handleGlobalKeyPress = (event: KeyboardEvent) => {
     if (!isLoading.value && !isGeneratingPhrase.value && props.word) {
       generateNewPhrase()
     }
-  }
-}
-
-const handleInputFocus = () => {
-  // Scroll input into view when keyboard opens on mobile
-  setTimeout(() => {
-    translationInput.value?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  }, 300)
-}
-
-const forceCapitalization = () => {
-  if (userTranslation.value.length > 0) {
-    userTranslation.value =
-      userTranslation.value.charAt(0).toUpperCase() +
-      userTranslation.value.slice(1)
   }
 }
 

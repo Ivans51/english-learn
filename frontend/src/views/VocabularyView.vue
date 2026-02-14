@@ -116,11 +116,11 @@
                 Search & Category
               </label>
               <div class="flex gap-3">
-                <input
-                  type="search"
+                <BaseInput
+                  id="vocab-search"
                   v-model="searchQuery"
+                  type="text"
                   placeholder="Search..."
-                  class="flex-1 px-3 py-2 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
               </div>
             </div>
@@ -189,11 +189,11 @@
                 Search & Category
               </label>
               <div class="flex flex-col gap-3 w-full">
-                <input
-                  type="search"
+                <BaseInput
+                  id="vocab-search-mobile"
                   v-model="searchQuery"
+                  type="text"
                   placeholder="Search..."
-                  class="w-full px-3 py-2.5 border border-primary-300 dark:border-primary-600 rounded-md text-sm bg-white dark:bg-primary-900 text-primary-900 dark:text-primary-50 placeholder-primary-400 dark:placeholder-primary-500 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 />
               </div>
             </div>
@@ -536,7 +536,7 @@ import { fireSwal } from '../utils/swalUtils'
 import { vocabularyWordsService } from '@/services/vocabularyService'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
-import { BaseButton } from '@/components/ui'
+import { BaseButton, BaseInput } from '@/components/ui'
 import type {
   CategoryCollection,
   VocabularyData,

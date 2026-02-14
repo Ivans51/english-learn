@@ -66,26 +66,22 @@
           class="p-4 border-b border-primary-200 dark:border-gray-800 bg-primary-50/50 dark:bg-gray-900/50"
         >
           <div class="relative">
-            <div
-              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-            >
-              <Search class="w-4 h-4 text-primary-400 dark:text-primary-500" />
-            </div>
-            <input
+            <BaseInput
+              id="category-search"
               v-model="searchQuery"
-              type="search"
+              type="text"
               placeholder="Search categories..."
-              class="w-full pl-10 pr-20 py-2.5 text-sm bg-secondary-100 dark:bg-secondary-900/30 border-2 border-secondary-200 dark:border-secondary-700 rounded-xl text-primary-900 dark:text-primary-50 placeholder-primary-500 dark:placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-secondary-500/30 focus:border-secondary-500 focus:bg-white dark:focus:bg-gray-900 transition-all"
-            />
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <span
-                class="text-xs font-medium text-primary-600 dark:text-primary-300 bg-white/80 dark:bg-gray-700/80 px-2.5 py-1 rounded-full backdrop-blur-sm"
-              >
-                {{ filteredCategoriesCount }}/{{
-                  Object.keys(localCategories).length
-                }}
-              </span>
-            </div>
+            >
+              <template #suffix>
+                <span
+                  class="text-xs font-medium text-primary-600 dark:text-primary-300 bg-white/80 dark:bg-gray-700/80 px-2.5 py-1 rounded-full backdrop-blur-sm"
+                >
+                  {{ filteredCategoriesCount }}/{{
+                    Object.keys(localCategories).length
+                  }}
+                </span>
+              </template>
+            </BaseInput>
           </div>
         </div>
 
@@ -369,6 +365,7 @@ import { fireSwal } from '@/utils/swalUtils'
 import { useToast } from '@/composables/useToast'
 import { categoryService } from '@/services/categoryService'
 import { vocabularyWordsService } from '@/services/vocabularyService'
+import { BaseInput } from '@/components/ui'
 import type { CategoryCollection, VocabularyData } from '@/types'
 
 interface Props {

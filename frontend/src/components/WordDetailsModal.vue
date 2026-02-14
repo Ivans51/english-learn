@@ -46,19 +46,12 @@
                 </h2>
                 <div class="flex items-center gap-2">
                   <span class="text-sm text-primary-400">Category:</span>
-                  <select
+                  <BaseCombobox
+                    id="word-category"
                     v-model="selectedCategoryId"
-                    @change="handleCategoryChange"
-                    class="text-sm bg-primary-800 border border-primary-600 rounded px-2 py-1 text-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
-                  >
-                    <option
-                      v-for="(category, id) in props.categories"
-                      :key="id"
-                      :value="id"
-                    >
-                      {{ category.name }}
-                    </option>
-                  </select>
+                    :options="categoryOptions"
+                    placeholder="Select category"
+                  />
                 </div>
               </div>
 
@@ -154,8 +147,9 @@ import {
   Trash2,
   X,
 } from 'lucide-vue-next'
-import { ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { marked } from 'marked'
+import { BaseCombobox } from '@/components/ui'
 
 interface Props {
   isOpen: boolean
@@ -190,6 +184,14 @@ const emit = defineEmits<Emits>()
 const localWordStatus = ref(props.word.status)
 const selectedCategoryId = ref<string | null>(props.word.categoryId)
 
+const categoryOptions = computed(() => {
+  const cats = props.categories || {}
+  return Object.entries(cats).map(([id, cat]) => ({
+    id,
+    name: cat.name,
+  }))
+})
+
 // Watch for prop changes to update local state
 watch(
   () => props.word.status,
@@ -205,6 +207,18 @@ watch(
     selectedCategoryId.value = newCategoryId
   },
 )
+
+// Watch for category selection changes and emit event
+watch(selectedCategoryId, (newCategoryId) => {
+  if (!newCategoryId) {
+    emit('update-category', props.wordUid, null, 'Uncategorized')
+    return
+  }
+  const category = props.categories?.[newCategoryId]
+  if (category) {
+    emit('update-category', props.wordUid, newCategoryId, category.name)
+  }
+})
 
 const closeModal = () => {
   emit('close')
@@ -231,18 +245,6 @@ const handleGrammarCheck = () => {
 
 const handleTranslate = () => {
   emit('translate', props.word.term)
-}
-
-const handleCategoryChange = () => {
-  const categoryId = selectedCategoryId.value
-  if (!categoryId) {
-    emit('update-category', props.wordUid, null, 'Uncategorized')
-    return
-  }
-  const category = props.categories?.[categoryId]
-  if (category) {
-    emit('update-category', props.wordUid, categoryId, category.name)
-  }
 }
 
 // Markdown rendering

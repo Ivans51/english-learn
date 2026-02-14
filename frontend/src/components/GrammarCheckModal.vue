@@ -189,17 +189,14 @@
             <div class="p-4 border-t border-primary-700">
               <div class="flex space-x-3">
                 <div class="flex-1">
-                  <input
+                  <BaseInput
                     ref="inputRef"
-                    type="text"
+                    id="grammar-input"
                     v-model="currentMessage"
-                    @keydown="handleKeyPress"
-                    @input="forceCapitalization"
-                    @focus="handleInputFocus"
+                    type="text"
                     placeholder="Type your sentence here..."
-                    autocapitalize="sentences"
-                    class="w-full px-3 py-2 border border-primary-700 rounded-md text-sm bg-black text-primary-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                     :disabled="isLoading"
+                    @keydown="handleKeyPress"
                   />
                   <div class="text-xs text-gray-500 mt-1 ml-1">
                     Press
@@ -235,7 +232,7 @@ import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
 import { MessageCircle, Plus, Send, X } from 'lucide-vue-next'
-import { BaseButton } from '@/components/ui'
+import { BaseButton, BaseInput } from '@/components/ui'
 
 interface Props {
   isOpen: boolean
@@ -273,7 +270,7 @@ const { error: showErrorToast } = useToast()
 const currentMessage = ref('')
 const chatMessages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
-const inputRef = ref<HTMLInputElement | null>(null)
+const inputRef = ref<InstanceType<typeof BaseInput> | null>(null)
 const chatContainerRef = ref<HTMLElement | null>(null)
 const level = ref<'easy' | 'medium' | 'hard'>('medium')
 
@@ -549,28 +546,6 @@ const translateMessage = async (message: ChatMessage) => {
   } finally {
     message.isTranslating = false
   }
-}
-
-const forceCapitalization = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  let value = target.value
-
-  if (value.length > 0) {
-    value = value.charAt(0).toUpperCase() + value.slice(1)
-  }
-
-  target.value = value
-  currentMessage.value = value
-}
-
-const handleInputFocus = () => {
-  // Scroll input into view when keyboard opens on mobile
-  setTimeout(() => {
-    inputRef.value?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  }, 300)
 }
 
 const handleKeyPress = (event: KeyboardEvent) => {
