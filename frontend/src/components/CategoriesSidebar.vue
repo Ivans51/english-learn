@@ -59,44 +59,6 @@
           >
             <X class="w-5 h-5" />
           </button>
-          <button
-            v-if="!isCreating"
-            @click="startCreate"
-            class="p-2 text-primary-400 hover:text-secondary-600 dark:text-primary-500 dark:hover:text-secondary-400 hover:bg-primary-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200"
-            title="Create new category"
-          >
-            <Plus class="w-5 h-5" />
-          </button>
-          <div v-else class="flex items-center gap-1">
-            <input
-              v-model="newCategoryName"
-              type="text"
-              placeholder="Category name"
-              class="w-32 px-2 py-1 text-sm bg-white dark:bg-gray-800 border-2 border-secondary-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-500/20 text-primary-900 dark:text-primary-50 transition-all"
-              @keyup.enter="handleCreateCategory"
-              @keyup.escape="cancelCreate"
-              ref="creatingInput"
-            />
-            <button
-              @click="handleCreateCategory"
-              :disabled="!newCategoryName.trim() || isUpdating"
-              class="p-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 rounded-lg border border-green-300 dark:border-green-700 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              title="Save"
-            >
-              <span
-                v-if="isUpdating"
-                class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"
-              ></span>
-              <Check v-else class="w-4 h-4" />
-            </button>
-            <button
-              @click="cancelCreate"
-              class="p-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow transition-all duration-200"
-              title="Cancel"
-            >
-              <X class="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
         <!-- Search -->
@@ -129,7 +91,6 @@
 
         <!-- Categories List -->
         <div class="flex-1 overflow-y-auto p-4">
-          <!-- Loading -->
           <div
             v-if="isLoading"
             class="flex flex-col items-center justify-center py-12 gap-3"
@@ -339,6 +300,51 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Footer with Create Button -->
+        <div
+          class="p-4 border-t border-primary-200 dark:border-gray-800 bg-white dark:bg-black"
+        >
+          <div v-if="!isCreating">
+            <button
+              @click="startCreate"
+              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary-100 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-secondary-900/50 rounded-xl border-2 border-secondary-200 dark:border-secondary-700 transition-all duration-200 font-medium"
+            >
+              <Plus class="w-5 h-5" />
+              Add Category
+            </button>
+          </div>
+          <div v-else class="flex items-center gap-2">
+            <input
+              v-model="newCategoryName"
+              type="text"
+              placeholder="Category name"
+              class="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border-2 border-secondary-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary-500/20 text-primary-900 dark:text-primary-50 transition-all"
+              @keyup.enter="handleCreateCategory"
+              @keyup.escape="cancelCreate"
+              ref="creatingInput"
+            />
+            <button
+              @click="handleCreateCategory"
+              :disabled="!newCategoryName.trim() || isUpdating"
+              class="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 rounded-xl border border-green-300 dark:border-green-700 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              title="Save"
+            >
+              <span
+                v-if="isUpdating"
+                class="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"
+              ></span>
+              <Check v-else class="w-5 h-5" />
+            </button>
+            <button
+              @click="cancelCreate"
+              class="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow transition-all duration-200"
+              title="Cancel"
+            >
+              <X class="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
