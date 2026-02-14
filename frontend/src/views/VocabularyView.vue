@@ -67,46 +67,43 @@
               />
               Search & Filter
             </div>
-            <div class="flex gap-3">
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value=""
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
-                >
-                  All
-                </span>
-              </label>
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value="pending"
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
-                >
-                  Pending
-                </span>
-              </label>
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value="completed"
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-sm text-primary-700 dark:text-primary-300"
-                >
-                  Completed
-                </span>
-              </label>
+            <div class="flex gap-1">
+              <button
+                type="button"
+                @click="selectedStatus = ''"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === ''
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                All
+              </button>
+              <button
+                type="button"
+                @click="selectedStatus = 'pending'"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === 'pending'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                Pending
+              </button>
+              <button
+                type="button"
+                @click="selectedStatus = 'completed'"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === 'completed'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                Completed
+              </button>
             </div>
           </h3>
 
@@ -144,46 +141,43 @@
               />
               Search & Filter
             </div>
-            <div class="flex gap-3">
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value=""
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
-                >
-                  All
-                </span>
-              </label>
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value="pending"
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-xs text-primary-700 dark:text-primary-300"
-                >
-                  Pending
-                </span>
-              </label>
-              <label class="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  v-model="selectedStatus"
-                  value="completed"
-                  class="w-4 h-4 text-secondary-600 dark:text-secondary-400 focus:ring-secondary-500 border-gray-300 dark:border-gray-600"
-                />
-                <span
-                  class="ml-2 text-sm text-primary-700 dark:text-primary-300"
-                >
-                  Completed
-                </span>
-              </label>
+            <div class="flex gap-1">
+              <button
+                type="button"
+                @click="selectedStatus = ''"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === ''
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                All
+              </button>
+              <button
+                type="button"
+                @click="selectedStatus = 'pending'"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === 'pending'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                Pending
+              </button>
+              <button
+                type="button"
+                @click="selectedStatus = 'completed'"
+                class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                :class="
+                  selectedStatus === 'completed'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-800'
+                "
+              >
+                Completed
+              </button>
             </div>
           </h3>
 
@@ -225,22 +219,13 @@
             <div
               class="flex flex-wrap sm:flex-nowrap gap-2 sm:w-auto sm:min-w-[400px] items-center"
             >
-              <BaseButton
-                v-if="selectedCategory"
-                variant="danger"
-                :disabled="isClearingCategory"
-                @click="clearCategoryWords"
-              >
-                <X class="w-5 h-5 mr-2" />
-                {{ isClearingCategory ? 'Clearing...' : 'Clear Category' }}
+              <BaseButton variant="primary" @click="openAddWordModal">
+                <Plus class="w-5 h-5 mr-2" />
+                Add New Word
               </BaseButton>
               <BaseButton variant="secondary" @click="openTopicWordsModal">
                 <Layers class="w-5 h-5 mr-2" />
                 Add Group Words
-              </BaseButton>
-              <BaseButton variant="primary" @click="openAddWordModal">
-                <Plus class="w-5 h-5 mr-2" />
-                Add New Word
               </BaseButton>
               <button
                 @click="viewMode = 'grid'"
@@ -268,6 +253,32 @@
                 <List class="w-5 h-5" />
               </button>
             </div>
+          </div>
+          <!-- Active Category Tag -->
+          <div v-if="selectedCategory" class="mt-3 flex items-center gap-2">
+            <span class="text-sm text-primary-600 dark:text-primary-400">
+              Category:
+            </span>
+            <span
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-100 dark:bg-primary-800 text-sm font-medium text-primary-700 dark:text-primary-200"
+            >
+              {{
+                selectedCategory
+                  ? categories[selectedCategory]?.name || 'Unknown'
+                  : 'Uncategorized'
+              }}
+              <button
+                @click="clearCategoryWords"
+                :disabled="isClearingCategory"
+                class="ml-1 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
+                title="Clear category"
+              >
+                <X
+                  class="w-4 h-4"
+                  :class="isClearingCategory ? 'animate-spin' : ''"
+                />
+              </button>
+            </span>
           </div>
         </div>
 
@@ -548,7 +559,7 @@ const isLoading = ref(false)
 
 const searchQuery = ref('')
 
-const selectedCategory = ref('')
+const selectedCategory = ref<string | null>(null)
 const selectedStatus = ref('pending') // Filter by completion status - default to pending
 const showAddWordModal = ref(false)
 const wordToEdit = ref<EditableVocabularyWord | null>(null)
@@ -583,7 +594,7 @@ watch(viewMode, (newMode) => {
 
 watch(selectedCategory, (newCategory) => {
   if (initialLoadComplete.value) {
-    localStorage.setItem('vocabularySelectedCategory', newCategory)
+    localStorage.setItem('vocabularySelectedCategory', newCategory ?? '')
   }
 })
 
@@ -638,7 +649,9 @@ const filteredWords = computed(() => {
 
       const matchesCategory =
         Object.keys(categories.value).length === 0 ||
-        word.categoryId === selectedCategory.value
+        (selectedCategory.value === null
+          ? !word.categoryId
+          : word.categoryId === selectedCategory.value)
 
       const matchesStatus =
         !selectedStatus.value || word.status === selectedStatus.value
@@ -790,7 +803,7 @@ const closeWordModal = () => {
   wordToEdit.value = null
 }
 
-const handleSelectCategory = (categoryId: string) => {
+const handleSelectCategory = (categoryId: string | null) => {
   selectedCategory.value = categoryId
 }
 
@@ -833,7 +846,7 @@ const toggleWordStatus = async (
 
 const updateWordCategory = async (
   wordUid: string,
-  categoryId: string,
+  categoryId: string | null,
   categoryName: string,
 ) => {
   try {
@@ -893,18 +906,13 @@ const loadWordsFromFirebase = async () => {
     }
     renderedDescriptions.value = rendered
 
-    // Restore saved category or auto-select "Learning" on initial load
+    // Restore saved category on initial load
     if (!initialLoadComplete.value) {
       const savedCategory = localStorage.getItem('vocabularySelectedCategory')
-      if (savedCategory && categories.value[savedCategory]) {
+      if (savedCategory === '') {
+        selectedCategory.value = null // Uncategorized
+      } else if (savedCategory && categories.value[savedCategory]) {
         selectedCategory.value = savedCategory
-      } else {
-        const learningCategoryId = Object.keys(categories.value).find(
-          (id) => categories.value[id]?.name.toLowerCase() === 'learning',
-        )
-        if (learningCategoryId) {
-          selectedCategory.value = learningCategoryId
-        }
       }
       initialLoadComplete.value = true
     }

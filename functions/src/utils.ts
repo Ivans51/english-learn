@@ -382,7 +382,7 @@ Respond with ONLY the category name, no explanation, no markdown, no quotes.`;
 
 export function generateVoicePracticePhrasePrompt(
   word: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 ): string {
   const requestId = crypto.randomUUID();

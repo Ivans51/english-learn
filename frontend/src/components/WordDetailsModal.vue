@@ -178,7 +178,7 @@ interface Emits {
   (
     e: 'update-category',
     wordUid: string,
-    categoryId: string,
+    categoryId: string | null,
     categoryName: string,
   ): void
 }
@@ -188,7 +188,7 @@ const emit = defineEmits<Emits>()
 
 // Local reactive state for immediate UI updates
 const localWordStatus = ref(props.word.status)
-const selectedCategoryId = ref(props.word.categoryId)
+const selectedCategoryId = ref<string | null>(props.word.categoryId)
 
 // Watch for prop changes to update local state
 watch(
@@ -235,6 +235,10 @@ const handleTranslate = () => {
 
 const handleCategoryChange = () => {
   const categoryId = selectedCategoryId.value
+  if (!categoryId) {
+    emit('update-category', props.wordUid, null, 'Uncategorized')
+    return
+  }
   const category = props.categories?.[categoryId]
   if (category) {
     emit('update-category', props.wordUid, categoryId, category.name)

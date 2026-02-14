@@ -17,7 +17,7 @@ export interface Category {
 
 export interface VocabularyWord {
   term: string;
-  categoryId: string;
+  categoryId: string | null;
   categoryName: string;
   description: string;
   status?: 'pending' | 'completed';

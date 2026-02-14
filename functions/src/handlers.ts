@@ -257,8 +257,13 @@ export async function handleUpdateVocabularyWord(
       return ErrorResponses.badRequest('No update data provided', corsHeaders);
     }
 
+    // Handle explicit null categoryId (move to Uncategorized)
+    if ('categoryId' in body && body.categoryId === null) {
+      body.categoryId = null;
+      body.categoryName = 'Uncategorized';
+    }
     // If categoryName is provided, find or create the category and update categoryId
-    if (body.categoryName) {
+    else if (body.categoryName) {
       const { categoryId } = await findOrCreateCategory(
         env,
         userId,
