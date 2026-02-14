@@ -54,16 +54,39 @@
                   <X class="w-5 h-5" />
                 </button>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <!-- Language Direction Selector -->
                 <select
                   v-model="translationDirection"
                   @change="handleDirectionChange"
-                  class="flex-1 sm:flex-none px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+                  class="flex-1 sm:flex-none min-w-0 sm:w-auto px-3 py-2 border border-primary-700 rounded-md text-sm bg-primary-800 text-primary-50 focus:outline-none focus:ring-1 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
                 >
                   <option value="es-en">Spanish → English</option>
                   <option value="en-es">English → Spanish</option>
                 </select>
+                <!-- Level Selector -->
+                <div
+                  class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                >
+                  <label
+                    v-for="l in ['easy', 'medium', 'hard']"
+                    :key="l"
+                    class="cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      :value="l"
+                      v-model="level"
+                      @change="handleLevelChange"
+                      class="sr-only peer"
+                    />
+                    <span
+                      class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
+                    >
+                      {{ l.charAt(0).toUpperCase() + l.slice(1) }}
+                    </span>
+                  </label>
+                </div>
                 <button
                   @click="closeModal"
                   class="hidden sm:block text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
@@ -239,6 +262,7 @@ const isLoading = ref(false)
 const isGeneratingPhrase = ref(false)
 const lastResult = ref<{ isCorrect: boolean; feedback?: string } | null>(null)
 const translationDirection = ref<'es-en' | 'en-es'>('es-en')
+const level = ref<'easy' | 'medium' | 'hard'>('medium')
 
 const targetLanguage = computed(() =>
   translationDirection.value === 'es-en' ? 'en' : 'es',
@@ -308,6 +332,13 @@ const handleDirectionChange = async () => {
   }
 }
 
+const handleLevelChange = async () => {
+  if (props.word) {
+    resetModal()
+    await generateNewPhrase()
+  }
+}
+
 const generateNewPhrase = async () => {
   if (!props.word) {
     showErrorToast('No word selected for translation practice')
@@ -323,6 +354,7 @@ const generateNewPhrase = async () => {
       props.word,
       translationDirection.value,
       'anonymous',
+      level.value,
     )
     currentPhrase.value = result
   } catch (error) {

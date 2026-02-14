@@ -387,6 +387,26 @@ export function generateVoicePracticePhrasePrompt(
 ): string {
   const requestId = crypto.randomUUID();
 
+  let wordCountRange: string;
+  let complexityInstruction: string;
+
+  switch (difficulty) {
+    case 'easy':
+      wordCountRange = '3-8 words';
+      complexityInstruction =
+        'Use simple sentences with basic vocabulary. Focus on common, everyday expressions.';
+      break;
+    case 'hard':
+      wordCountRange = '15-25 words';
+      complexityInstruction =
+        'Use complex sentences with advanced vocabulary, subordinate clauses, and sophisticated structures.';
+      break;
+    default:
+      wordCountRange = '8-15 words';
+      complexityInstruction =
+        'Use varied sentence structures with moderate complexity.';
+  }
+
   return `Generate diverse English examples for the word "${word}" showing different meanings, contexts, and usage types.
 
 CRITICAL INSTRUCTION: You MUST generate DIVERSE examples showing literal, idiomatic, colloquial, and different contextual uses. Avoid repeating the same type of sentence.
@@ -398,6 +418,10 @@ ABSOLUTE REQUIREMENTS:
 4. Vary sentence structures: statements, questions, exclamations, passive, etc.
 5. Vary tenses: present, past, future, present perfect
 6. Each example must be genuinely different in meaning or context
+7. Each phrase should be ${wordCountRange}
+
+DIFFICULTY SETTINGS (${difficulty.toUpperCase()}):
+- ${complexityInstruction}
 
 Sense types to include:
 - "literal": Basic, dictionary definition usage
@@ -585,22 +609,49 @@ export function generateTranslatePracticePhrasePrompt(
     grammarFocuses[Math.floor(Math.random() * grammarFocuses.length)];
   const randomStyle = styles[Math.floor(Math.random() * styles.length)];
 
+  let wordCountRange: string;
+  let complexityInstruction: string;
+  let grammarLevel: string;
+
+  switch (difficulty) {
+    case 'easy':
+      wordCountRange = '3-8 words';
+      complexityInstruction =
+        'Use simple sentence structures with basic vocabulary. Avoid complex clauses or advanced grammar.';
+      grammarLevel =
+        'Use simple grammar: simple present, simple past, basic questions, common phrases.';
+      break;
+    case 'hard':
+      wordCountRange = '15-25 words';
+      complexityInstruction =
+        'Use sophisticated sentence structures with advanced vocabulary. Include subordinate clauses, complex tenses, and nuanced expressions.';
+      grammarLevel =
+        'Use advanced grammar: passive voice, conditional clauses, subjunctive mood, relative clauses, complex perfect tenses.';
+      break;
+    default:
+      wordCountRange = '8-15 words';
+      complexityInstruction =
+        'Use varied sentence structures with moderate complexity.';
+      grammarLevel =
+        'Use varied grammar: present/past continuous, present perfect, future forms, modals, comparatives.';
+  }
+
   return `Generate a ${difficulty} difficulty practice phrase for translation practice using the word "${word}".
 
-RANDOM GENERATION PARAMETERS (Request ID: ${requestId}):
-- Context: ${randomContext}
-- Sentence Type: ${randomSentenceType}
-- Grammar Focus: ${randomGrammarFocus}
-- Style: ${randomStyle.name} (${randomStyle.description})
+  RANDOM GENERATION PARAMETERS (Request ID: ${requestId}):
+  - Context: ${randomContext}
+  - Sentence Type: ${randomSentenceType}
+  - Grammar Focus: ${randomGrammarFocus}
+  - Style: ${randomStyle.name} (${randomStyle.description})
 
-CRITICAL REQUIREMENTS:
-1. Create a phrase that is genuinely DIFFERENT from typical textbook examples
-2. Use the selected context, sentence type, grammar focus, and style
-3. The phrase MUST naturally include or relate to: "${word}"
-4. Vary tenses: present, past, future, perfect tenses, passive voice
-5. Make it ${randomStyle.name} in tone and structure
-6. Length: 5-20 words depending on complexity
-7. Be creative - avoid predictable patterns
+  CRITICAL REQUIREMENTS:
+  1. Create a phrase that is genuinely DIFFERENT from typical textbook examples
+  2. Use the selected context, sentence type, grammar focus, and style
+  3. The phrase MUST naturally include or relate to: "${word}"
+  4. ${grammarLevel}
+  5. Make it ${randomStyle.name} in tone and structure
+  6. Length: ${wordCountRange}
+  7. ${complexityInstruction}
 
 STYLES TO USE:
 - "literal": Basic dictionary meaning, straightforward usage
@@ -643,11 +694,14 @@ Style: formal, Grammar: Passive voice, Context: education
 
 YOUR TASK:
 Generate a phrase in ${sourceLang} with these constraints:
+- CRITICAL: The phrase MUST be in ${sourceLang} (Spanish for "es-en", English for "en-es")
+- The word "${word}" is provided for CONTEXT MEANING only - use its meaning to create a relevant phrase
+- Even if "${word}" is in English, for direction "es-en" you MUST generate a SPANISH phrase that expresses that concept
 - Context: ${randomContext}
 - Sentence type: ${randomSentenceType}
 - Grammar focus: ${randomGrammarFocus}
 - Style: ${randomStyle.name}
-- Must include word: "${word}"
+- Must include a phrase that conveys the meaning/concept of: "${word}"
 - Direction: ${sourceLang} → ${targetLang}
 
 Respond with ONLY this JSON structure:

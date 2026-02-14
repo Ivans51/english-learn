@@ -31,13 +31,36 @@
             >
               <DialogTitle
                 as="h3"
-                class="text-lg font-semibold leading-6 text-primary-50 flex justify-between items-center"
+                class="text-lg font-semibold leading-6 text-primary-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               >
                 <div class="flex items-center">
                   <Mic class="w-5 h-5 mr-2 text-secondary-500" />
                   Voice Practice
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <!-- Level Selector -->
+                  <div
+                    class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                  >
+                    <label
+                      v-for="l in ['easy', 'medium', 'hard']"
+                      :key="l"
+                      class="cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        :value="l"
+                        v-model="level"
+                        @change="handleLevelChange"
+                        class="sr-only peer"
+                      />
+                      <span
+                        class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
+                      >
+                        {{ l.charAt(0).toUpperCase() + l.slice(1) }}
+                      </span>
+                    </label>
+                  </div>
                   <BaseButton
                     variant="primary"
                     size="sm"
@@ -45,7 +68,8 @@
                     :disabled="isGenerating"
                   >
                     <RefreshCw class="w-4 h-4 mr-1.5" />
-                    Regenerate
+                    <span class="hidden sm:inline">Regenerate</span>
+                    <span class="sm:hidden">New</span>
                   </BaseButton>
                   <button @click="closeModal" class="btn-icon">
                     <X class="w-5 h-5" />
@@ -301,6 +325,7 @@ const isRecording = ref(false)
 const isEvaluating = ref(false)
 const isPlaying = ref(false)
 const result = ref<VoicePracticeResult | null>(null)
+const level = ref<'easy' | 'medium' | 'hard'>('medium')
 
 let mediaRecorder: MediaRecorder | null = null
 let audioChunks: Blob[] = []
@@ -308,6 +333,10 @@ let audioChunks: Blob[] = []
 const closeModal = () => {
   stopRecording()
   emit('close')
+}
+
+const handleLevelChange = () => {
+  generatePhrase()
 }
 
 const generatePhrase = async () => {
@@ -319,7 +348,10 @@ const generatePhrase = async () => {
   currentPhrase.value = ''
 
   try {
-    const data = await voicePracticeService.generatePhrase(props.targetWord)
+    const data = await voicePracticeService.generatePhrase(
+      props.targetWord,
+      level.value,
+    )
     currentPhraseData.value = data
     if (data.senses && data.senses.length > 0) {
       selectedSense.value = data.senses[0]

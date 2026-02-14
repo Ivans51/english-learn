@@ -46,7 +46,32 @@
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 md:self-auto self-end">
+              <div
+                class="flex flex-wrap items-center gap-2 md:self-auto self-end"
+              >
+                <!-- Level Selector -->
+                <div
+                  class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                >
+                  <label
+                    v-for="l in ['easy', 'medium', 'hard']"
+                    :key="l"
+                    class="cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      :value="l"
+                      v-model="level"
+                      @change="handleLevelChange"
+                      class="sr-only peer"
+                    />
+                    <span
+                      class="px-1.5 md:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
+                    >
+                      {{ l.charAt(0).toUpperCase() + l.slice(1) }}
+                    </span>
+                  </label>
+                </div>
                 <BaseButton
                   variant="secondary"
                   @click="generatePracticePhrase"
@@ -250,6 +275,7 @@ const chatMessages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 const chatContainerRef = ref<HTMLElement | null>(null)
+const level = ref<'easy' | 'medium' | 'hard'>('medium')
 
 // Reset state when modal opens
 watch(
@@ -271,6 +297,10 @@ watch(
 
 const closeModal = () => {
   emit('close')
+}
+
+const handleLevelChange = () => {
+  // Level changed - could regenerate phrase or just keep current
 }
 
 const focusInput = async () => {
@@ -440,6 +470,7 @@ const generatePracticePhrase = async () => {
     const result = await topicService.generatePracticePhrase(
       props.topicTitle,
       'anonymous',
+      level.value,
     )
 
     chatMessages.value = chatMessages.value.filter((msg) => !msg.isLoading)

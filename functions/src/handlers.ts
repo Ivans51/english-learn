@@ -1186,7 +1186,7 @@ export async function handleGenerateTranslatePhrase(
 ): Promise<Response> {
   try {
     const body: GenerateTranslatePhraseRequest = await request.json();
-    const { word, direction = 'es-en' } = body;
+    const { word, direction = 'es-en', level = 'medium' } = body;
 
     const validationError = validateRequiredFields(
       body,
@@ -1200,7 +1200,7 @@ export async function handleGenerateTranslatePhrase(
     const prompt = generateTranslatePracticePhrasePrompt(
       word,
       direction,
-      'medium'
+      level
     );
     const mistralResponse = await callMistralAPI(prompt);
 

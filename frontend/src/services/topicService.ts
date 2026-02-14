@@ -152,6 +152,7 @@ class TopicService {
   async generatePracticePhrase(
     topicTitle: string,
     userId: string,
+    difficulty: 'easy' | 'medium' | 'hard' = 'medium',
   ): Promise<{ phrase: string; translation?: string; grammarFocus?: string }> {
     try {
       const response = await fetch(`${this.baseUrl}/api/practice-phrase`, {
@@ -161,7 +162,7 @@ class TopicService {
         },
         body: JSON.stringify({
           topic: topicTitle,
-          difficulty: 'medium',
+          difficulty,
           userId,
         }),
       })
@@ -206,6 +207,7 @@ class TopicService {
     word: string,
     direction: 'es-en' | 'en-es',
     userId: string = 'anonymous',
+    level: 'easy' | 'medium' | 'hard' = 'medium',
   ): Promise<{ phrase: string; translation: string }> {
     try {
       const response = await fetch(
@@ -218,6 +220,7 @@ class TopicService {
           body: JSON.stringify({
             word,
             direction,
+            level,
             userId,
           }),
         },

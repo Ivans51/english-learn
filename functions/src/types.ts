@@ -149,6 +149,7 @@ export interface TranslateRequest {
 export interface GenerateTranslatePhraseRequest {
   word: string;
   direction: 'es-en' | 'en-es';
+  level?: 'easy' | 'medium' | 'hard';
   userId?: string;
 }
 
