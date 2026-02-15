@@ -244,7 +244,9 @@
                   >
                     Pronunciation Score
                   </span>
-                  <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center justify-between sm:justify-end gap-2"
+                  >
                     <span
                       class="text-lg sm:text-xl font-bold"
                       :class="[
