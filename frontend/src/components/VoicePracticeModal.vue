@@ -23,9 +23,12 @@
           appear-from-class="opacity-0 scale-95 translate-y-4"
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <div class="modal-container modal-lg h-[90vh]" @click.stop>
+          <div
+            class="modal-container modal-lg h-[90vh] flex flex-col"
+            @click.stop
+          >
             <!-- Header -->
-            <div class="modal-header">
+            <div class="modal-header shrink-0">
               <div class="modal-header-title">
                 <div class="modal-icon-box">
                   <Mic class="w-5 h-5" />
@@ -73,7 +76,7 @@
             </div>
 
             <!-- Body -->
-            <div class="modal-body">
+            <div class="modal-body flex-1 overflow-y-auto">
               <p class="text-xs text-gray-600 dark:text-primary-300">
                 Practice pronunciation for:
               </p>
@@ -181,28 +184,28 @@
                   Click "Generate" to create practice phrases
                 </p>
               </div>
+            </div>
 
-              <div class="mt-4">
-                <button
-                  @click="toggleRecording"
-                  :disabled="!currentPhrase || isEvaluating"
-                  class="w-full py-2.5 px-4 rounded-lg font-medium transition-all flex items-center justify-center"
-                  :class="[
-                    isRecording
-                      ? 'bg-red-600 text-white animate-pulse'
-                      : 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed',
-                  ]"
-                >
-                  <Mic v-if="!isRecording" class="w-5 h-5 mr-2" />
-                  <Square v-else class="w-5 h-5 mr-2" />
-                  {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
-                </button>
-              </div>
-
-              <div
-                v-if="isRecording"
-                class="mt-3 flex items-center justify-center"
+            <!-- Footer with Recording Button -->
+            <div
+              class="modal-footer shrink-0 border-t border-gray-200 dark:border-primary-700 p-4 bg-white dark:bg-primary-900 space-y-3"
+            >
+              <button
+                @click="toggleRecording"
+                :disabled="!currentPhrase || isEvaluating"
+                class="w-full py-2.5 px-4 rounded-lg font-medium transition-all flex items-center justify-center"
+                :class="[
+                  isRecording
+                    ? 'bg-red-600 text-white animate-pulse'
+                    : 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed',
+                ]"
               >
+                <Mic v-if="!isRecording" class="w-5 h-5 mr-2" />
+                <Square v-else class="w-5 h-5 mr-2" />
+                {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
+              </button>
+
+              <div v-if="isRecording" class="flex items-center justify-center">
                 <div class="flex space-x-1">
                   <div
                     v-for="i in 5"
@@ -219,7 +222,7 @@
 
               <div
                 v-if="isEvaluating"
-                class="mt-3 bg-gray-100 dark:bg-primary-800 rounded-lg p-4 text-center"
+                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4 text-center"
               >
                 <div
                   class="animate-spin rounded-full h-7 w-7 border-b-2 border-secondary-500 mx-auto"
@@ -231,7 +234,7 @@
 
               <div
                 v-if="result"
-                class="mt-3 bg-gray-100 dark:bg-primary-800 rounded-lg p-4"
+                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4"
               >
                 <div class="flex items-center justify-between mb-2">
                   <span

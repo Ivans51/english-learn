@@ -117,7 +117,7 @@
                       : 'bg-red-900/50 border border-red-700'
                   "
                 >
-                  <div class="flex items-center mb-2">
+                  <div class="flex items-center justify-between mb-2">
                     <span
                       class="text-lg font-bold"
                       :class="
@@ -126,6 +126,13 @@
                     >
                       {{ lastResult.isCorrect ? '✓ Correct!' : '✗ Incorrect' }}
                     </span>
+                    <button
+                      @click="lastResult = null"
+                      class="p-1 hover:bg-gray-200 dark:hover:bg-primary-700 rounded transition-colors text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
+                      title="Clear result"
+                    >
+                      <X class="w-4 h-4" />
+                    </button>
                   </div>
                   <div
                     v-if="!lastResult.isCorrect"
