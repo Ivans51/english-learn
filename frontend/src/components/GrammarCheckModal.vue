@@ -380,7 +380,7 @@ const sendMessage = async () => {
   } finally {
     isLoading.value = false
     await nextTick()
-    focusInput()
+    scrollToBottom()
   }
 }
 
