@@ -13,7 +13,7 @@
     >
       <div class="flex min-h-screen items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-backdrop"></div>
 
         <!-- Modal -->
         <Transition
@@ -23,14 +23,11 @@
           appear-from-class="opacity-0 scale-95 translate-y-4"
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <div
-            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto h-[80vh] flex flex-col"
-            @click.stop
-          >
+          <div class="modal-container modal-lg h-[80vh]" @click.stop>
             <!-- Close Button -->
             <button
               @click="closeModal"
-              class="absolute top-3 right-3 text-primary-400 hover:text-primary-200 focus:outline-none transition-colors z-10 p-1.5 rounded-md hover:bg-primary-800"
+              class="modal-close-btn absolute top-3 right-3 z-10"
             >
               <X class="w-5 h-5" />
             </button>
@@ -41,35 +38,44 @@
               <div
                 class="mb-4 pr-8 flex flex-col sm:flex-row sm:items-center sm:justify-between flex-shrink-0 gap-2"
               >
-                <h2 class="text-xl font-bold text-primary-50">
+                <h2
+                  class="text-xl font-bold text-gray-900 dark:text-primary-50"
+                >
                   {{ word.term }}
                 </h2>
                 <div class="flex items-center gap-2">
-                  <span class="text-sm text-primary-400">Category:</span>
+                  <span class="text-sm text-gray-600 dark:text-primary-400">
+                    Category:
+                  </span>
                   <BaseCombobox
                     id="word-category"
                     v-model="selectedCategoryId"
                     :options="categoryOptions"
                     placeholder="Select category"
+                    allow-clear
                   />
                 </div>
               </div>
 
-              <hr class="mb-3 border-primary-700 flex-shrink-0" />
+              <hr
+                class="mb-3 border-gray-200 dark:border-primary-700 flex-shrink-0"
+              />
 
               <!-- Description -->
               <div class="mb-4 flex-1 flex flex-col min-h-0">
                 <h4
-                  class="text-base font-medium text-primary-50 mb-2 flex items-center"
+                  class="text-base font-medium text-gray-900 dark:text-primary-50 mb-2 flex items-center"
                 >
-                  <BookOpen class="w-4 h-4 mr-2 text-primary-400" />
+                  <BookOpen
+                    class="w-4 h-4 mr-2 text-gray-500 dark:text-primary-400"
+                  />
                   Description
                 </h4>
                 <div
-                  class="bg-primary-800/50 rounded-lg p-3 flex-1 overflow-y-auto custom-scrollbar"
+                  class="bg-gray-100 dark:bg-primary-800/50 rounded-lg p-3 flex-1 overflow-y-auto custom-scrollbar"
                 >
                   <div
-                    class="text-primary-200 leading-relaxed prose prose-invert max-w-none description-content"
+                    class="text-gray-800 dark:text-primary-200 leading-relaxed prose prose-invert max-w-none description-content"
                     v-html="renderedDescription"
                   ></div>
                 </div>
@@ -77,7 +83,7 @@
 
               <!-- Status Badge & Actions -->
               <div
-                class="flex items-center justify-between pt-3 border-t border-primary-700 flex-shrink-0"
+                class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-primary-700 flex-shrink-0"
               >
                 <div class="flex items-center gap-2">
                   <button
@@ -94,35 +100,37 @@
                       localWordStatus === 'completed' ? 'completed' : 'pending'
                     }}
                   </button>
-                  <span class="text-xs text-primary-500">click to toggle</span>
+                  <span class="text-xs text-gray-500 dark:text-primary-500">
+                    click to toggle
+                  </span>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-1.5">
                   <button
                     @click="handleVoicePractice"
-                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-green-600 dark:hover:text-green-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-gray-600 dark:text-primary-400 hover:text-green-600 dark:hover:text-green-400 rounded border border-gray-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Practice pronunciation"
                   >
                     <Mic class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleGrammarCheck"
-                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-gray-600 dark:text-primary-400 hover:text-blue-600 dark:hover:text-blue-400 rounded border border-gray-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Practice grammar"
                   >
                     <MessageCircle class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleTranslate"
-                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-purple-600 dark:hover:text-purple-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-gray-600 dark:text-primary-400 hover:text-purple-600 dark:hover:text-purple-400 rounded border border-gray-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Translate word"
                   >
                     <Languages class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleDelete"
-                    class="h-9 w-9 flex items-center justify-center text-primary-400 dark:text-primary-500 hover:text-red-600 dark:hover:text-red-400 rounded border border-primary-300 dark:border-primary-600 cursor-pointer transition-colors"
+                    class="h-9 w-9 flex items-center justify-center text-gray-600 dark:text-primary-400 hover:text-red-600 dark:hover:text-red-400 rounded border border-gray-300 dark:border-primary-600 cursor-pointer transition-colors"
                     title="Delete word"
                   >
                     <Trash2 class="w-4 h-4" />

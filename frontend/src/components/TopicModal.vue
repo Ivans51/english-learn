@@ -1,65 +1,46 @@
 <template>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="fixed inset-0 bg-black bg-opacity-75" />
-      </TransitionChild>
+  <Transition
+    name="modal"
+    appear
+    appear-active-class="transition-opacity duration-300"
+    appear-from-class="opacity-0"
+    appear-to-class="opacity-100"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click="closeModal"
+    >
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="modal-backdrop"></div>
 
-      <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+        <!-- Modal -->
+        <Transition
+          name="modal-content"
+          appear
+          appear-active-class="transition-all duration-300"
+          appear-from-class="opacity-0 scale-95 translate-y-4"
+          appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
-          >
-            <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all border border-primary-700"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-2xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
-              >
+          <div class="modal-container modal-sm" @click.stop>
+            <!-- Header -->
+            <div class="modal-header">
+              <h2 class="modal-title">
                 {{ isEditing ? 'Edit Topic' : 'Add New Topic' }}
-                <button
-                  @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none"
-                >
-                  <svg
-                    class="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                </button>
-              </DialogTitle>
-              <div class="mt-2">
-                <p class="text-sm text-primary-300">
-                  Topic to organize your learning content.
-                </p>
-              </div>
+              </h2>
+              <button @click="closeModal" class="modal-close-btn">
+                <X class="w-5 h-5" />
+              </button>
+            </div>
 
-              <form @submit.prevent="addOrUpdateTopic" class="mt-6 space-y-4">
+            <!-- Body -->
+            <div class="modal-body">
+              <p class="text-sm text-gray-600 dark:text-primary-300 mb-4">
+                Topic to organize your learning content.
+              </p>
+
+              <form @submit.prevent="addOrUpdateTopic" class="space-y-4">
                 <div>
                   <BaseInput
                     id="title"
@@ -70,7 +51,7 @@
                   />
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3">
+                <div class="flex justify-end gap-3">
                   <BaseButton variant="secondary" @click="closeModal">
                     Cancel
                   </BaseButton>
@@ -79,24 +60,18 @@
                   </BaseButton>
                 </div>
               </form>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
+            </div>
+          </div>
+        </Transition>
       </div>
-    </Dialog>
-  </TransitionRoot>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from '@headlessui/vue'
 import { BaseButton, BaseInput } from '@/components/ui'
+import { X } from 'lucide-vue-next'
 
 const emit = defineEmits(['close', 'add-topic', 'update-topic'])
 

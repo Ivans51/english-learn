@@ -13,7 +13,7 @@
     >
       <div class="flex min-h-screen items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-backdrop"></div>
 
         <!-- Modal -->
         <Transition
@@ -23,38 +23,19 @@
           appear-from-class="opacity-0 scale-95 translate-y-4"
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <div
-            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto max-h-[90vh] flex flex-col"
-            @click.stop
-          >
+          <div class="modal-container modal-lg" @click.stop>
             <!-- Header -->
-            <div
-              class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-primary-700 gap-3"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <div
-                    class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
-                  >
-                    <Languages class="h-6 w-6 text-primary-300" />
-                  </div>
-                  <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-primary-50">
-                      Translate
-                    </h2>
-                    <p class="text-sm text-primary-400 mt-1" v-if="word">
-                      Word: {{ word }}
-                    </p>
-                  </div>
+            <div class="modal-header">
+              <div class="modal-header-title">
+                <div class="modal-icon-box">
+                  <Languages class="h-6 w-6" />
                 </div>
-                <button
-                  @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800 sm:hidden"
-                >
-                  <X class="w-5 h-5" />
-                </button>
+                <div>
+                  <h2 class="modal-title">Translate</h2>
+                  <p class="modal-subtitle" v-if="word">Word: {{ word }}</p>
+                </div>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="modal-header-actions">
                 <!-- Language Direction Selector -->
                 <BaseSelect
                   id="translation-direction"
@@ -64,7 +45,7 @@
                 />
                 <!-- Level Selector -->
                 <div
-                  class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                  class="flex items-center gap-1 px-2 py-1 border border-gray-200 dark:border-primary-700 rounded-md bg-gray-100 dark:bg-primary-800"
                 >
                   <label
                     v-for="l in ['easy', 'medium', 'hard']"
@@ -79,16 +60,13 @@
                       class="sr-only peer"
                     />
                     <span
-                      class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
+                      class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-white text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
                     >
                       {{ l.charAt(0).toUpperCase() + l.slice(1) }}
                     </span>
                   </label>
                 </div>
-                <button
-                  @click="closeModal"
-                  class="hidden sm:block text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
-                >
+                <button @click="closeModal" class="modal-close-btn">
                   <X class="w-5 h-5" />
                 </button>
               </div>
@@ -97,14 +75,14 @@
             <!-- Content -->
             <div class="flex-1 overflow-y-auto flex flex-col">
               <!-- Phrase Display -->
-              <div class="p-4 border-b border-primary-700">
+              <div class="p-4 border-b border-gray-200 dark:border-primary-700">
                 <div
                   v-if="currentPhrase?.style || currentPhrase?.grammarFocus"
                   class="mb-2 flex flex-wrap gap-2"
                 >
                   <span
                     v-if="currentPhrase.style"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-800 text-primary-300 border border-primary-700"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-primary-800 text-gray-700 dark:text-primary-300 border border-gray-300 dark:border-primary-700"
                   >
                     {{ currentPhrase.style }} - {{ currentPhrase.grammarFocus }}
                   </span>
@@ -118,16 +96,19 @@
                 </div>
                 <div v-else-if="isGeneratingPhrase" class="text-center py-4">
                   <div
-                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400 mx-auto"
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 dark:border-primary-400 mx-auto"
                   ></div>
-                  <p class="text-primary-400 text-sm mt-2">
+                  <p class="text-gray-500 dark:text-primary-400 text-sm mt-2">
                     Generating phrase...
                   </p>
                 </div>
               </div>
 
               <!-- Result Display -->
-              <div v-if="lastResult" class="p-4 border-b border-primary-700">
+              <div
+                v-if="lastResult"
+                class="p-4 border-b border-gray-200 dark:border-primary-700"
+              >
                 <div
                   class="rounded-lg p-4"
                   :class="
@@ -146,9 +127,14 @@
                       {{ lastResult.isCorrect ? '✓ Correct!' : '✗ Incorrect' }}
                     </span>
                   </div>
-                  <div v-if="!lastResult.isCorrect" class="text-primary-200">
+                  <div
+                    v-if="!lastResult.isCorrect"
+                    class="text-gray-200 dark:text-primary-200"
+                  >
                     <p class="mb-2">
-                      <span class="text-primary-400">Correct translation:</span>
+                      <span class="text-gray-500 dark:text-primary-400">
+                        Correct translation:
+                      </span>
                       <span class="ml-2 font-medium text-green-400">
                         {{ currentPhrase?.translation }}
                       </span>
@@ -163,7 +149,9 @@
               <!-- Input Area -->
               <div class="p-4 flex-1 flex flex-col">
                 <div class="flex-1 flex flex-col">
-                  <label class="text-xs text-primary-400 mb-2">
+                  <label
+                    class="text-xs text-gray-600 dark:text-primary-400 mb-2"
+                  >
                     Your translation:
                   </label>
                   <BaseInput
@@ -196,7 +184,7 @@
                     ></span>
                     New Phrase
                     <kbd
-                      class="ml-2 px-1.5 py-0.5 text-xs bg-primary-950 rounded border border-primary-600 text-primary-400"
+                      class="ml-2 px-1.5 py-0.5 text-xs bg-gray-200 dark:bg-primary-800 rounded border border-gray-300 dark:border-primary-600 text-gray-700 dark:text-primary-400"
                     >
                       Ctrl+K
                     </kbd>
@@ -212,7 +200,7 @@
                     <span v-if="!isLoading">Check</span>
                     <span
                       v-else
-                      class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-950"
+                      class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
                     ></span>
                   </BaseButton>
                 </div>
@@ -273,7 +261,7 @@ const translationDirectionOptions = [
 
 const phraseBoxClass = computed(() => {
   if (!lastResult.value) {
-    return 'bg-primary-800 border border-primary-700 text-primary-50'
+    return 'bg-gray-100 dark:bg-primary-800 border border-gray-300 dark:border-primary-700 text-gray-900 dark:text-primary-50'
   }
   return lastResult.value.isCorrect
     ? 'bg-green-900/50 border border-green-700 text-green-100'
@@ -412,24 +400,3 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleGlobalKeyPress)
 })
 </script>
-
-<style scoped>
-/* Custom scrollbar for the modal content */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1f2937;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-</style>

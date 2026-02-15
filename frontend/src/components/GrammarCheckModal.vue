@@ -13,7 +13,7 @@
     >
       <div class="flex min-h-screen items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-backdrop"></div>
 
         <!-- Modal -->
         <Transition
@@ -23,35 +23,24 @@
           appear-from-class="opacity-0 scale-95 translate-y-4"
           appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <div
-            class="relative bg-primary-900 dark:bg-primary-950 rounded-lg shadow-xl max-w-4xl w-full mx-auto max-h-[90vh] flex flex-col"
-            @click.stop
-          >
+          <div class="modal-container modal-lg" @click.stop>
             <!-- Header -->
-            <div
-              class="flex flex-col md:flex-row md:items-center md:justify-between p-4 border-b border-primary-700 gap-3"
-            >
-              <div class="flex items-center">
-                <div
-                  class="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-primary-800 mr-3"
-                >
-                  <MessageCircle class="h-6 w-6 text-primary-300" />
+            <div class="modal-header">
+              <div class="modal-header-title">
+                <div class="modal-icon-box">
+                  <MessageCircle class="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 class="text-xl font-bold text-primary-50">
-                    Grammar Practice
-                  </h2>
-                  <p class="text-sm text-primary-400 mt-1">
+                  <h2 class="modal-title">Grammar Practice</h2>
+                  <p class="modal-subtitle">
                     {{ topicTitle }}
                   </p>
                 </div>
               </div>
-              <div
-                class="flex flex-wrap items-center gap-2 md:self-auto self-end"
-              >
+              <div class="modal-header-actions">
                 <!-- Level Selector -->
                 <div
-                  class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                  class="flex items-center gap-1 px-2 py-1 border border-gray-200 dark:border-primary-700 rounded-md bg-gray-100 dark:bg-primary-800"
                 >
                   <label
                     v-for="l in ['easy', 'medium', 'hard']"
@@ -66,7 +55,7 @@
                       class="sr-only peer"
                     />
                     <span
-                      class="px-1.5 md:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
+                      class="px-1.5 md:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-white text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
                     >
                       {{ l.charAt(0).toUpperCase() + l.slice(1) }}
                     </span>
@@ -81,15 +70,12 @@
                   <Plus class="h-4 w-4 mr-2" />
                   Generate Phrase
                   <kbd
-                    class="hidden md:inline-block ml-2 px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-500 font-mono"
+                    class="hidden md:inline-block ml-2 px-1.5 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600 font-mono text-gray-700 dark:text-gray-300"
                   >
                     Ctrl+K
                   </kbd>
                 </BaseButton>
-                <button
-                  @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none transition-colors p-1.5 rounded-md hover:bg-primary-800"
-                >
+                <button @click="closeModal" class="modal-close-btn">
                   <X class="w-5 h-5" />
                 </button>
               </div>
@@ -100,14 +86,14 @@
               <div
                 id="grammar-chat-container"
                 ref="chatContainerRef"
-                class="h-[50vh] min-h-[300px] max-h-[500px] overflow-y-auto p-4 bg-black"
+                class="h-[50vh] min-h-[300px] max-h-[500px] overflow-y-auto p-4 bg-gray-50 dark:bg-black modal-scrollbar"
               >
                 <div
                   v-if="chatMessages.length === 0"
-                  class="flex flex-col items-center justify-center text-center text-primary-400 h-full"
+                  class="flex flex-col items-center justify-center text-center text-gray-500 dark:text-primary-400 h-full"
                 >
                   <MessageCircle
-                    class="mx-auto h-12 w-12 text-primary-500 mb-4"
+                    class="mx-auto h-12 w-12 text-gray-400 dark:text-primary-500 mb-4"
                   />
                   <p>Start practicing your English grammar!</p>
                   <p class="text-sm mt-2">
@@ -125,7 +111,7 @@
                     "
                   >
                     <div
-                      class="max-w-xs lg:max-w-md px-3 py-1 rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-50 leading-tight"
+                      class="max-w-xs lg:max-w-md px-3 py-1 rounded-lg bg-gray-100 dark:bg-primary-800 text-gray-900 dark:text-primary-50 leading-tight"
                     >
                       <div v-if="message.isLoading" class="flex items-center">
                         <div
@@ -147,10 +133,10 @@
                       ></div>
                       <div
                         v-if="message.showTranslation && message.translation"
-                        class="mt-2 p-2 rounded bg-primary-800/50 border border-primary-700 text-blue-300 text-sm"
+                        class="mt-2 p-2 rounded bg-gray-200 dark:bg-primary-800/50 border border-gray-300 dark:border-primary-700 text-blue-600 dark:text-blue-300 text-sm"
                       >
                         <span
-                          class="font-medium text-xs text-blue-400 block mb-1"
+                          class="font-medium text-xs text-blue-500 dark:text-blue-400 block mb-1"
                         >
                           ES:
                         </span>
@@ -166,7 +152,7 @@
                           "
                           @click="translateMessage(message)"
                           :disabled="message.isTranslating"
-                          class="ml-2 text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                          class="ml-2 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 disabled:opacity-50"
                         >
                           <span v-if="message.isTranslating">...</span>
                           <span
@@ -186,7 +172,7 @@
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-primary-700">
+            <div class="p-4 border-t border-gray-200 dark:border-primary-700">
               <div class="flex space-x-3">
                 <div class="flex-1">
                   <BaseInput
@@ -198,9 +184,15 @@
                     :disabled="isLoading"
                     @keydown="handleKeyPress"
                   />
-                  <div class="text-xs text-gray-500 mt-1 ml-1">
+                  <div
+                    class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1"
+                  >
                     Press
-                    <kbd class="px-1 bg-gray-700 rounded">Ctrl+F</kbd>
+                    <kbd
+                      class="px-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300"
+                    >
+                      Ctrl+F
+                    </kbd>
                     to focus
                   </div>
                 </div>
@@ -213,7 +205,7 @@
                     <Send v-if="!isLoading" class="h-4 w-4" />
                     <span
                       v-else
-                      class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-950"
+                      class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
                     ></span>
                   </BaseButton>
                 </div>

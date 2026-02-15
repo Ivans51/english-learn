@@ -1,103 +1,102 @@
 <template>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-[60]">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="fixed inset-0 bg-black bg-opacity-75" />
-      </TransitionChild>
+  <Transition
+    name="modal"
+    appear
+    appear-active-class="transition-opacity duration-300"
+    appear-from-class="opacity-0"
+    appear-to-class="opacity-100"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-[60] overflow-y-auto"
+      @click="closeModal"
+    >
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="modal-backdrop"></div>
 
-      <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+        <!-- Modal -->
+        <Transition
+          name="modal-content"
+          appear
+          appear-active-class="transition-all duration-300"
+          appear-from-class="opacity-0 scale-95 translate-y-4"
+          appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
-          >
-            <DialogPanel
-              class="w-full sm:w-[80%] max-w-3xl h-[90vh] max-h-[90vh] flex flex-col transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-4 sm:p-6 text-left align-middle shadow-xl transition-all"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-lg font-semibold leading-6 text-primary-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-              >
-                <div class="flex items-center">
-                  <Mic class="w-5 h-5 mr-2 text-secondary-500" />
-                  Voice Practice
+          <div class="modal-container modal-lg h-[90vh]" @click.stop>
+            <!-- Header -->
+            <div class="modal-header">
+              <div class="modal-header-title">
+                <div class="modal-icon-box">
+                  <Mic class="w-5 h-5" />
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <!-- Level Selector -->
-                  <div
-                    class="flex items-center gap-1 px-2 py-1 border border-primary-700 rounded-md bg-primary-800"
+                <h2 class="modal-title">Voice Practice</h2>
+              </div>
+              <div class="modal-header-actions">
+                <!-- Level Selector -->
+                <div
+                  class="flex items-center gap-1 px-2 py-1 border border-gray-200 dark:border-primary-700 rounded-md bg-gray-100 dark:bg-primary-800"
+                >
+                  <label
+                    v-for="l in ['easy', 'medium', 'hard']"
+                    :key="l"
+                    class="cursor-pointer"
                   >
-                    <label
-                      v-for="l in ['easy', 'medium', 'hard']"
-                      :key="l"
-                      class="cursor-pointer"
+                    <input
+                      type="radio"
+                      :value="l"
+                      v-model="level"
+                      @change="handleLevelChange"
+                      class="sr-only peer"
+                    />
+                    <span
+                      class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-white text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
                     >
-                      <input
-                        type="radio"
-                        :value="l"
-                        v-model="level"
-                        @change="handleLevelChange"
-                        class="sr-only peer"
-                      />
-                      <span
-                        class="px-1.5 sm:px-2 py-1 text-xs rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-primary-950 text-primary-400 hover:text-primary-200"
-                      >
-                        {{ l.charAt(0).toUpperCase() + l.slice(1) }}
-                      </span>
-                    </label>
-                  </div>
-                  <BaseButton
-                    variant="primary"
-                    size="sm"
-                    @click="generatePhrase"
-                    :disabled="isGenerating"
-                  >
-                    <RefreshCw class="w-4 h-4 mr-1.5" />
-                    <span class="hidden sm:inline">Regenerate</span>
-                    <span class="sm:hidden">New</span>
-                  </BaseButton>
-                  <button @click="closeModal" class="btn-icon">
-                    <X class="w-5 h-5" />
-                  </button>
+                      {{ l.charAt(0).toUpperCase() + l.slice(1) }}
+                    </span>
+                  </label>
                 </div>
-              </DialogTitle>
+                <BaseButton
+                  variant="primary"
+                  size="sm"
+                  @click="generatePhrase"
+                  :disabled="isGenerating"
+                >
+                  <RefreshCw class="w-4 h-4 mr-1.5" />
+                  <span class="hidden sm:inline">Regenerate</span>
+                  <span class="sm:hidden">New</span>
+                </BaseButton>
+                <button @click="closeModal" class="modal-close-btn">
+                  <X class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+              <p class="text-xs text-gray-600 dark:text-primary-300">
+                Practice pronunciation for:
+              </p>
+              <p
+                class="text-base font-bold text-secondary-600 dark:text-secondary-400 mt-1"
+              >
+                {{ targetWord }}
+              </p>
 
               <div class="mt-4">
-                <p class="text-xs text-primary-300">
-                  Practice pronunciation for:
-                </p>
-                <p class="text-base font-bold text-secondary-400 mt-1">
-                  {{ targetWord }}
-                </p>
-              </div>
-
-              <div class="mt-4 flex-1 overflow-y-auto min-h-0">
-                <label class="block text-xs font-medium text-primary-50 mb-2">
+                <label
+                  class="block text-xs font-medium text-gray-700 dark:text-primary-50 mb-2"
+                >
                   Practice Phrases
                 </label>
                 <div
                   v-if="isGenerating"
-                  class="bg-primary-800 rounded-lg p-4 text-center"
+                  class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4 text-center"
                 >
                   <div
                     class="animate-spin rounded-full h-5 w-5 border-b-2 border-secondary-500 mx-auto"
                   ></div>
-                  <p class="text-xs text-primary-400 mt-2">
+                  <p class="text-xs text-gray-500 dark:text-primary-400 mt-2">
                     Generating phrases...
                   </p>
                 </div>
@@ -112,15 +111,17 @@
                     v-for="(sense, index) in currentPhraseData.senses"
                     :key="index"
                     @click="selectSense(sense)"
-                    class="bg-primary-800 rounded-lg p-3 cursor-pointer transition-all border-2"
+                    class="bg-gray-100 dark:bg-primary-800 rounded-lg p-3 cursor-pointer transition-all border-2"
                     :class="[
                       selectedSense?.phrase === sense.phrase
-                        ? 'border-secondary-500 bg-primary-750'
-                        : 'border-transparent hover:bg-primary-750',
+                        ? 'border-secondary-500 bg-gray-200 dark:bg-primary-700'
+                        : 'border-transparent hover:bg-gray-200 dark:hover:bg-primary-700',
                     ]"
                   >
                     <div class="flex items-start justify-between">
-                      <p class="text-primary-50 font-medium flex-1 pr-2">
+                      <p
+                        class="text-gray-900 dark:text-primary-50 font-medium flex-1 pr-2"
+                      >
                         "{{ sense.phrase }}"
                       </p>
                       <div class="flex items-center gap-2 shrink-0">
@@ -143,7 +144,7 @@
                         <button
                           @click.stop="speakText(sense.phrase)"
                           :disabled="isPlaying"
-                          class="px-2 rounded-md hover:bg-primary-700 transition-colors text-primary-400 hover:text-primary-200 disabled:opacity-50 cursor-pointer"
+                          class="px-2 rounded-md hover:bg-gray-200 dark:hover:bg-primary-600 transition-colors text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200 disabled:opacity-50 cursor-pointer"
                           title="Listen to pronunciation"
                         >
                           <Volume2
@@ -155,30 +156,33 @@
                     </div>
                     <p
                       v-if="sense.translation"
-                      class="text-primary-400 text-sm mt-1"
+                      class="text-gray-600 dark:text-primary-400 text-sm mt-1"
                     >
                       {{ sense.translation }}
                     </p>
                     <p
                       v-if="sense.grammarFocus"
-                      class="text-primary-500 text-xs mt-1"
+                      class="text-gray-500 dark:text-primary-500 text-xs mt-1"
                     >
                       {{ sense.grammarFocus }}
                     </p>
                   </div>
                   <p
                     v-if="!selectedSense"
-                    class="text-primary-400 text-xs text-center py-2"
+                    class="text-gray-500 dark:text-primary-400 text-xs text-center py-2"
                   >
                     Click on a phrase to select it for practice
                   </p>
                 </div>
-                <p v-else class="text-primary-400 text-xs text-center py-4">
+                <p
+                  v-else
+                  class="text-gray-500 dark:text-primary-400 text-xs text-center py-4"
+                >
                   Click "Generate" to create practice phrases
                 </p>
               </div>
 
-              <div class="mt-5">
+              <div class="mt-4">
                 <button
                   @click="toggleRecording"
                   :disabled="!currentPhrase || isEvaluating"
@@ -215,19 +219,24 @@
 
               <div
                 v-if="isEvaluating"
-                class="mt-3 bg-primary-800 rounded-lg p-4 text-center"
+                class="mt-3 bg-gray-100 dark:bg-primary-800 rounded-lg p-4 text-center"
               >
                 <div
                   class="animate-spin rounded-full h-7 w-7 border-b-2 border-secondary-500 mx-auto"
                 ></div>
-                <p class="text-xs text-primary-400 mt-2">
+                <p class="text-xs text-gray-500 dark:text-primary-400 mt-2">
                   Analyzing your pronunciation...
                 </p>
               </div>
 
-              <div v-if="result" class="mt-3 bg-primary-800 rounded-lg p-4">
+              <div
+                v-if="result"
+                class="mt-3 bg-gray-100 dark:bg-primary-800 rounded-lg p-4"
+              >
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-primary-50">
+                  <span
+                    class="text-sm font-medium text-gray-900 dark:text-primary-50"
+                  >
                     Pronunciation Score
                   </span>
                   <div class="flex items-center gap-2">
@@ -245,7 +254,7 @@
                     </span>
                     <button
                       @click="result = null"
-                      class="p-1 hover:bg-primary-700 rounded transition-colors text-primary-400 hover:text-primary-200"
+                      class="p-1 hover:bg-gray-200 dark:hover:bg-primary-700 rounded transition-colors text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
                       title="Clear result"
                     >
                       <X class="w-4 h-4" />
@@ -254,8 +263,10 @@
                 </div>
 
                 <div class="mb-2">
-                  <p class="text-xs text-primary-400 mb-1">You said:</p>
-                  <p class="text-primary-200 text-sm">
+                  <p class="text-xs text-gray-600 dark:text-primary-400 mb-1">
+                    You said:
+                  </p>
+                  <p class="text-gray-800 dark:text-primary-200 text-sm">
                     "{{ result.transcription }}"
                   </p>
                 </div>
@@ -268,7 +279,7 @@
                       : 'bg-yellow-900/30 border border-yellow-700',
                   ]"
                 >
-                  <p class="text-xs text-primary-400 mb-1">
+                  <p class="text-xs text-gray-600 dark:text-primary-400 mb-1">
                     {{ result.isCorrect ? '✓ Great job!' : '💡 Feedback' }}
                   </p>
                   <p
@@ -281,23 +292,16 @@
                   </p>
                 </div>
               </div>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
+            </div>
+          </div>
+        </Transition>
       </div>
-    </Dialog>
-  </TransitionRoot>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from '@headlessui/vue'
 import { Mic, RefreshCw, Square, X, Volume2 } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
 import { useToast } from '@/composables/useToast'

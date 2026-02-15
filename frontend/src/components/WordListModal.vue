@@ -1,52 +1,43 @@
 <template>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="fixed inset-0 bg-black bg-opacity-75" />
-      </TransitionChild>
+  <Transition
+    name="modal"
+    appear
+    appear-active-class="transition-opacity duration-300"
+    appear-from-class="opacity-0"
+    appear-to-class="opacity-100"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click="closeModal"
+    >
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="modal-backdrop"></div>
 
-      <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+        <!-- Modal -->
+        <Transition
+          name="modal-content"
+          appear
+          appear-active-class="transition-all duration-300"
+          appear-from-class="opacity-0 scale-95 translate-y-4"
+          appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
-          >
-            <DialogPanel
-              class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
-              >
-                Add Group Words
-                <button
-                  @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none p-1.5 rounded-md hover:bg-primary-800"
-                >
-                  <X class="h-5 w-5" />
-                </button>
-              </DialogTitle>
-              <div class="mt-2">
-                <p class="text-base text-primary-300">
-                  Enter comma-separated words, and we'll automatically generate
-                  descriptions and suggest appropriate categories for each word.
-                </p>
-              </div>
+          <div class="modal-container modal-lg" @click.stop>
+            <!-- Header -->
+            <div class="modal-header">
+              <h2 class="modal-title">Add Group Words</h2>
+              <button @click="closeModal" class="modal-close-btn">
+                <X class="h-5 w-5" />
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+              <p class="text-base text-gray-700 dark:text-primary-300 mb-4">
+                Enter comma-separated words, and we'll automatically generate
+                descriptions and suggest appropriate categories for each word.
+              </p>
 
               <!-- Single Step: Words Input Only -->
               <div class="mt-4 space-y-3">
@@ -86,23 +77,16 @@
                   </BaseButton>
                 </div>
               </div>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
+            </div>
+          </div>
+        </Transition>
       </div>
-    </Dialog>
-  </TransitionRoot>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from '@headlessui/vue'
 import { Loader2, Sparkles, X } from 'lucide-vue-next'
 import { BaseButton, BaseInput } from '@/components/ui'
 

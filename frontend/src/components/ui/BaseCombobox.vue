@@ -17,10 +17,12 @@ interface Props {
   modelValue: string | null
   options: Option[]
   placeholder?: string
+  allowClear?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Search...',
+  allowClear: false,
 })
 
 const emit = defineEmits<{
@@ -36,12 +38,13 @@ const selectedOption = computed(() => {
 })
 
 const filteredOptions = computed(() => {
-  if (query.value === '') {
-    return props.options
-  }
-  return props.options.filter((opt) =>
+  const options = props.options.filter((opt) =>
     opt.name.toLowerCase().includes(query.value.toLowerCase()),
   )
+  if (props.allowClear && query.value === '') {
+    return [{ id: '__uncategorized__', name: 'Uncategorized' }, ...options]
+  }
+  return options
 })
 
 const showCreateOption = computed(() => {
@@ -59,6 +62,12 @@ const displayValue = (option: unknown): string => {
 
 function handleChange(option: Option | null) {
   if (!option) return
+  if (option.id === '__uncategorized__') {
+    query.value = ''
+    emit('update:modelValue', null)
+    return
+  }
+  query.value = ''
   emit('update:modelValue', option.id)
 }
 

@@ -1,64 +1,58 @@
 <template>
-  <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
-      <TransitionChild
-        as="template"
-        enter="duration-300 ease-out"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="duration-200 ease-in"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
-      >
-        <div class="fixed inset-0 bg-black bg-opacity-75" />
-      </TransitionChild>
+  <Transition
+    name="modal"
+    appear
+    appear-active-class="transition-opacity duration-300"
+    appear-from-class="opacity-0"
+    appear-to-class="opacity-100"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click="closeModal"
+    >
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="modal-backdrop"></div>
 
-      <div class="fixed inset-0 overflow-y-auto">
-        <div
-          class="flex min-h-full items-center justify-center p-4 text-center"
+        <!-- Modal -->
+        <Transition
+          name="modal-content"
+          appear
+          appear-active-class="transition-all duration-300"
+          appear-from-class="opacity-0 scale-95 translate-y-4"
+          appear-to-class="opacity-100 scale-100 translate-y-0"
         >
-          <TransitionChild
-            as="template"
-            enter="duration-300 ease-out"
-            enter-from="opacity-0 scale-95"
-            enter-to="opacity-100 scale-100"
-            leave="duration-200 ease-in"
-            leave-from="opacity-100 scale-100"
-            leave-to="opacity-0 scale-95"
-          >
-            <DialogPanel
-              class="w-full max-w-4xl h-[80vh] flex flex-col transform overflow-hidden rounded-2xl bg-primary-900 dark:bg-primary-950 p-6 text-left align-middle shadow-xl transition-all"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-xl font-semibold leading-6 text-primary-50 flex justify-between items-center"
-              >
+          <div class="modal-container modal-lg h-[80vh]" @click.stop>
+            <!-- Header -->
+            <div class="modal-header">
+              <h2 class="modal-title">
                 {{
                   isEditing ? 'Edit Vocabulary Word' : 'Add New Vocabulary Word'
                 }}
-                <button
-                  @click="closeModal"
-                  class="text-primary-400 hover:text-primary-200 focus:outline-none p-1.5 rounded-md hover:bg-primary-800"
+              </h2>
+              <button @click="closeModal" class="modal-close-btn">
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    class="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                </button>
-              </DialogTitle>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+            </div>
 
+            <!-- Body -->
+            <div class="modal-body">
               <form
                 @submit.prevent="addOrUpdateWord"
-                class="mt-4 space-y-3 flex-1 flex flex-col min-h-0 overflow-hidden"
+                class="space-y-3 flex flex-col min-h-0"
               >
                 <div class="flex-shrink-0">
                   <div class="relative">
@@ -83,7 +77,9 @@
                 </div>
 
                 <div class="mt-3 flex-shrink-0">
-                  <label class="block text-sm text-primary-300 mb-1">
+                  <label
+                    class="block text-sm text-gray-700 dark:text-primary-300 mb-1"
+                  >
                     Category
                   </label>
                   <div class="space-y-2">
@@ -93,6 +89,7 @@
                         v-model="selectedCategoryId"
                         :options="categoriesList"
                         placeholder="Search categories..."
+                        allow-clear
                         @create-new="handleCreateNewCategory"
                       />
                       <BaseButton
@@ -108,8 +105,12 @@
                 </div>
 
                 <div v-if="!autoDetectMode" class="mt-3 flex-shrink-0">
-                  <span class="text-sm text-primary-300">Category:</span>
-                  <span class="ml-2 text-base text-primary-50">
+                  <span class="text-sm text-gray-700 dark:text-primary-300">
+                    Category:
+                  </span>
+                  <span
+                    class="ml-2 text-base text-gray-900 dark:text-primary-50"
+                  >
                     {{ getSelectedCategoryDisplayName() }}
                   </span>
                 </div>
@@ -123,12 +124,12 @@
                     class="flex flex-col flex-1 min-h-0"
                   >
                     <label
-                      class="block text-sm font-medium text-primary-300 mb-1 flex-shrink-0"
+                      class="block text-sm font-medium text-gray-700 dark:text-primary-300 mb-1 flex-shrink-0"
                     >
                       Description
                     </label>
                     <div
-                      class="flex-1 overflow-y-auto custom-scrollbar pr-2 text-base text-primary-50 bg-primary-800/50 p-3 rounded border border-primary-700/50 prose prose-invert prose-sm max-w-none description-content"
+                      class="flex-1 overflow-y-auto custom-scrollbar pr-2 text-base text-gray-900 dark:text-primary-50 bg-gray-100 dark:bg-primary-800/50 p-3 rounded border border-gray-300 dark:border-primary-700/50 prose prose-sm max-w-none description-content"
                       v-html="renderedDescription"
                     ></div>
                   </div>
@@ -157,23 +158,16 @@
                   </BaseButton>
                 </div>
               </form>
-            </DialogPanel>
-          </TransitionChild>
-        </div>
+            </div>
+          </div>
+        </Transition>
       </div>
-    </Dialog>
-  </TransitionRoot>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, onMounted } from 'vue'
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  TransitionChild,
-  TransitionRoot,
-} from '@headlessui/vue'
 import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
 import { BaseButton, BaseInput, BaseCombobox } from '@/components/ui'
