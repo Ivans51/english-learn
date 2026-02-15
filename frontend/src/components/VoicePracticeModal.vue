@@ -188,8 +188,9 @@
 
             <!-- Footer with Recording Button -->
             <div
-              class="modal-footer shrink-0 border-t border-gray-200 dark:border-primary-700 p-4 bg-white dark:bg-primary-900 space-y-3"
+              class="modal-footer shrink-0 border-t border-gray-200 dark:border-primary-700 p-4 bg-white dark:bg-primary-900 space-y-3 flex flex-col-reverse md:flex-col"
             >
+              <!-- Recording Button (first on desktop, last on mobile) -->
               <button
                 @click="toggleRecording"
                 :disabled="!currentPhrase || isEvaluating"
@@ -205,6 +206,7 @@
                 {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
               </button>
 
+              <!-- Recording Indicator -->
               <div v-if="isRecording" class="flex items-center justify-center">
                 <div class="flex space-x-1">
                   <div
@@ -220,6 +222,7 @@
                 <span class="ml-3 text-xs text-red-400">Recording...</span>
               </div>
 
+              <!-- Evaluating Indicator -->
               <div
                 v-if="isEvaluating"
                 class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4 text-center"
@@ -232,23 +235,20 @@
                 </p>
               </div>
 
+              <!-- Result (last on desktop, first on mobile) -->
               <div
                 v-if="result"
-                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-3 sm:p-4"
+                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4"
               >
-                <div
-                  class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2"
-                >
+                <div class="flex items-center justify-between mb-2">
                   <span
                     class="text-sm font-medium text-gray-900 dark:text-primary-50"
                   >
                     Pronunciation Score
                   </span>
-                  <div
-                    class="flex items-center justify-between sm:justify-end gap-2"
-                  >
+                  <div class="flex items-center gap-2">
                     <span
-                      class="text-lg sm:text-xl font-bold"
+                      class="text-xl font-bold"
                       :class="[
                         result.score >= 80
                           ? 'text-green-500'
@@ -279,7 +279,7 @@
                 </div>
 
                 <div
-                  class="p-2 sm:p-2.5 rounded-lg"
+                  class="p-2.5 rounded-lg"
                   :class="[
                     result.isCorrect
                       ? 'bg-green-900/30 border border-green-700'
