@@ -31,25 +31,16 @@
                   isEditing ? 'Edit Vocabulary Word' : 'Add New Vocabulary Word'
                 }}
               </h2>
-              <button @click="closeModal" class="modal-close-btn">
-                <svg
-                  class="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
+              <button
+                @click="closeModal"
+                class="modal-close-btn absolute top-3 right-3 z-10"
+              >
+                <X class="w-5 h-5" />
               </button>
             </div>
 
             <!-- Body -->
-            <div class="modal-body">
+            <div class="p-4 flex-1 flex flex-col min-h-0">
               <form
                 @submit.prevent="addOrUpdateWord"
                 class="space-y-3 flex flex-col min-h-0"
@@ -117,19 +108,21 @@
 
                 <div
                   v-if="formData.descriptionText"
-                  class="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden"
+                  class="mt-3 flex-1 flex flex-col min-h-0"
                 >
-                  <div
-                    v-if="formData.descriptionText"
-                    class="flex flex-col flex-1 min-h-0"
+                  <h4
+                    class="text-base font-medium text-gray-900 dark:text-primary-50 mb-2 flex items-center"
                   >
-                    <label
-                      class="block text-sm font-medium text-gray-700 dark:text-primary-300 mb-1 flex-shrink-0"
-                    >
-                      Description
-                    </label>
+                    <BookOpen
+                      class="w-4 h-4 mr-2 text-gray-500 dark:text-primary-400"
+                    />
+                    Description
+                  </h4>
+                  <div
+                    class="bg-gray-100 dark:bg-primary-800/50 rounded-lg p-3 flex-1 overflow-y-auto custom-scrollbar"
+                  >
                     <div
-                      class="flex-1 overflow-y-auto custom-scrollbar pr-2 text-base text-gray-900 dark:text-primary-50 bg-gray-100 dark:bg-primary-800/50 p-3 rounded border border-gray-300 dark:border-primary-700/50 prose prose-sm max-w-none description-content"
+                      class="text-gray-800 dark:text-primary-200 leading-relaxed prose prose-invert max-w-none description-content"
                       v-html="renderedDescription"
                     ></div>
                   </div>
@@ -169,6 +162,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, onMounted } from 'vue'
 import { marked } from 'marked'
+import { BookOpen, X } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
 import { BaseButton, BaseInput, BaseCombobox } from '@/components/ui'
 
@@ -284,7 +278,7 @@ function updateCategoryFromSelection() {
     formData.value.categoryName = ''
     return
   }
-  if (selectedCategoryId.value === '') {
+  if (!selectedCategoryId.value || selectedCategoryId.value === '') {
     formData.value.categoryName = ''
     return
   }
@@ -301,7 +295,7 @@ function getSelectedCategoryDisplayName(): string {
   if (autoDetectMode.value) {
     return '✨ Auto-detect'
   }
-  if (selectedCategoryId.value !== '') {
+  if (selectedCategoryId.value && selectedCategoryId.value !== '') {
     if (selectedCategoryId.value.startsWith('custom-')) {
       return formData.value.categoryName || ''
     }

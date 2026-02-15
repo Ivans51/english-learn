@@ -7,7 +7,9 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth'
+import { ref as dbRef, set, get } from 'firebase/database'
 import { useRouter } from 'vue-router'
+import { db } from '@/firebase'
 import MainHeader from '@/components/MainHeader.vue'
 import sweetAlertService from '@/services/sweetAlertService'
 import { BaseButton, BaseInput } from '@/components/ui'
@@ -22,16 +24,56 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const isLoading = ref(false)
+const level = ref<'easy' | 'medium' | 'hard'>('medium')
 
 onMounted(() => {
   user.value = auth.currentUser
   if (user.value) {
     displayName.value = user.value.displayName || ''
     email.value = user.value.email || ''
+    loadUserLevel()
   } else {
     router.push('/login')
   }
 })
+
+const loadUserLevel = async () => {
+  if (!user.value) return
+  try {
+    const settingsRef = dbRef(db, `settings/${user.value.uid}`)
+    const snapshot = await get(settingsRef)
+    if (snapshot.exists()) {
+      const data = snapshot.val()
+      if (data.level) {
+        level.value = data.level as 'easy' | 'medium' | 'hard'
+      }
+    }
+  } catch (error) {
+    console.error('Error loading user level:', error)
+  }
+}
+
+const saveUserLevel = async () => {
+  if (!user.value) return
+
+  isLoading.value = true
+  try {
+    const settingsRef = dbRef(db, `settings/${user.value.uid}`)
+    await set(settingsRef, { level: level.value })
+    await sweetAlertService.success(
+      'Level Updated',
+      `Your preferred level has been set to ${level.value}!`,
+    )
+  } catch (error) {
+    console.error('Error saving user level:', error)
+    await sweetAlertService.error(
+      'Save Failed',
+      'Failed to save level preference.',
+    )
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const updateProfileInfo = async () => {
   if (!user.value) return
@@ -157,6 +199,50 @@ const updateUserPassword = async () => {
           </form>
         </div>
 
+        <!-- Level Preference Section -->
+        <div class="mb-8">
+          <h2
+            class="text-xl font-semibold text-primary-900 dark:text-primary-50 mb-4"
+          >
+            Practice Level Preference
+          </h2>
+
+          <form @submit.prevent="saveUserLevel" class="space-y-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-primary-700 dark:text-primary-300 mb-2"
+              >
+                Select your preferred difficulty level for practice activities
+              </label>
+              <div
+                class="flex items-center gap-1 px-3 py-2 border border-gray-200 dark:border-primary-700 rounded-md bg-gray-100 dark:bg-primary-800 w-fit"
+              >
+                <label
+                  v-for="l in ['easy', 'medium', 'hard']"
+                  :key="l"
+                  class="cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    :value="l"
+                    v-model="level"
+                    class="sr-only peer"
+                  />
+                  <span
+                    class="px-3 py-1.5 text-sm rounded transition-colors peer-checked:bg-secondary-500 peer-checked:text-white text-gray-600 dark:text-primary-400 hover:text-gray-900 dark:hover:text-primary-200"
+                  >
+                    {{ l.charAt(0).toUpperCase() + l.slice(1) }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <BaseButton variant="secondary" type="submit" :disabled="isLoading">
+              {{ isLoading ? 'Saving...' : 'Save Level' }}
+            </BaseButton>
+          </form>
+        </div>
+
         <!-- Password Change Section -->
         <div class="border-t border-primary-200 dark:border-primary-800 pt-8">
           <h2
@@ -186,7 +272,11 @@ const updateUserPassword = async () => {
               />
             </div>
 
-            <BaseButton variant="secondary" type="submit" :disabled="isLoading || !newPassword || !confirmPassword">
+            <BaseButton
+              variant="secondary"
+              type="submit"
+              :disabled="isLoading || !newPassword || !confirmPassword"
+            >
               {{ isLoading ? 'Updating...' : 'Change Password' }}
             </BaseButton>
           </form>

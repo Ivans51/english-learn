@@ -745,15 +745,6 @@ const openAddWordModal = () => {
   showAddWordModal.value = true
 }
 
-// Keyboard shortcut handler for Ctrl+K / Cmd+K
-const handleKeyboardShortcut = (event: KeyboardEvent) => {
-  // Check for Ctrl+K (Windows/Linux) or Cmd+K (Mac)
-  if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-    event.preventDefault() // Prevent browser's default behavior
-    openAddWordModal()
-  }
-}
-
 const openTopicWordsModal = () => {
   showTopicWordsModal.value = true
 }
@@ -932,13 +923,10 @@ onMounted(async () => {
     await loadWordsFromFirebase()
   }
 
-  // Add keyboard shortcut listener
-  document.addEventListener('keydown', handleKeyboardShortcut)
   window.addEventListener('resize', updateIsMobile)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeyboardShortcut)
   window.removeEventListener('resize', updateIsMobile)
 })
 

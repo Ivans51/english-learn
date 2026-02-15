@@ -225,6 +225,7 @@
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
+import { userSettingsService } from '@/services/userSettingsService'
 import { Languages, X, RefreshCw } from 'lucide-vue-next'
 import { BaseButton, BaseSelect, BaseInput } from '@/components/ui'
 
@@ -296,6 +297,8 @@ watch(
   () => props.isOpen,
   async (isOpen) => {
     if (isOpen && props.word) {
+      const savedLevel = await userSettingsService.getUserLevel()
+      level.value = savedLevel
       await generateNewPhrase()
       await nextTick()
       translationInputRef.value?.focus()

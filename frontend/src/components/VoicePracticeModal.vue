@@ -311,6 +311,7 @@
 import { ref, watch } from 'vue'
 import { Mic, RefreshCw, Square, X, Volume2 } from 'lucide-vue-next'
 import { voicePracticeService } from '@/services/voicePracticeService'
+import { userSettingsService } from '@/services/userSettingsService'
 import { useToast } from '@/composables/useToast'
 import { BaseButton } from '@/components/ui'
 import type {
@@ -457,7 +458,10 @@ watch(
   (isOpen) => {
     if (isOpen) {
       result.value = null
-      generatePhrase()
+      userSettingsService.getUserLevel().then((savedLevel) => {
+        level.value = savedLevel
+        generatePhrase()
+      })
     }
   },
 )

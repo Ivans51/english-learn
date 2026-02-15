@@ -223,6 +223,7 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { marked } from 'marked'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
+import { userSettingsService } from '@/services/userSettingsService'
 import { MessageCircle, Plus, Send, X } from 'lucide-vue-next'
 import { BaseButton, BaseInput } from '@/components/ui'
 
@@ -275,6 +276,11 @@ watch(
       chatMessages.value = []
       currentMessage.value = ''
       isLoading.value = false
+
+      // Load saved level
+      userSettingsService.getUserLevel().then((savedLevel) => {
+        level.value = savedLevel
+      })
 
       // Focus input after modal animation completes
       setTimeout(() => {
