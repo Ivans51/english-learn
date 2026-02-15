@@ -234,9 +234,11 @@
 
               <div
                 v-if="result"
-                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-4"
+                class="bg-gray-100 dark:bg-primary-800 rounded-lg p-3 sm:p-4"
               >
-                <div class="flex items-center justify-between mb-2">
+                <div
+                  class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2"
+                >
                   <span
                     class="text-sm font-medium text-gray-900 dark:text-primary-50"
                   >
@@ -244,7 +246,7 @@
                   </span>
                   <div class="flex items-center gap-2">
                     <span
-                      class="text-xl font-bold"
+                      class="text-lg sm:text-xl font-bold"
                       :class="[
                         result.score >= 80
                           ? 'text-green-500'
@@ -275,7 +277,7 @@
                 </div>
 
                 <div
-                  class="p-2.5 rounded-lg"
+                  class="p-2 sm:p-2.5 rounded-lg"
                   :class="[
                     result.isCorrect
                       ? 'bg-green-900/30 border border-green-700'

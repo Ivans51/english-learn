@@ -163,6 +163,7 @@
                   </label>
                   <BaseInput
                     id="user-translation"
+                    ref="translationInputRef"
                     v-model="userTranslation"
                     type="textarea"
                     :placeholder="`Type the translation in ${targetLanguageName}...`"
@@ -221,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { topicService } from '@/services/topicService'
 import { Languages, X, RefreshCw } from 'lucide-vue-next'
@@ -241,6 +242,7 @@ const emit = defineEmits<Emits>()
 
 const { error: showErrorToast } = useToast()
 
+const translationInputRef = ref<InstanceType<typeof BaseInput> | null>(null)
 const userTranslation = ref('')
 const currentPhrase = ref<{
   phrase: string
@@ -295,6 +297,8 @@ watch(
   async (isOpen) => {
     if (isOpen && props.word) {
       await generateNewPhrase()
+      await nextTick()
+      translationInputRef.value?.focus()
     }
   },
 )
